@@ -17,7 +17,12 @@ import { DATABASE_NAME, db, expoDb } from '@/db';
 import { SQLiteProvider } from 'expo-sqlite';
 import { ActivityIndicator, View } from 'react-native';
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
-import { initializeDatabase, loadExerciseTypes, resetDatabase } from '@/db/logic';
+import {
+  checkDatabaseState,
+  initializeDatabase,
+  loadExerciseTypes,
+  resetDatabase,
+} from '@/db/logic';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import migrations from '@/drizzle/migrations';
 
@@ -26,34 +31,41 @@ export {
   ErrorBoundary,
 } from 'expo-router';
 
+// resetDatabase();
 function DatabaseInitializer() {
-  initializeDatabase();
-  loadExerciseTypes();
   const { success, error } = useMigrations(db, migrations);
-  useDrizzleStudio(expoDb);
+
+  if (__DEV__) useDrizzleStudio(expoDb);
 
   useEffect(() => {
-    if (success) {
-      console.log('Migrations applied successfully');
-    }
-  }, [success]);
+    const initializeApp = async () => {
+      try {
+        console.log('first lunch, initializing app data...');
+        await initializeDatabase();
+        await loadExerciseTypes();
+        await checkDatabaseState();
+        console.log('✅ app initialized successfully');
+      } catch (error) {
+        console.log('❌ failed to initialize app: ', error);
+      }
+    };
 
-  if (error) {
-    console.error('Migration error details:', error);
-    return (
-      <View>
-        <Text>migration error: {JSON.stringify(error, null, 2)}</Text>
-      </View>
-    );
-  }
+    const handleMigrations = async () => {
+      if (success) {
+        console.log('✅ Migrations applied successfully');
+        await initializeApp();
+      } else if (error) {
+        console.error('❌ Migration error details:', error);
+        return (
+          <View>
+            <Text>migration error: {JSON.stringify(error, null, 2)}</Text>
+          </View>
+        );
+      }
+    };
+    handleMigrations();
+  }, [success, error]);
 
-  if (!success) {
-    return (
-      <View>
-        <Text>Migration is in progress...</Text>
-      </View>
-    );
-  }
   return null;
 }
 
