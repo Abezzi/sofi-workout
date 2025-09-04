@@ -22,7 +22,7 @@ export default function Screen() {
   };
 
   const handleCategoryPress = (category: { id: number; name: string; color: string }) => {
-    router.push(`/exercise/${category.id}/exercises/list`);
+    router.push(`/exercise/${category.id}/exercises/exercise`);
   };
 
   function handleCreateNewExercise() {
