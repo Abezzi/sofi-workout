@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useColorScheme } from 'nativewind';
 import { Category, Exercise } from '@/db/schema';
 import { Separator } from '../ui/separator';
 import { ExercisListHeader } from './exercise-list-header';
@@ -20,7 +19,6 @@ type ExerciseListProps = {
 };
 
 export function ExerciseList({ exercises, onExercisePress, category }: ExerciseListProps) {
-  // const { isDarkColorScheme } = useColorScheme();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null);
 
@@ -50,33 +48,12 @@ export function ExerciseList({ exercises, onExercisePress, category }: ExerciseL
           setSelectedId(item.id);
           onExercisePress?.(item);
         }}
-        style={({ pressed }) => [
-          styles.itemContainer,
-          {
-            // FIXME: hardcoded true, do i need to set the colors? i dont think so
-            backgroundColor: true
-              ? isSelected
-                ? '#444' // Highlight color for selected item (dark mode)
-                : pressed
-                  ? '#333'
-                  : '#222'
-              : isSelected
-                ? '#ccc' // Highlight color for selected item (light mode)
-                : pressed
-                  ? '#ddd'
-                  : '#fff',
-            borderColor: isSelected
-              ? true
-                ? '#666' // Optional: distinct border for selected item
-                : '#aaa'
-              : '#ccc',
-          },
-        ]}>
+        style={styles.itemContainer}>
         <View style={styles.textContainer}>
           <Text
             style={{
               color: true ? '#fff' : '#000',
-              fontSize: 36,
+              fontSize: 24,
               fontWeight: isSelected ? 'bold' : 'normal', // Optional: bold text for selected
             }}>
             {item.name}
@@ -135,6 +112,7 @@ const styles = StyleSheet.create({
   },
   listHeader: {
     alignItems: 'center',
+    marginBottom: 8,
   },
   textContainer: {
     flexDirection: 'row',
