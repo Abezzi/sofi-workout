@@ -42,7 +42,6 @@ export default function Screen() {
 
   return (
     <>
-      <Text>category idddddd: {id}</Text>
       <ExerciseList
         exercises={exercisesByCategory}
         onExercisePress={handleExercisePress}
