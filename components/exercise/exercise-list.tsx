@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { Category, Exercise } from '@/db/schema';
 import { Separator } from '../ui/separator';
 import { ExercisListHeader } from './exercise-list-header';
@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
 } from '../ui/dropdown-menu';
 import { useColorScheme } from 'nativewind';
+import { Text } from '../ui/text';
 
 type ExerciseListProps = {
   exercises: Exercise[];
@@ -51,14 +52,8 @@ export function ExerciseList({ exercises, onExercisePress, category }: ExerciseL
           onExercisePress?.(item);
         }}
         style={styles.itemContainer}>
-        <View style={styles.textContainer}>
-          <Text
-            style={{
-              fontSize: 24,
-              fontWeight: isSelected ? 'bold' : 'normal', // Optional: bold text for selected
-            }}>
-            {item.name}
-          </Text>
+        <View className="flex-row items-center justify-between">
+          <Text className="text-2xl font-bold">{item.name}</Text>
           <DropdownMenu
             onOpenChange={(open: boolean) => {
               setDropdownVisible(open ? item.id : null);
@@ -105,7 +100,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   itemContainer: {
-    padding: 16,
+    padding: 12,
     marginBottom: 8,
     borderRadius: 8,
     borderWidth: 1,
@@ -114,11 +109,6 @@ const styles = StyleSheet.create({
   listHeader: {
     alignItems: 'center',
     marginBottom: 8,
-  },
-  textContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   dropdownMenu: {
     backgroundColor: '#fff',
