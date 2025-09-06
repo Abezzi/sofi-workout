@@ -1,7 +1,7 @@
 import { Category } from '@/db/schema';
 import { Text } from '../ui/text';
 
-export function ExercisListHeader(category: Category) {
+export function ExerciseListHeader(category: Category) {
   return (
     <>
       <Text className="text-lg" style={{ backgroundColor: category.color }}>
