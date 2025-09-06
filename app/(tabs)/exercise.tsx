@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
@@ -8,15 +8,20 @@ import { Category } from '@/db/schema';
 import { getAllCategories } from '@/db/queries/category.queries';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useColorScheme } from 'nativewind';
 
 export default function Screen() {
   let categories: Category[];
   const [data, setData] = useState<Category[]>([]);
   const insets = useSafeAreaInsets();
+  const [loadingCategories, setLoadingCategories] = useState<boolean>(false);
+  const { colorScheme } = useColorScheme();
 
   const refreshCategories = async () => {
+    setLoadingCategories(true);
     categories = await getAllCategories();
     setData(categories);
+    setLoadingCategories(false);
   };
 
   const handleCategoryPress = (category: { id: number; name: string; color: string }) => {
@@ -52,11 +57,18 @@ export default function Screen() {
           </View>
         </CardHeader>
         <CardContent className="gap-6">
-          <CategoryList
-            categories={data}
-            onCategoryPress={handleCategoryPress}
-            onCategoryChange={refreshCategories}
-          />
+          {loadingCategories ? (
+            <View className="items-center justify-center">
+              <ActivityIndicator size="large" color={colorScheme === 'dark' ? '#FFF' : '#000'} />
+              <Text>Loading Categories...</Text>
+            </View>
+          ) : (
+            <CategoryList
+              categories={data}
+              onCategoryPress={handleCategoryPress}
+              onCategoryChange={refreshCategories}
+            />
+          )}
         </CardContent>
       </Card>
     </SafeAreaView>
