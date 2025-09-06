@@ -1,4 +1,4 @@
-import { View, ScrollView } from 'react-native';
+import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
@@ -6,7 +6,7 @@ import { CategoryList } from '@/components/category/category-list';
 import { useEffect, useState } from 'react';
 import { Category } from '@/db/schema';
 import { getAllCategories } from '@/db/queries/category.queries';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Screen() {
@@ -14,8 +14,9 @@ export default function Screen() {
   const [data, setData] = useState<Category[]>([]);
   const insets = useSafeAreaInsets();
 
-  const handleGoToCategory = () => {
-    router.navigate('/exercise/category');
+  const refreshCategories = async () => {
+    categories = await getAllCategories();
+    setData(categories);
   };
 
   const handleCategoryPress = (category: { id: number; name: string; color: string }) => {
@@ -31,11 +32,7 @@ export default function Screen() {
   }
 
   useEffect(() => {
-    const load = async () => {
-      categories = await getAllCategories();
-      setData(categories);
-    };
-    load();
+    refreshCategories();
   }, []);
 
   return (
@@ -55,7 +52,11 @@ export default function Screen() {
           </View>
         </CardHeader>
         <CardContent className="gap-6">
-          <CategoryList categories={data} onCategoryPress={handleCategoryPress} />
+          <CategoryList
+            categories={data}
+            onCategoryPress={handleCategoryPress}
+            onCategoryChange={refreshCategories}
+          />
         </CardContent>
       </Card>
     </SafeAreaView>

@@ -18,9 +18,10 @@ import { useRouter } from 'expo-router';
 type CategoryListProps = {
   categories: Category[];
   onCategoryPress?: (category: Category) => void;
+  onCategoryChange: () => void;
 };
 
-export function CategoryList({ categories, onCategoryPress }: CategoryListProps) {
+export function CategoryList({ categories, onCategoryPress, onCategoryChange }: CategoryListProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
@@ -31,6 +32,7 @@ export function CategoryList({ categories, onCategoryPress }: CategoryListProps)
   const handleEditPress = (categoryId: number) => {
     router.push(`/exercise/${categoryId}`);
     setDropdownVisible(null);
+    onCategoryChange();
   };
 
   const handleDeletePress = (categoryId: number) => {
@@ -40,7 +42,10 @@ export function CategoryList({ categories, onCategoryPress }: CategoryListProps)
   };
 
   const handleDeleteConfirm = async () => {
-    if (categoryToDelete) await deleteCategoryById(categoryToDelete);
+    if (categoryToDelete) {
+      await deleteCategoryById(categoryToDelete);
+      onCategoryChange();
+    }
     setDeleteDialogOpen(false);
     setCategoryToDelete(null);
   };

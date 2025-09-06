@@ -63,8 +63,7 @@ export default function CategoryDetailScreen() {
 
   const handleDelete = async () => {
     await deleteCategoryById(parseInt(id));
-    router.navigate('/exercise/category');
-    console.log('deleted: ', id);
+    router.navigate('/exercise');
   };
 
   const handleEdit = async () => {
@@ -81,7 +80,7 @@ export default function CategoryDetailScreen() {
     if (updateSuccess) {
       setShowAlert(false);
       setLoading(false);
-      router.navigate('/exercise/category');
+      router.navigate('/exercise');
       return;
     } else {
       console.log('something happened');
