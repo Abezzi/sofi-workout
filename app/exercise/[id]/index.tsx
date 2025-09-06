@@ -21,7 +21,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { LucideTrash, Pencil, Loader2 } from 'lucide-react-native';
-import { useColorScheme } from 'nativewind';
 import ColorPickerCustom from '@/components/base/color-picker-custom';
 
 type Category = {
