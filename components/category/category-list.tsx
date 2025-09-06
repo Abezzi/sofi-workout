@@ -137,11 +137,6 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 16,
   },
-  textContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   dropdownMenu: {
     borderRadius: 8,
     borderWidth: 1,
