@@ -25,7 +25,10 @@ export default function Screen() {
   };
 
   const handleCategoryPress = (category: { id: number; name: string; color: string }) => {
-    router.push(`/exercise/${category.id}/exercises/exercise`);
+    router.push({
+      pathname: '/exercise/[categoryId]/exercises/exercise',
+      params: { categoryId: category.id },
+    });
   };
 
   function handleCreateNewExercise() {

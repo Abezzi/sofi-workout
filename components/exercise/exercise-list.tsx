@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { Category, Exercise } from '@/db/schema';
 import { Separator } from '../ui/separator';
-import { ExercisListHeader } from './exercise-list-header';
+import { ExerciseListHeader } from './exercise-list-header';
 import { EllipsisVertical } from 'lucide-react-native';
 import {
   DropdownMenu,
@@ -13,17 +13,59 @@ import {
 } from '../ui/dropdown-menu';
 import { useColorScheme } from 'nativewind';
 import { Text } from '../ui/text';
+import { ExerciseDeleteDialog } from './exercise-delete-dialog';
+import { deleteExerciseById } from '@/db/queries/exercise.queries';
+import { useRouter } from 'expo-router';
 
 type ExerciseListProps = {
   exercises: Exercise[];
   onExercisePress?: (exercise: Exercise) => void;
   category: Category;
+  onExerciseChange: () => void;
 };
 
-export function ExerciseList({ exercises, onExercisePress, category }: ExerciseListProps) {
+export function ExerciseList({
+  exercises,
+  onExercisePress,
+  category,
+  onExerciseChange,
+}: ExerciseListProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null);
   const { colorScheme } = useColorScheme();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [exerciseToDelete, setExerciseToDelete] = useState<number | null>(null);
+  const router = useRouter();
+
+  const handleDeletePress = (exerciseId: number) => {
+    setDropdownVisible(null);
+    setDeleteDialogOpen(true);
+    setExerciseToDelete(exerciseId);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (exerciseToDelete) {
+      await deleteExerciseById(exerciseToDelete);
+      onExerciseChange();
+    }
+    setDeleteDialogOpen(false);
+    setExerciseToDelete(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setExerciseToDelete(null);
+  };
+
+  const handleEditPress = (exercise: Exercise) => {
+    console.log('Edit exercise: ', exercise.name);
+    router.push({
+      pathname: '/exercise/[categoryId]/exercises/[exerciseId]/edit' as const,
+      params: { categoryId: category.id, exerciseId: exercise.id, name: exercise.name },
+    });
+    setDropdownVisible(null);
+    onExerciseChange();
+  };
 
   const renderItem = ({ item }: { item: Exercise }) => {
     const isSelected = item.id === selectedId;
@@ -31,18 +73,6 @@ export function ExerciseList({ exercises, onExercisePress, category }: ExerciseL
 
     function handleOptionsPress() {
       setDropdownVisible(isDropdownVisible ? null : item.id);
-    }
-
-    function handleEditPress() {
-      console.log(`Edit exercise: ${item.name}`);
-      setDropdownVisible(null);
-      // logic here
-    }
-
-    function handleDeletePress() {
-      console.log(`Delete exercise: ${item.name}`);
-      setDropdownVisible(null);
-      // logic here
     }
 
     return (
@@ -68,11 +98,11 @@ export function ExerciseList({ exercises, onExercisePress, category }: ExerciseL
               side="bottom"
               align="end"
               sideOffset={8}>
-              <DropdownMenuItem onPress={handleEditPress}>
+              <DropdownMenuItem onPress={() => handleEditPress(item)}>
                 <Text>Edit</Text>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onPress={handleDeletePress}>
+              <DropdownMenuItem onPress={() => handleDeletePress(item.id)}>
                 <Text>Delete</Text>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -83,15 +113,22 @@ export function ExerciseList({ exercises, onExercisePress, category }: ExerciseL
   };
 
   return (
-    <FlatList
-      data={exercises}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id.toString()}
-      contentContainerStyle={styles.listContainer}
-      ItemSeparatorComponent={Separator}
-      ListHeaderComponent={ExercisListHeader(category)}
-      ListHeaderComponentStyle={styles.listHeader}
-    />
+    <>
+      <FlatList
+        data={exercises}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContainer}
+        ItemSeparatorComponent={Separator}
+        ListHeaderComponent={ExerciseListHeader(category)}
+        ListHeaderComponentStyle={styles.listHeader}
+      />
+      <ExerciseDeleteDialog
+        open={deleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
+    </>
   );
 }
 
@@ -111,10 +148,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   dropdownMenu: {
-    backgroundColor: '#fff',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
     padding: 8,
     minWidth: 120,
     zIndex: 1000, // ensure dropdown appears above other elements

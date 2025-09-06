@@ -10,7 +10,7 @@ import { Category, Exercise } from '@/db/schema';
 import { useColorScheme } from 'nativewind';
 
 export default function Screen() {
-  const { id } = useLocalSearchParams() as { id: string };
+  const { categoryId } = useLocalSearchParams() as { categoryId: string };
   const [exercisesByCategory, setExercisesByCategory] = useState<Exercise[]>([]);
   const [loadingExercises, setLoadingExercises] = useState<boolean>(false);
   const [category, setCategory] = useState<Category>({
@@ -26,8 +26,8 @@ export default function Screen() {
 
   const loadExercisesByCategory = async () => {
     setLoadingExercises(true);
-    const data = await getAllExercisesByCategoryId(parseInt(id));
-    const dataCategory = await getCategoryById(parseInt(id));
+    const data = await getAllExercisesByCategoryId(parseInt(categoryId));
+    const dataCategory = await getCategoryById(parseInt(categoryId));
 
     if (data !== undefined) {
       exercisesData = data;
@@ -53,8 +53,8 @@ export default function Screen() {
 
   const handleExercisePress = (exercise: Exercise) => {
     router.push({
-      pathname: '/exercise/[id]/exercises/[exerciseId]' as const,
-      params: { id, exerciseId: exercise.id, name: exercise.name },
+      pathname: '/exercise/[categoryId]/exercises/[exerciseId]' as const,
+      params: { categoryId: categoryId, exerciseId: exercise.id, name: exercise.name },
     });
   };
 
@@ -70,6 +70,7 @@ export default function Screen() {
           exercises={exercisesByCategory}
           onExercisePress={handleExercisePress}
           category={category}
+          onExerciseChange={loadExercisesByCategory}
         />
       )}
     </>
