@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { AlertCircleIcon, Loader2, Save } from 'lucide-react-native';
 import { Label } from '@/components/ui/label';
 import React, { useEffect, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import {
   Card,
   CardContent,
@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Text } from '@/components/ui/text';
 import { getAllCategories, postCategory } from '@/db/queries/category.queries';
 import { Button } from '../ui/button';
 import { Icon } from '../ui/icon';
