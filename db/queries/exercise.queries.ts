@@ -74,3 +74,35 @@ export async function getAllExercisesByCategoryId(categoryId: number): Promise<E
     throw error;
   }
 }
+
+export async function deleteExerciseById(exerciseId: number): Promise<void> {
+  try {
+    await db.delete(exercise).where(eq(exercise.id, exerciseId));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function updateExerciseById(
+  exerciseId: number,
+  updates: Partial<Exercise>
+): Promise<Exercise | undefined> {
+  try {
+    const dbRecord = transformExerciseToDb(updates);
+    const result = await db
+      .update(exercise)
+      .set(dbRecord)
+      .where(eq(exercise.id, exerciseId))
+      .returning();
+
+    if (result.length === 0) {
+      return undefined;
+    }
+
+    return transformDbToExercise(result[0]);
+  } catch (error) {
+    console.log('error on update category by id. ID:  ', exerciseId);
+    console.log(error);
+    throw error;
+  }
+}
