@@ -13,6 +13,7 @@ import { EllipsisVertical } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { deleteCategoryById } from '@/db/queries/category.queries';
 import { CategoryDeleteDialog } from './category-delete-dialog';
+import { useRouter } from 'expo-router';
 
 type CategoryListProps = {
   categories: Category[];
@@ -25,6 +26,12 @@ export function CategoryList({ categories, onCategoryPress }: CategoryListProps)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
   const { colorScheme } = useColorScheme();
+  const router = useRouter();
+
+  const handleEditPress = (categoryId: number) => {
+    router.push(`/exercise/${categoryId}`);
+    setDropdownVisible(null);
+  };
 
   const handleDeletePress = (categoryId: number) => {
     setDropdownVisible(null);
@@ -49,11 +56,6 @@ export function CategoryList({ categories, onCategoryPress }: CategoryListProps)
 
     function handleOptionsPress() {
       setDropdownVisible(isDropdownVisible ? null : item.id);
-    }
-
-    function handleEditPress() {
-      console.log(`Edit category: ${item.name}`);
-      setDropdownVisible(null);
     }
 
     return (
@@ -88,7 +90,7 @@ export function CategoryList({ categories, onCategoryPress }: CategoryListProps)
               side="bottom"
               align="end"
               sideOffset={8}>
-              <DropdownMenuItem onPress={handleEditPress}>
+              <DropdownMenuItem onPress={() => handleEditPress(item.id)}>
                 <Text>Edit</Text>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
