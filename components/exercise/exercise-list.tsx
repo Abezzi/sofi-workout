@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '../ui/dropdown-menu';
+import { useColorScheme } from 'nativewind';
 
 type ExerciseListProps = {
   exercises: Exercise[];
@@ -21,6 +22,7 @@ type ExerciseListProps = {
 export function ExerciseList({ exercises, onExercisePress, category }: ExerciseListProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [dropdownVisible, setDropdownVisible] = useState<number | null>(null);
+  const { colorScheme } = useColorScheme();
 
   const renderItem = ({ item }: { item: Exercise }) => {
     const isSelected = item.id === selectedId;
@@ -52,7 +54,6 @@ export function ExerciseList({ exercises, onExercisePress, category }: ExerciseL
         <View style={styles.textContainer}>
           <Text
             style={{
-              color: true ? '#fff' : '#000',
               fontSize: 24,
               fontWeight: isSelected ? 'bold' : 'normal', // Optional: bold text for selected
             }}>
@@ -64,7 +65,7 @@ export function ExerciseList({ exercises, onExercisePress, category }: ExerciseL
             }}>
             <DropdownMenuTrigger asChild>
               <Pressable style={styles.iconPressable} onPress={handleOptionsPress}>
-                <EllipsisVertical color={true ? '#fff' : '#000'} size={24} />
+                <EllipsisVertical color={colorScheme === 'dark' ? '#fff' : '#000'} size={24} />
               </Pressable>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -73,11 +74,11 @@ export function ExerciseList({ exercises, onExercisePress, category }: ExerciseL
               align="end"
               sideOffset={8}>
               <DropdownMenuItem onPress={handleEditPress}>
-                <Text style={{ color: true ? '#fff' : '#000' }}>Edit</Text>
+                <Text>Edit</Text>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onPress={handleDeletePress}>
-                <Text style={{ color: true ? '#fff' : '#000' }}>Delete</Text>
+                <Text>Delete</Text>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Category } from '@/db/schema';
-import { Separator } from '../ui/separator';
-import { SafeAreaView } from 'react-native-safe-area-context';
-// import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '../ui/dropdown-menu';
+import { EllipsisVertical } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
+import { deleteCategoryById } from '@/db/queries/category.queries';
+import { CategoryDeleteDialog } from './category-delete-dialog';
 
 type CategoryListProps = {
   categories: Category[];
@@ -12,48 +20,108 @@ type CategoryListProps = {
 };
 
 export function CategoryList({ categories, onCategoryPress }: CategoryListProps) {
-  // const insets = useSafeAreaInsets();
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [dropdownVisible, setDropdownVisible] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
+  const { colorScheme } = useColorScheme();
 
-  const renderItem = ({ item }: { item: Category }) => (
-    <Pressable onPress={() => onCategoryPress?.(item)} style={styles.itemContainer}>
-      <View style={styles.textContainer}>
-        <Text>
-          <Text
-            style={{
-              color: item.color,
-              fontSize: 24,
-              fontWeight: '500',
-            }}>
-            ■
+  const handleDeletePress = (categoryId: number) => {
+    setDropdownVisible(null);
+    setDeleteDialogOpen(true);
+    setCategoryToDelete(categoryId);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (categoryToDelete) await deleteCategoryById(categoryToDelete);
+    setDeleteDialogOpen(false);
+    setCategoryToDelete(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setCategoryToDelete(null);
+  };
+
+  const renderItem = ({ item }: { item: Category }) => {
+    const isSelected = item.id === selectedId;
+    const isDropdownVisible = item.id === dropdownVisible;
+
+    function handleOptionsPress() {
+      setDropdownVisible(isDropdownVisible ? null : item.id);
+    }
+
+    function handleEditPress() {
+      console.log(`Edit category: ${item.name}`);
+      setDropdownVisible(null);
+    }
+
+    return (
+      <Pressable
+        onPress={() => {
+          setSelectedId(item.id);
+          onCategoryPress?.(item);
+        }}
+        style={styles.itemContainer}>
+        <View className="flex-row items-center justify-between">
+          <Text>
+            <Text
+              className="text-2xl"
+              style={{
+                color: item.color,
+              }}>
+              ■
+            </Text>
+            <Text className="text-2xl font-bold">{item.name}</Text>
           </Text>
-          <Text
-            style={{
-              fontSize: 36,
-              fontWeight: '500',
+          <DropdownMenu
+            onOpenChange={(open: boolean) => {
+              setDropdownVisible(open ? item.id : null);
             }}>
-            {item.name}
-          </Text>
-        </Text>
-      </View>
-    </Pressable>
-  );
+            <DropdownMenuTrigger asChild>
+              <Pressable className="p-2" onPress={handleOptionsPress}>
+                <EllipsisVertical color={colorScheme === 'dark' ? '#fff' : '#000'} size={24} />
+              </Pressable>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              style={styles.dropdownMenu}
+              side="bottom"
+              align="end"
+              sideOffset={8}>
+              <DropdownMenuItem onPress={handleEditPress}>
+                <Text>Edit</Text>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onPress={() => handleDeletePress(item.id)}>
+                <Text>Delete</Text>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </View>
+      </Pressable>
+    );
+  };
 
   return (
-    <SafeAreaView>
+    <>
       <FlatList
         data={categories}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContainer}
-        ItemSeparatorComponent={Separator}
       />
-    </SafeAreaView>
+      <CategoryDeleteDialog
+        open={deleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   itemContainer: {
-    padding: 16,
+    padding: 12,
     marginBottom: 8,
     borderRadius: 8,
     borderWidth: 1,
@@ -66,5 +134,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  dropdownMenu: {
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 8,
+    minWidth: 120,
+    zIndex: 1000, // ensure dropdown appears above other elements
+  },
+  iconPressable: {
+    padding: 8, // larger touch area for the icon
   },
 });
