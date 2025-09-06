@@ -52,8 +52,10 @@ export default function Screen() {
   }, [navigation]);
 
   const handleExercisePress = (exercise: Exercise) => {
-    console.log('pressed exercise list');
-    router.push(`/exercise/${id}/exercises/${exercise.id}`);
+    router.push({
+      pathname: '/exercise/[id]/exercises/[exerciseId]' as const,
+      params: { id, exerciseId: exercise.id, name: exercise.name },
+    });
   };
 
   return (
