@@ -106,3 +106,18 @@ export async function updateExerciseById(
     throw error;
   }
 }
+
+export async function getExerciseById(exerciseId: number): Promise<Exercise | undefined> {
+  try {
+    const result = await db.select().from(exercise).where(eq(exercise.id, exerciseId)).limit(1);
+
+    if (result.length === 0) {
+      return undefined;
+    }
+
+    const _exercise = transformDbToExercise(result[0]);
+    return _exercise;
+  } catch (error) {
+    console.log(error);
+  }
+}

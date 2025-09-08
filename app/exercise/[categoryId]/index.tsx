@@ -30,7 +30,7 @@ type Category = {
 };
 
 export default function CategoryDetailScreen() {
-  const { id } = useLocalSearchParams() as { id: string };
+  const { categoryId } = useLocalSearchParams() as { categoryId: string };
   const [showAlert, setShowAlert] = useState(false);
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState<Category>({
@@ -44,7 +44,7 @@ export default function CategoryDetailScreen() {
   useEffect(() => {
     // load the data
     const load = async () => {
-      const data = await getCategoryById(parseInt(id));
+      const data = await getCategoryById(parseInt(categoryId));
       if (data !== undefined) {
         categoryData = data;
       }
@@ -61,7 +61,7 @@ export default function CategoryDetailScreen() {
   };
 
   const handleDelete = async () => {
-    await deleteCategoryById(parseInt(id));
+    await deleteCategoryById(parseInt(categoryId));
     router.navigate('/exercise');
   };
 
@@ -75,7 +75,7 @@ export default function CategoryDetailScreen() {
     }
 
     // update category into db
-    const updateSuccess = await updateCategoryById(parseInt(id), category);
+    const updateSuccess = await updateCategoryById(parseInt(categoryId), category);
     if (updateSuccess) {
       setShowAlert(false);
       setLoading(false);
