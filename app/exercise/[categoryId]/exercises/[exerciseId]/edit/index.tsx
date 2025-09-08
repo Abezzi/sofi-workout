@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Text } from '@/components/ui/text';
-import { getExerciseById, postExercise, updateExerciseById } from '@/db/queries/exercise.queries';
+import { getExerciseById, updateExerciseById } from '@/db/queries/exercise.queries';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { AlertCircleIcon, Loader2, Save } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
