@@ -25,6 +25,7 @@ import {
 } from '@/db/logic';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import migrations from '@/drizzle/migrations';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -77,12 +78,14 @@ function ThemedApp() {
   const { colorScheme } = useColorScheme();
   return (
     <ClerkProvider tokenCache={tokenCache}>
-      <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
-        <DatabaseInitializer />
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-        <Routes />
-        <PortalHost />
-      </ThemeProvider>
+      <GestureHandlerRootView>
+        <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
+          <DatabaseInitializer />
+          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+          <Routes />
+          <PortalHost />
+        </ThemeProvider>
+      </GestureHandlerRootView>
     </ClerkProvider>
   );
 }
