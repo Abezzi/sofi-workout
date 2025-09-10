@@ -8,7 +8,7 @@ import DraggableFlatList, {
 } from 'react-native-draggable-flatlist';
 import SwipeableItem, { useSwipeableItemParams, OpenDirection } from 'react-native-swipeable-item';
 import { Icon } from '../ui/icon';
-import { Copy, Delete, Trash } from 'lucide-react-native';
+import { Copy, Delete, Grip, Trash } from 'lucide-react-native';
 
 interface ExerciseItem {
   key: string;
@@ -115,7 +115,7 @@ export function DraggableExerciseList({
                       {item.amount} {item.categoryId === 1 ? 'reps' : 'secs'}
                     </Text>
                   </View>
-                  <Text className="font-mono text-sm text-muted-foreground">Drag me</Text>
+                  <Icon as={Grip} className="size-4" />
                 </View>
               </CardContent>
             </Card>
