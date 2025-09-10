@@ -13,17 +13,49 @@ interface ExerciseItem {
   exerciseName: string;
   exerciseTypeId: number;
   categoryId: number;
-  amount: string;
+  amount: {
+    quantity: number;
+    weight: number;
+  }[];
 }
 
 export default function NewRoutineScreen() {
   const navigation = useNavigation();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [exercises, setExercises] = useState<ExerciseItem[]>([
-    { key: '0', exerciseName: 'pull up', exerciseTypeId: 1, categoryId: 1, amount: '10' },
-    { key: '1', exerciseName: 'chin up', exerciseTypeId: 1, categoryId: 1, amount: '10' },
-    { key: '2', exerciseName: 'bench press', exerciseTypeId: 1, categoryId: 1, amount: '8' },
-    { key: '3', exerciseName: 'hang hold', exerciseTypeId: 2, categoryId: 2, amount: '60' },
+    {
+      key: '0',
+      exerciseName: 'pull up',
+      exerciseTypeId: 1,
+      categoryId: 1,
+      amount: [
+        { quantity: 10, weight: 5 },
+        { quantity: 10, weight: 5 },
+        { quantity: 10, weight: 5 },
+        { quantity: 8, weight: 5 },
+      ],
+    },
+    {
+      key: '1',
+      exerciseName: 'chin up',
+      exerciseTypeId: 1,
+      categoryId: 1,
+      amount: [{ quantity: 10, weight: 5 }],
+    },
+    {
+      key: '2',
+      exerciseName: 'bench press',
+      exerciseTypeId: 1,
+      categoryId: 1,
+      amount: [{ quantity: 10, weight: 5 }],
+    },
+    {
+      key: '3',
+      exerciseName: 'hang hold',
+      exerciseTypeId: 2,
+      categoryId: 2,
+      amount: [{ quantity: 60, weight: 0 }],
+    },
   ]);
 
   function changeNavigationTitle() {
@@ -44,7 +76,7 @@ export default function NewRoutineScreen() {
     setOpenDialog(false);
   }
 
-  function handleAddRest() { }
+  function handleAddRest() {}
 
   useEffect(() => {
     changeNavigationTitle();

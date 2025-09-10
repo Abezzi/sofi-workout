@@ -8,14 +8,18 @@ import DraggableFlatList, {
 } from 'react-native-draggable-flatlist';
 import SwipeableItem, { useSwipeableItemParams, OpenDirection } from 'react-native-swipeable-item';
 import { Icon } from '../ui/icon';
-import { Copy, Delete, Grip, Trash } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Copy, Grip, Trash } from 'lucide-react-native';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 
 interface ExerciseItem {
   key: string;
   exerciseName: string;
   exerciseTypeId: number;
   categoryId: number;
-  amount: string;
+  amount: {
+    quantity: number;
+    weight: number;
+  }[];
 }
 
 interface DraggableExerciseListProps {
@@ -90,6 +94,7 @@ export function DraggableExerciseList({
   };
 
   const renderItem = ({ item, drag, isActive }: RenderItemParams<ExerciseItem>) => {
+    const [isOpen, setIsOpen] = useState(false);
     return (
       <ScaleDecorator>
         <SwipeableItem
@@ -110,10 +115,23 @@ export function DraggableExerciseList({
               <CardContent className="p-0">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1">
-                    <Text className="text-base font-semibold">{item.exerciseName}</Text>
-                    <Text className="text-sm text-muted-foreground">
-                      {item.amount} {item.categoryId === 1 ? 'reps' : 'secs'}
-                    </Text>
+                    <Collapsible open={isOpen} onOpenChange={setIsOpen} defaultOpen={false}>
+                      <CollapsibleTrigger className="flex-row">
+                        <Text className="text-base font-semibold">
+                          {item.exerciseName}
+                          <Icon as={isOpen ? ChevronUp : ChevronDown} />
+                        </Text>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        {item.amount.map((set, index) => (
+                          <Text key={index} className="text-sm text-muted-foreground">
+                            Set {index + 1}: {set.quantity}{' '}
+                            {item.categoryId === 1 ? 'reps' : 'secs'}
+                            {set.weight > 0 ? ` - ${set.weight} kilos` : ''}
+                          </Text>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
                   </View>
                   <Icon as={Grip} className="size-4" />
                 </View>
