@@ -29,7 +29,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "drizzle-orm": "^0.44.5",
-    "expo": "53.0.22",
+    "expo": "^53.0.22",
     "expo-audio": "~0.4.9",
     "expo-auth-session": "~6.2.1",
     "expo-drizzle-studio-plugin": "^0.2.0",
