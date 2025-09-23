@@ -10,6 +10,7 @@ import SwipeableItem, { useSwipeableItemParams, OpenDirection } from 'react-nati
 import { Icon } from '../ui/icon';
 import { ChevronDown, ChevronUp, Copy, Grip, Trash } from 'lucide-react-native';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
+import { Input } from '../ui/input';
 
 interface ExerciseItem {
   key: string;
@@ -42,6 +43,7 @@ export function DraggableExerciseList({
     onDataChange?.(newData);
   };
 
+  // Swipe to the left to delete
   const UnderlayLeft = ({ item }: { item: ExerciseItem }) => {
     const { close } = useSwipeableItemParams<ExerciseItem>();
 
@@ -65,6 +67,7 @@ export function DraggableExerciseList({
     );
   };
 
+  // Swipe to the right to copy
   const UnderlayRight = ({ item }: { item: ExerciseItem }) => {
     const { close } = useSwipeableItemParams<ExerciseItem>();
 
@@ -109,10 +112,12 @@ export function DraggableExerciseList({
             onLongPress={drag}
             disabled={isActive}
             activeOpacity={1}
-            className="p-4">
+            // space between the cards
+            className="pb-1">
             <Card
-              className={`border-border/0 shadow-none ${isActive ? 'bg-destructive/10' : 'bg-card'}`}>
-              <CardContent className="p-0">
+              // border-border/0
+              className={`shadow-none ${isActive ? 'bg-destructive/10' : 'bg-card'}`}>
+              <CardContent className="mx-1">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1">
                     <Collapsible open={isOpen} onOpenChange={setIsOpen} defaultOpen={false}>
@@ -124,11 +129,32 @@ export function DraggableExerciseList({
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         {item.amount.map((set, index) => (
-                          <Text key={index} className="text-sm text-muted-foreground">
-                            Set {index + 1}: {set.quantity}{' '}
-                            {item.categoryId === 1 ? 'reps' : 'secs'}
-                            {set.weight > 0 ? ` - ${set.weight} kilos` : ''}
-                          </Text>
+                          <View key={index} className="flex-row align-middle">
+                            <View className="flex-none justify-center">
+                              <Text className="text-sm text-muted-foreground">{index + 1}.</Text>
+                            </View>
+                            <View className="flex-1 flex-row items-center justify-center">
+                              <Input
+                                keyboardType="numeric"
+                                className="w-16"
+                                value={set.quantity.toString()}
+                              />
+                              <Text className="ml-1 text-sm text-muted-foreground">
+                                {item.categoryId === 1 ? 'reps' : 'secs'}
+                              </Text>
+                            </View>
+                            <View className="flex-1 flex-row items-center justify-center">
+                              <Input
+                                keyboardType="numeric"
+                                className="w-16"
+                                value={set.weight.toString()}
+                              />
+                              <Text className="ml-1 text-sm text-muted-foreground">
+                                {/* {set.weight > 0 ? 'kg' : ''} */}
+                                kg
+                              </Text>
+                            </View>
+                          </View>
                         ))}
                       </CollapsibleContent>
                     </Collapsible>

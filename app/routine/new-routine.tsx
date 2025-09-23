@@ -29,10 +29,10 @@ export default function NewRoutineScreen() {
       exerciseTypeId: 1,
       categoryId: 1,
       amount: [
+        { quantity: 101, weight: 123 },
         { quantity: 10, weight: 5 },
         { quantity: 10, weight: 5 },
-        { quantity: 10, weight: 5 },
-        { quantity: 8, weight: 5 },
+        { quantity: 8, weight: 0 },
       ],
     },
     {
@@ -76,7 +76,7 @@ export default function NewRoutineScreen() {
     setOpenDialog(false);
   }
 
-  function handleAddRest() {}
+  function handleAddRest() { }
 
   useEffect(() => {
     changeNavigationTitle();
