@@ -83,30 +83,25 @@ export default function NewRoutineScreen() {
   }, [navigation]);
 
   return (
-    <SafeAreaView>
+    <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
+      <CardHeader>
+        <View className="flex-row items-center justify-center">
+          <Button onPress={handleAddExercise}>
+            <Text>Add Exercise</Text>
+          </Button>
+          <Button onPress={handleAddRest} variant="outline" className="shadow shadow-foreground/5">
+            <Text>Add Rest</Text>
+          </Button>
+        </View>
+      </CardHeader>
+      <CardContent>
+        <DraggableExerciseList data={exercises} onDataChange={setExercises} />
+      </CardContent>
       <AddExerciseDialog
         open={openDialog}
         onConfirm={handleConfirmDialog}
         onCancel={handleCancelDialog}
       />
-      <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
-        <CardHeader>
-          <View className="flex-row items-center justify-center">
-            <Button onPress={handleAddExercise}>
-              <Text>Add Exercise</Text>
-            </Button>
-            <Button
-              onPress={handleAddRest}
-              variant="outline"
-              className="shadow shadow-foreground/5">
-              <Text>Add Rest</Text>
-            </Button>
-          </View>
-        </CardHeader>
-        <CardContent>
-          <DraggableExerciseList data={exercises} onDataChange={setExercises} />
-        </CardContent>
-      </Card>
-    </SafeAreaView>
+    </Card>
   );
 }
