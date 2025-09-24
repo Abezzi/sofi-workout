@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { DraggableExerciseList } from '@/components/routine/draggable-exercise-list';
 import { View } from 'react-native';
 import { AddExerciseDialog } from '@/components/routine/add-exercise-dialog';
+import { Loader2, Save } from 'lucide-react-native';
+import { Icon } from '@/components/ui/icon';
 
 interface ExerciseItem {
   key: string;
@@ -20,6 +22,7 @@ interface ExerciseItem {
 
 export default function NewRoutineScreen() {
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [exercises, setExercises] = useState<ExerciseItem[]>([
     {
@@ -65,6 +68,11 @@ export default function NewRoutineScreen() {
     setOpenDialog(true);
   }
 
+  function handleSubmit() {
+    setLoading(true);
+    console.log('saving...');
+  }
+
   function handleConfirmDialog(newExercise: ExerciseItem) {
     console.log('pressd confirm dialog');
     setExercises((prev) => [
@@ -104,6 +112,21 @@ export default function NewRoutineScreen() {
       <CardContent>
         <DraggableExerciseList data={exercises} onDataChange={setExercises} />
       </CardContent>
+      <CardFooter className="flex-col gap-3 pb-0">
+        {loading ? (
+          <Button disabled>
+            <View className="pointer-events-none animate-spin">
+              <Icon as={Loader2} className="text-primary-foreground" />
+            </View>
+            <Text>Saving...</Text>
+          </Button>
+        ) : (
+          <Button onPress={handleSubmit}>
+            <Icon as={Save} className="text-primary-foreground" />
+            <Text>Save</Text>
+          </Button>
+        )}
+      </CardFooter>
       <AddExerciseDialog
         open={openDialog}
         onConfirm={handleConfirmDialog}
