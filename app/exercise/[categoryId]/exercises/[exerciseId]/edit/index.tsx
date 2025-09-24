@@ -40,7 +40,6 @@ type Exercise = {
 };
 
 export default function EditExercise() {
-  // TODO: IS NOT EDITING IS CREATING NEW EXERCISES
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
