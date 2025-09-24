@@ -1,4 +1,4 @@
-import { ListPlus } from 'lucide-react-native';
+import { ListPlus, X } from 'lucide-react-native';
 import { Button } from '../ui/button';
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
 } from '../ui/dialog';
 import { Icon } from '../ui/icon';
 import { Text } from '../ui/text';
-import { Platform, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import { Label } from '../ui/label';
 import {
   Select,
@@ -32,25 +32,38 @@ import { Input } from '../ui/input';
 
 type AddExerciseDialogProps = {
   open: boolean;
-  onConfirm: () => void;
+  onConfirm: (newExercise: ExerciseItem) => void;
   onCancel: () => void;
 };
 
-type Entry = {
-  exerciseId: number;
-  set: number;
-  quantity: number;
-  volume: number;
+interface ExerciseItem {
+  key: string;
+  exerciseName: string;
+  exerciseTypeId: number;
+  categoryId: number;
+  amount: {
+    quantity: number;
+    weight: number;
+  }[];
+}
+
+type Option = {
+  value: string;
+  label: string;
+};
+
+type SetEntry = {
+  id: string;
+  quantity: string;
+  weight: string;
 };
 
 export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDialogProps) {
+  const [selectedExercise, setSelectedExercise] = useState<Option | undefined>(undefined);
   const [exerciseData, setExerciseData] = useState<Exercise[]>([]);
-  const [entry, setEntry] = useState<Entry>({
-    exerciseId: 0,
-    set: 0,
-    quantity: 0,
-    volume: 0,
-  });
+  const [sets, setSets] = useState<SetEntry[]>([
+    { id: `${Date.now()}`, quantity: '0', weight: '0' },
+  ]);
   const ref = useRef<TriggerRef>(null);
   const insets = useSafeAreaInsets();
   const contentInsets = {
@@ -64,6 +77,57 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
   const loadAllExercises = async () => {
     const data = await getAllExercises();
     if (data !== undefined) setExerciseData(data);
+  };
+
+  const handleAddSet = () => {
+    setSets((prev) => [
+      ...prev,
+      { id: `${Date.now()}-${prev.length}`, quantity: '0', weight: '0' },
+    ]);
+  };
+
+  const handleDeleteSet = (id: string) => {
+    setSets((prev) => prev.filter((set) => set.id !== id));
+  };
+
+  const handleQuantityChange = (id: string, value: string) => {
+    setSets((prev) => prev.map((set) => (set.id === id ? { ...set, quantity: value } : set)));
+  };
+
+  const handleWeightChange = (id: string, value: string) => {
+    setSets((prev) => prev.map((set) => (set.id === id ? { ...set, weight: value } : set)));
+  };
+
+  const resetForm = () => {
+    setSelectedExercise(undefined);
+    setSets([{ id: `${Date.now()}`, quantity: '0', weight: '0' }]);
+  };
+
+  const handleConfirm = () => {
+    if (selectedExercise) {
+      const selectedExerciseData = exerciseData.find(
+        (ex) => ex.id.toString() === selectedExercise.value
+      );
+      if (selectedExerciseData) {
+        const newExercise: ExerciseItem = {
+          key: '',
+          exerciseName: selectedExerciseData.name,
+          exerciseTypeId: selectedExerciseData.exerciseTypeId || 1,
+          categoryId: selectedExerciseData.categoryId || 1,
+          amount: sets.map((set) => ({
+            quantity: parseInt(set.quantity) || 0,
+            weight: parseInt(set.weight) || 0,
+          })),
+        };
+        onConfirm(newExercise);
+        resetForm();
+      }
+    }
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    onCancel();
   };
 
   useEffect(() => {
@@ -81,7 +145,10 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
         <View className="grid gap-4">
           <View className="gap-3">
             <Label htmlFor="exercise">Exercise</Label>
-            <Select id="exercise">
+            <Select
+              id="exercise"
+              value={selectedExercise}
+              onValueChange={(option) => setSelectedExercise(option)}>
               <SelectTrigger className="h-12" ref={ref}>
                 <SelectValue placeholder="Select an Exercise" className="text-lg" />
               </SelectTrigger>
@@ -100,38 +167,40 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
               </SelectContent>
             </Select>
 
-            <View className="flex flex-row items-center">
-              <View className="flex w-1/2 flex-row items-center">
-                <View className="mb-2 flex flex-row items-center">
-                  <Label nativeID="quantity" className="w-2/3">
-                    Quantity
-                  </Label>
+            {sets.map((set, index) => (
+              <View key={set.id} className="mb-2 flex flex-row items-center gap-2">
+                <View className="flex-1">
+                  <Label nativeID={`quantity-${set.id}`}>Quantity (Set {index + 1})</Label>
                   <Input
                     placeholder="0"
-                    aria-labelledby="quantity"
+                    aria-labelledby={`quantity-${set.id}`}
                     keyboardType="numeric"
-                    aria-errormessage="inputError"
-                    value={entry.quantity.toString()}
-                    className="w-1/3"
+                    value={set.quantity}
+                    onChangeText={(value) => handleQuantityChange(set.id, value)}
+                    className="h-12"
                   />
                 </View>
-                <View className="mb-2 flex flex-row items-center">
-                  <Label nativeID="volume" className="w-2/3">
-                    Volume
-                  </Label>
+                <View className="flex-1">
+                  <Label nativeID={`weight-${set.id}`}>Weight (Set {index + 1})</Label>
                   <Input
                     placeholder="0"
-                    aria-labelledby="volume"
+                    aria-labelledby={`weight-${set.id}`}
                     keyboardType="numeric"
-                    aria-errormessage="inputError"
-                    value={entry.volume.toString()}
-                    className="w-1/3"
+                    value={set.weight}
+                    onChangeText={(value) => handleWeightChange(set.id, value)}
+                    className="h-12"
                   />
                 </View>
+                <Pressable
+                  onPress={() => handleDeleteSet(set.id)}
+                  disabled={sets.length === 1}
+                  className={`p-2 ${sets.length === 1 ? 'opacity-50' : ''}`}>
+                  <Icon as={X} className="size-6" />
+                </Pressable>
               </View>
-            </View>
+            ))}
 
-            <Button onPress={onConfirm}>
+            <Button onPress={handleAddSet}>
               <Icon as={ListPlus} className="text-primary-foreground" />
               <Text>Add Set</Text>
             </Button>
@@ -139,11 +208,11 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
         </View>
         <DialogFooter>
           <DialogClose asChild>
-            <Button onPress={onCancel} variant="outline">
+            <Button onPress={handleCancel} variant="outline">
               <Text>Cancel</Text>
             </Button>
           </DialogClose>
-          <Button onPress={onConfirm} variant="outline">
+          <Button onPress={handleConfirm} variant="outline" disabled={!selectedExercise}>
             <Text>Accept</Text>
           </Button>
         </DialogFooter>

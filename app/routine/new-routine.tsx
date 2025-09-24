@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { DraggableExerciseList } from '@/components/routine/draggable-exercise-list';
 import { View } from 'react-native';
 import { AddExerciseDialog } from '@/components/routine/add-exercise-dialog';
@@ -66,8 +65,16 @@ export default function NewRoutineScreen() {
     setOpenDialog(true);
   }
 
-  function handleConfirmDialog() {
+  function handleConfirmDialog(newExercise: ExerciseItem) {
     console.log('pressd confirm dialog');
+    setExercises((prev) => [
+      ...prev,
+      {
+        ...newExercise,
+        key: `${prev.length}`,
+      },
+    ]);
+    setOpenDialog(false);
     setOpenDialog(false);
   }
 
@@ -76,7 +83,7 @@ export default function NewRoutineScreen() {
     setOpenDialog(false);
   }
 
-  function handleAddRest() { }
+  function handleAddRest() {}
 
   useEffect(() => {
     changeNavigationTitle();
