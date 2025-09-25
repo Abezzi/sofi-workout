@@ -1,4 +1,4 @@
-import { ListPlus, X } from 'lucide-react-native';
+import { Check, ListPlus, Loader2, Save, X } from 'lucide-react-native';
 import { Button } from '../ui/button';
 import {
   Dialog,
@@ -23,12 +23,13 @@ import {
   SelectValue,
 } from '../ui/select';
 import { useEffect, useRef, useState } from 'react';
-import { Exercise } from '@/db/schema';
+import { Category, Exercise } from '@/db/schema';
 import { getAllExercises } from '@/db/queries/exercise.queries';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PortalHost } from '@rn-primitives/portal';
 import { TriggerRef } from '@rn-primitives/select';
 import { Input } from '../ui/input';
+import { getCategoryById } from '@/db/queries/category.queries';
 
 type AddExerciseDialogProps = {
   open: boolean;
@@ -40,7 +41,11 @@ interface ExerciseItem {
   key: string;
   exerciseName: string;
   exerciseTypeId: number;
-  categoryId: number;
+  category: {
+    id: number;
+    name: string;
+    color: string;
+  };
   amount: {
     quantity: number;
     weight: number;
@@ -64,6 +69,7 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
   const [sets, setSets] = useState<SetEntry[]>([
     { id: `${Date.now()}`, quantity: '0', weight: '0' },
   ]);
+  const [loading, setLoading] = useState(false);
   const ref = useRef<TriggerRef>(null);
   const insets = useSafeAreaInsets();
   const contentInsets = {
@@ -103,17 +109,26 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
     setSets([{ id: `${Date.now()}`, quantity: '0', weight: '0' }]);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    setLoading(true);
+    let exerciseCategory: Category | undefined;
     if (selectedExercise) {
       const selectedExerciseData = exerciseData.find(
         (ex) => ex.id.toString() === selectedExercise.value
       );
       if (selectedExerciseData) {
+        exerciseCategory = await getCategoryById(selectedExerciseData.categoryId);
+      }
+      if (selectedExerciseData) {
         const newExercise: ExerciseItem = {
           key: '',
           exerciseName: selectedExerciseData.name,
           exerciseTypeId: selectedExerciseData.exerciseTypeId || 1,
-          categoryId: selectedExerciseData.categoryId || 1,
+          category: {
+            id: exerciseCategory?.id || 1,
+            name: exerciseCategory?.name || '',
+            color: exerciseCategory?.color || '',
+          },
           amount: sets.map((set) => ({
             quantity: parseInt(set.quantity) || 0,
             weight: parseInt(set.weight) || 0,
@@ -121,6 +136,7 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
         };
         onConfirm(newExercise);
         resetForm();
+        setLoading(false);
       }
     }
   };
@@ -177,6 +193,7 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
                     keyboardType="numeric"
                     value={set.quantity}
                     onChangeText={(value) => handleQuantityChange(set.id, value)}
+                    selectTextOnFocus={true}
                     className="h-12"
                   />
                 </View>
@@ -188,6 +205,7 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
                     keyboardType="numeric"
                     value={set.weight}
                     onChangeText={(value) => handleWeightChange(set.id, value)}
+                    selectTextOnFocus={true}
                     className="h-12"
                   />
                 </View>
@@ -212,9 +230,19 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
               <Text>Cancel</Text>
             </Button>
           </DialogClose>
-          <Button onPress={handleConfirm} variant="outline" disabled={!selectedExercise}>
-            <Text>Accept</Text>
-          </Button>
+          {loading ? (
+            <Button disabled>
+              <View className="pointer-events-none animate-spin">
+                <Icon as={Loader2} className="text-primary-foreground" />
+              </View>
+              <Text>Please wait</Text>
+            </Button>
+          ) : (
+            <Button onPress={handleConfirm} disabled={!selectedExercise}>
+              <Icon as={Check} className="text-primary-foreground" />
+              <Text>Accept</Text>
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
