@@ -5,7 +5,7 @@ import { exercise_type } from './exercise_type';
 export const exercise = sqliteTable('exercise', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
-  description: text('description').notNull(),
+  description: text('description'),
   categoryId: integer('category_id')
     .notNull()
     .references(() => category.id),
