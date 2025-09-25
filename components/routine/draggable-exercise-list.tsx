@@ -16,7 +16,11 @@ interface ExerciseItem {
   key: string;
   exerciseName: string;
   exerciseTypeId: number;
-  categoryId: number;
+  category: {
+    id: number;
+    name: string;
+    color: string;
+  };
   amount: {
     quantity: number;
     weight: number;
@@ -39,6 +43,38 @@ export function DraggableExerciseList({
   }, [propData]);
 
   const handleDragEnd = ({ data: newData }: { data: ExerciseItem[] }) => {
+    setData(newData);
+    onDataChange?.(newData);
+  };
+
+  const handleWeightChange = (key: string, value: string, setIndex: number) => {
+    const newData = data.map((item) => {
+      if (item.key === key) {
+        const newAmount = [...item.amount];
+        newAmount[setIndex] = {
+          ...newAmount[setIndex],
+          weight: value ? parseFloat(value) : 0,
+        };
+        return { ...item, amount: newAmount };
+      }
+      return item;
+    });
+    setData(newData);
+    onDataChange?.(newData);
+  };
+
+  const handleQuantityChange = (key: string, value: string, setIndex: number) => {
+    const newData = data.map((item) => {
+      if (item.key === key) {
+        const newAmount = [...item.amount];
+        newAmount[setIndex] = {
+          ...newAmount[setIndex],
+          quantity: value ? parseInt(value) : 0,
+        };
+        return { ...item, amount: newAmount };
+      }
+      return item;
+    });
     setData(newData);
     onDataChange?.(newData);
   };
@@ -123,6 +159,7 @@ export function DraggableExerciseList({
                     <Collapsible open={isOpen} onOpenChange={setIsOpen} defaultOpen={false}>
                       <CollapsibleTrigger className="flex-row">
                         <Text className="text-base font-semibold">
+                          <Text style={{ color: item.category.color }}>● </Text>
                           {item.exerciseName}
                           <Icon as={isOpen ? ChevronUp : ChevronDown} />
                         </Text>
@@ -138,9 +175,13 @@ export function DraggableExerciseList({
                                 keyboardType="numeric"
                                 className="w-16"
                                 value={set.quantity.toString()}
+                                selectTextOnFocus={true}
+                                onChangeText={(value) =>
+                                  handleQuantityChange(item.key, value, index)
+                                }
                               />
                               <Text className="ml-1 text-sm text-muted-foreground">
-                                {item.categoryId === 1 ? 'reps' : 'secs'}
+                                {item.exerciseTypeId === 1 ? 'reps' : 'secs'}
                               </Text>
                             </View>
                             <View className="flex-1 flex-row items-center justify-center">
@@ -148,6 +189,8 @@ export function DraggableExerciseList({
                                 keyboardType="numeric"
                                 className="w-16"
                                 value={set.weight.toString()}
+                                selectTextOnFocus={true}
+                                onChangeText={(value) => handleWeightChange(item.key, value, index)}
                               />
                               <Text className="ml-1 text-sm text-muted-foreground">
                                 {/* {set.weight > 0 ? 'kg' : ''} */}
