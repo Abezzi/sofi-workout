@@ -8,6 +8,20 @@
       "when": 1756844751006,
       "tag": "0000_windy_lilandra",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1758818967818,
+      "tag": "0001_ancient_sentry",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1758819089125,
+      "tag": "0002_wandering_lady_mastermind",
+      "breakpoints": true
     }
   ]
 }
