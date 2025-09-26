@@ -4,15 +4,28 @@ import { Text } from '@/components/ui/text';
 import { useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { DraggableExerciseList } from '@/components/routine/draggable-exercise-list';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { AddExerciseDialog } from '@/components/routine/add-exercise-dialog';
-import { Loader2, Save } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BadgeHelp,
+  ChevronDown,
+  ChevronUp,
+  Circle,
+  Ghost,
+  Grip,
+  Loader2,
+  Save,
+} from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Routine, RoutineExercise, ExerciseSet } from '@/db/schema';
 import { postRoutine } from '@/db/queries/routine.queries';
 import { postExerciseSet } from '@/db/queries/exercise_set.queries';
 import { postRoutineExercise } from '@/db/queries/routine_exercise.queries';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ExerciseItem {
   key: string;
@@ -42,76 +55,80 @@ export default function NewRoutineScreen() {
   });
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [exercises, setExercises] = useState<ExerciseItem[]>([
-    {
-      key: '0',
-      exercise: {
-        id: 1,
-        name: 'pull up',
-        description: '',
-      },
-      exerciseTypeId: 1,
-      category: {
-        id: 1,
-        name: 'Back',
-        color: '#0000FF',
-      },
-      amount: [
-        { quantity: 101, weight: 123 },
-        { quantity: 10, weight: 5 },
-        { quantity: 10, weight: 5 },
-        { quantity: 8, weight: 0 },
-      ],
-    },
-    {
-      key: '1',
-      exercise: {
-        id: 2,
-        name: 'chin up',
-        description: '',
-      },
-      exerciseTypeId: 1,
-      category: {
-        id: 1,
-        name: 'Back',
-        color: '#0000FF',
-      },
-      amount: [{ quantity: 10, weight: 5 }],
-    },
-    {
-      key: '2',
-      exercise: {
-        id: 3,
-        name: 'bench press',
-        description: 'feel the chest',
-      },
-      exerciseTypeId: 1,
-      category: {
-        id: 2,
-        name: 'Chest',
-        color: '#00FF00',
-      },
-      amount: [{ quantity: 10, weight: 5 }],
-    },
-    {
-      key: '3',
-      exercise: {
-        id: 4,
-        name: 'hang hold',
-        description: '',
-      },
-      exerciseTypeId: 2,
-      category: {
-        id: 1,
-        name: 'Back',
-        color: '#0000FF',
-      },
-      amount: [{ quantity: 60, weight: 0 }],
-    },
-  ]);
+  const insets = useSafeAreaInsets();
+  const contentInsets = {
+    top: insets.top,
+    bottom: Platform.select({
+      ios: insets.bottom,
+      android: insets.bottom + 24,
+    }),
+  };
+
+  const [exercises, setExercises] = useState<ExerciseItem[]>([]);
 
   function changeNavigationTitle() {
-    navigation.setOptions({ title: 'New Routine' });
+    navigation.setOptions({
+      title: 'New Routine',
+      headerRight: () => (
+        <HoverCard>
+          <HoverCardTrigger>
+            <Icon as={BadgeHelp} className="size-6" />
+          </HoverCardTrigger>
+          <HoverCardContent insets={contentInsets} className="w-64 p-4" side="top" align="end">
+            <Text className="mb-2 text-base font-semibold">Actions over the list:</Text>
+            <View className="flex-col gap-3">
+              <View className="flex-row items-center gap-3">
+                <Icon as={ArrowLeft} className="size-5" />
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold">Delete</Text>
+                  <Text className="text-sm text-muted-foreground">Swipe left to Delete</Text>
+                </View>
+              </View>
+              <View className="flex-row items-center gap-3">
+                <Icon as={ArrowRight} className="size-5" />
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold">Copy</Text>
+                  <Text className="text-sm text-muted-foreground">Swipe right to Copy</Text>
+                </View>
+              </View>
+              <View className="flex-row items-center gap-3">
+                <Icon as={Grip} className="size-5" />
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold">Reorder</Text>
+                  <Text className="text-sm text-muted-foreground">
+                    Hold an exercise, then drag and drop
+                  </Text>
+                </View>
+              </View>
+              <View className="flex-row items-center gap-3">
+                <Icon as={ChevronDown} className="size-5" />
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold">Unfold</Text>
+                  <Text className="text-sm text-muted-foreground">Point the icon to unfold</Text>
+                </View>
+              </View>
+              <View className="flex-row items-center gap-3">
+                <Icon as={ChevronUp} className="size-5" />
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold">Fold</Text>
+                  <Text className="text-sm text-muted-foreground">Point the icon to fold</Text>
+                </View>
+              </View>
+              <Text className="text-base font-semibold">Information:</Text>
+              <View className="flex-row items-center gap-3">
+                <Icon as={Circle} className="size-5" />
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold">Category</Text>
+                  <Text className="text-sm text-muted-foreground">
+                    The color of the circle depends on the category
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </HoverCardContent>
+        </HoverCard>
+      ),
+    });
   }
 
   function handleAddExercise() {
@@ -262,7 +279,17 @@ export default function NewRoutineScreen() {
             onChangeText={(routineName) => handleInputChange('name', routineName)}
           />
         </View>
-        <DraggableExerciseList data={exercises} onDataChange={setExercises} />
+        {exercises.length > 0 ? (
+          <DraggableExerciseList data={exercises} onDataChange={setExercises} />
+        ) : (
+          <View className="items-center">
+            <Text className="font-semibold">Your exercise list is empty</Text>
+            <Text className="text-sm text-muted-foreground">
+              add some by pressing 'Add Exercise'
+            </Text>
+            <Icon as={Ghost} className="size-8" />
+          </View>
+        )}
       </CardContent>
       <CardFooter className="flex-col gap-3 pb-0">
         {loading ? (
