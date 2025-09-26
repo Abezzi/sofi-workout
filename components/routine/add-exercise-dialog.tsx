@@ -39,8 +39,12 @@ type AddExerciseDialogProps = {
 
 interface ExerciseItem {
   key: string;
-  exerciseName: string;
   exerciseTypeId: number;
+  exercise: {
+    id: number;
+    name: string;
+    description: string;
+  };
   category: {
     id: number;
     name: string;
@@ -122,7 +126,11 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
       if (selectedExerciseData) {
         const newExercise: ExerciseItem = {
           key: '',
-          exerciseName: selectedExerciseData.name,
+          exercise: {
+            id: selectedExerciseData.id,
+            name: selectedExerciseData.name,
+            description: selectedExerciseData.description ? selectedExerciseData.description : '',
+          },
           exerciseTypeId: selectedExerciseData.exerciseTypeId || 1,
           category: {
             id: exerciseCategory?.id || 1,

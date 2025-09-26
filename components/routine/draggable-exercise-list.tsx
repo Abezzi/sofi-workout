@@ -14,8 +14,12 @@ import { Input } from '../ui/input';
 
 interface ExerciseItem {
   key: string;
-  exerciseName: string;
   exerciseTypeId: number;
+  exercise: {
+    id: number;
+    name: string;
+    description: string;
+  };
   category: {
     id: number;
     name: string;
@@ -160,7 +164,7 @@ export function DraggableExerciseList({
                       <CollapsibleTrigger className="flex-row">
                         <Text className="text-base font-semibold">
                           <Text style={{ color: item.category.color }}>● </Text>
-                          {item.exerciseName}
+                          {item.exercise.name}
                           <Icon as={isOpen ? ChevronUp : ChevronDown} />
                         </Text>
                       </CollapsibleTrigger>
