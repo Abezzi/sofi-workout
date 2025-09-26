@@ -9,11 +9,11 @@ export function transformDbToExerciseType(dbRecord: any): ExerciseType {
   };
 }
 
-export function transformExerciseTypeToDb(category: Partial<ExerciseType>): any {
+export function transformExerciseTypeToDb(exercise_type: Partial<ExerciseType>): any {
   const dbRecord: any = {};
 
-  if (category.id !== undefined) dbRecord.id = category.id;
-  if (category.name !== undefined) dbRecord.name = category.name;
+  if (exercise_type.id !== undefined) dbRecord.id = exercise_type.id;
+  if (exercise_type.name !== undefined) dbRecord.name = exercise_type.name;
 
   return dbRecord;
 }
