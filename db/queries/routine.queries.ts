@@ -31,3 +31,18 @@ export async function postRoutine(
     return { success: false };
   }
 }
+
+export async function getAllRoutines(): Promise<Routine[]> {
+  try {
+    const result = await db.select().from(routine);
+
+    if (result.length === 0) {
+      return [];
+    }
+
+    return result.map(transformDbToRoutine);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
