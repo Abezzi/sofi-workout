@@ -8,12 +8,25 @@ import { View } from 'react-native';
 import { AddExerciseDialog } from '@/components/routine/add-exercise-dialog';
 import { Loader2, Save } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
+import { Input } from '@/components/ui/input';
+import { Routine, RoutineExercise, ExerciseSet } from '@/db/schema';
+import { postRoutine } from '@/db/queries/routine.queries';
+import { postExerciseSet } from '@/db/queries/exercise_set.queries';
+import { postRoutineExercise } from '@/db/queries/routine_exercise.queries';
 
 interface ExerciseItem {
   key: string;
-  exerciseName: string;
   exerciseTypeId: number;
-  categoryId: number;
+  exercise: {
+    id: number;
+    name: string;
+    description: string;
+  };
+  category: {
+    id: number;
+    name: string;
+    color: string;
+  };
   amount: {
     quantity: number;
     weight: number;
@@ -22,14 +35,27 @@ interface ExerciseItem {
 
 export default function NewRoutineScreen() {
   const navigation = useNavigation();
+  const [routineExercises, setRoutineExercises] = useState<RoutineExercise[]>([]);
+  const [routine, setRoutine] = useState<Routine>({
+    id: 0,
+    name: '',
+  });
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [exercises, setExercises] = useState<ExerciseItem[]>([
     {
       key: '0',
-      exerciseName: 'pull up',
+      exercise: {
+        id: 1,
+        name: 'pull up',
+        description: '',
+      },
       exerciseTypeId: 1,
-      categoryId: 1,
+      category: {
+        id: 1,
+        name: 'Back',
+        color: '#0000FF',
+      },
       amount: [
         { quantity: 101, weight: 123 },
         { quantity: 10, weight: 5 },
@@ -39,23 +65,47 @@ export default function NewRoutineScreen() {
     },
     {
       key: '1',
-      exerciseName: 'chin up',
+      exercise: {
+        id: 2,
+        name: 'chin up',
+        description: '',
+      },
       exerciseTypeId: 1,
-      categoryId: 1,
+      category: {
+        id: 1,
+        name: 'Back',
+        color: '#0000FF',
+      },
       amount: [{ quantity: 10, weight: 5 }],
     },
     {
       key: '2',
-      exerciseName: 'bench press',
+      exercise: {
+        id: 3,
+        name: 'bench press',
+        description: 'feel the chest',
+      },
       exerciseTypeId: 1,
-      categoryId: 1,
+      category: {
+        id: 2,
+        name: 'Chest',
+        color: '#00FF00',
+      },
       amount: [{ quantity: 10, weight: 5 }],
     },
     {
       key: '3',
-      exerciseName: 'hang hold',
+      exercise: {
+        id: 4,
+        name: 'hang hold',
+        description: '',
+      },
       exerciseTypeId: 2,
-      categoryId: 2,
+      category: {
+        id: 1,
+        name: 'Back',
+        color: '#0000FF',
+      },
       amount: [{ quantity: 60, weight: 0 }],
     },
   ]);
@@ -68,13 +118,26 @@ export default function NewRoutineScreen() {
     setOpenDialog(true);
   }
 
-  function handleSubmit() {
+  const handleInputChange = (field: keyof Routine, value: string) => {
+    setRoutine((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  async function handleSubmit() {
     setLoading(true);
-    console.log('saving...');
+    const routineId = await saveRoutine();
+    if (routineId) {
+      const routineExerciseIds = await saveRoutineExercise(routineId);
+      if (routineExerciseIds) {
+        await saveExerciseSet(routineExerciseIds);
+      }
+    }
+    setLoading(false);
   }
 
   function handleConfirmDialog(newExercise: ExerciseItem) {
-    console.log('pressd confirm dialog');
     setExercises((prev) => [
       ...prev,
       {
@@ -83,11 +146,9 @@ export default function NewRoutineScreen() {
       },
     ]);
     setOpenDialog(false);
-    setOpenDialog(false);
   }
 
   function handleCancelDialog() {
-    console.log('pressd cancel dialog');
     setOpenDialog(false);
   }
 
@@ -96,6 +157,88 @@ export default function NewRoutineScreen() {
   useEffect(() => {
     changeNavigationTitle();
   }, [navigation]);
+
+  const saveRoutine = async () => {
+    if (routine) {
+      const response = await postRoutine(routine);
+      if (response.success) {
+        console.log('Routine Created Successfully');
+        return response.id;
+      } else {
+        console.log('ERROR: ');
+      }
+    } else {
+      console.log('routine does not exists');
+    }
+  };
+
+  const saveRoutineExercise = async (routineId: number) => {
+    try {
+      const newRoutineExercises = exercises.map((exercise, index) => ({
+        id: 0,
+        routineId: routineId,
+        exerciseId: exercise.exercise.id,
+        position: index + 1, // TODO: check if the +1 is needed or not in the DB
+      }));
+
+      const savedRoutineExerciseIds: { position: number; id: number }[] = [];
+
+      for (const routineExercise of newRoutineExercises) {
+        const response = await postRoutineExercise(routineExercise);
+        if (response.success && response.id) {
+          console.log(
+            `routineExercise saved successfully: exerciseId=${routineExercise.exerciseId}, position=${routineExercise.position}, id=${response.id}`
+          );
+          savedRoutineExerciseIds.push({ position: routineExercise.position, id: response.id });
+        } else {
+          console.error('error saving RoutineExercise');
+          return null;
+        }
+      }
+      setRoutineExercises(newRoutineExercises);
+      return savedRoutineExerciseIds;
+    } catch (error) {
+      console.log('error (catch) in save routine exercise: ', error);
+      return null;
+    }
+  };
+
+  const saveExerciseSet = async (routineExerciseIds: { position: number; id: number }[]) => {
+    try {
+      for (const exercise of exercises) {
+        const routineExercise = routineExerciseIds.find(
+          (re) => re.position === exercises.indexOf(exercise) + 1
+        );
+        if (!routineExercise) {
+          console.error(
+            `no RoutineExercise id found for exercise at position ${exercises.indexOf(exercise) + 1}`
+          );
+          continue;
+        }
+
+        const exerciseSets: ExerciseSet[] = exercise.amount.map((set, index) => ({
+          id: 0,
+          routineExerciseId: routineExercise.id,
+          setNumber: index + 1,
+          quantity: set.quantity,
+          weight: set.weight,
+        }));
+
+        for (const exerciseSet of exerciseSets) {
+          const response = await postExerciseSet(exerciseSet);
+          if (response.success) {
+            console.log(
+              `exerciseSet saved successfully: routineExerciseId=${exerciseSet.routineExerciseId}, setNumber=${exerciseSet.setNumber}`
+            );
+          } else {
+            console.error('error saving ExerciseSet');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('error in saveExerciseSet:', error);
+    }
+  };
 
   return (
     <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
@@ -110,6 +253,15 @@ export default function NewRoutineScreen() {
         </View>
       </CardHeader>
       <CardContent>
+        <View className="px-4 pb-4">
+          <Input
+            placeholder="Routine Name..."
+            id="routineName"
+            autoCapitalize="none"
+            value={routine.name}
+            onChangeText={(routineName) => handleInputChange('name', routineName)}
+          />
+        </View>
         <DraggableExerciseList data={exercises} onDataChange={setExercises} />
       </CardContent>
       <CardFooter className="flex-col gap-3 pb-0">
