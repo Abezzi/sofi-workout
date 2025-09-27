@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 import { View, Platform } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Separator } from '@/components/ui/separator';
 import {
   Select,
   SelectContent,
@@ -19,6 +18,7 @@ import { TriggerRef } from '@rn-primitives/select';
 import { Routine } from '@/db/schema';
 import { getAllRoutines } from '@/db/queries/routine.queries';
 import { Label } from '@/components/ui/label';
+import FastWorkouts from '@/components/routine/fast-workouts';
 
 type Option = {
   value: string;
@@ -104,6 +104,8 @@ export default function Screen() {
               </SelectContent>
             </Select>
           </View>
+          {/*Tabs with the quick routines*/}
+          <FastWorkouts />
         </CardContent>
         <CardFooter className="flex-col gap-3 pb-0">
           <Button onPress={handleStart}>
