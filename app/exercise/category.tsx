@@ -19,13 +19,17 @@ export default function Screen() {
   const drizzleDb = drizzle(db, { schema });
   let categories: Category[];
 
-  useEffect(() => {
+  const loadCategories = () => {
     const load = async () => {
       categories = await getAllCategories();
       setData(categories);
     };
     load();
-  }, []);
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   const handleCategoryPress = (category: { id: number; name: string; color: string }) => {
     router.push(`/exercise/${category.id}`);
@@ -43,7 +47,11 @@ export default function Screen() {
         onPress={handleCreateNewCategory}>
         <Text>New Category</Text>
       </Button>
-      <CategoryList categories={data} onCategoryPress={handleCategoryPress} />
+      <CategoryList
+        categories={data}
+        onCategoryPress={handleCategoryPress}
+        onCategoryChange={loadCategories}
+      />
     </View>
   );
 }
