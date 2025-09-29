@@ -1,11 +1,12 @@
 import { View } from 'react-native';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Text } from '../ui/text';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Switch } from '../ui/switch';
+import { formatTime } from '@/utils/format-time';
 
 interface Hiit {
   rounds: number;
@@ -17,6 +18,7 @@ interface Hiit {
 
 export default function FastWorkouts() {
   const [tabValue, setTabValue] = useState<string>('hiit');
+  const [totalTime, setTotalTime] = useState<number>(0);
   const [cycleChecked, setCycleChecked] = useState<boolean>(false);
   const [hiit, setHiit] = useState<Hiit>({
     rounds: 0,
@@ -26,10 +28,40 @@ export default function FastWorkouts() {
     cycleRestTime: 0,
   });
 
+  const getTotalTime = () => {
+    let result: number = 0;
+    if (hiit) {
+      const cycleTime = (hiit.workTime + hiit.restTime) * hiit.rounds;
+      const totalCycleRestTime = hiit.cycles > 1 ? (hiit.cycles - 1) * hiit.cycleRestTime : 0;
+      result = hiit.cycles * cycleTime + totalCycleRestTime;
+    }
+    console.log('totalTime:', result); // Debug
+    setTotalTime(result);
+  };
+
+  // calculates the total time after each user input
+  useEffect(() => {
+    getTotalTime();
+  }, [hiit]);
+
+  // reset cycle to one and cycle rest to 0 if the cycle check is unchecked
+  useEffect(() => {
+    if (!cycleChecked) {
+      setHiit((prev) => ({
+        ...prev,
+        cycles: 1,
+        cycleRestTime: 0,
+      }));
+    }
+  }, [cycleChecked]);
+
   const handleInputChange = (field: keyof Hiit, value: string) => {
+    // converts inputs from string to number
+    const numValue = Number(value);
+    if (isNaN(numValue)) return;
     setHiit((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: numValue,
     }));
   };
 
@@ -137,6 +169,9 @@ export default function FastWorkouts() {
                 ) : (
                   <></>
                 )}
+              </View>
+              <View className="items-center pt-2">
+                <Text className="font-bold">Total Time: {formatTime(totalTime)}</Text>
               </View>
             </CardContent>
           </Card>
