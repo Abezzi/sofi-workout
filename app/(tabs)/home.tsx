@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Text } from '@/components/ui/text';
 import { useEffect, useRef, useState } from 'react';
 import { View, Platform } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import {
   Select,
@@ -63,7 +63,7 @@ export default function Screen() {
   };
 
   return (
-    <SafeAreaView className="flex-1" style={{ paddingBottom: insets.bottom }}>
+    <View className="flex-1" style={{ paddingBottom: insets.bottom }}>
       <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
         <CardHeader>
           {/*Buttons Top*/}
@@ -113,6 +113,6 @@ export default function Screen() {
           </Button>
         </CardFooter>
       </Card>
-    </SafeAreaView>
+    </View>
   );
 }
