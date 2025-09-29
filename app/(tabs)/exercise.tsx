@@ -3,7 +3,7 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { router, useFocusEffect } from 'expo-router';
 import { CategoryList } from '@/components/category/category-list';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Category } from '@/db/schema';
 import { getAllCategories } from '@/db/queries/category.queries';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
