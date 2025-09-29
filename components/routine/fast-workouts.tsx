@@ -171,7 +171,8 @@ export default function FastWorkouts() {
                 )}
               </View>
               <View className="items-center pt-2">
-                <Text className="font-bold">Total Time: {formatTime(totalTime)}</Text>
+                <Text>Total Time</Text>
+                <Text className="font-bold">{formatTime(totalTime)}</Text>
               </View>
             </CardContent>
           </Card>
