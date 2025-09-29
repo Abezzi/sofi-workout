@@ -1,9 +1,9 @@
 import { ActivityIndicator, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { CategoryList } from '@/components/category/category-list';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Category } from '@/db/schema';
 import { getAllCategories } from '@/db/queries/category.queries';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -17,12 +17,17 @@ export default function Screen() {
   const [loadingCategories, setLoadingCategories] = useState<boolean>(false);
   const { colorScheme } = useColorScheme();
 
-  const refreshCategories = async () => {
+  const refreshCategories = useCallback(async () => {
     setLoadingCategories(true);
-    categories = await getAllCategories();
-    setData(categories);
-    setLoadingCategories(false);
-  };
+    try {
+      categories = await getAllCategories();
+      setData(categories);
+    } catch (error) {
+      console.log('error loading categories');
+    } finally {
+      setLoadingCategories(false);
+    }
+  }, []);
 
   const handleCategoryPress = (category: { id: number; name: string; color: string }) => {
     router.push({
@@ -39,9 +44,11 @@ export default function Screen() {
     router.push(`/exercise/new-category`);
   }
 
-  useEffect(() => {
-    refreshCategories();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      refreshCategories();
+    }, [refreshCategories])
+  );
 
   return (
     <SafeAreaView className="flex-1" style={{ paddingBottom: insets.bottom }}>
