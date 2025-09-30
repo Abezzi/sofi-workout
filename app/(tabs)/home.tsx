@@ -107,11 +107,13 @@ export default function Screen() {
           {/*Tabs with the quick routines*/}
           <FastWorkouts />
         </CardContent>
+        {/*
         <CardFooter className="flex-col gap-3 pb-0">
           <Button onPress={handleStart}>
             <Text>Start</Text>
           </Button>
         </CardFooter>
+        */}
       </Card>
     </View>
   );
