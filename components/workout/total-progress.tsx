@@ -1,22 +1,42 @@
-import * as React from 'react';
-import { Button } from '@/components/ui/button';
 import { View } from 'react-native';
 import Animated, { FadeInUp, FadeOutDown, LayoutAnimationConfig } from 'react-native-reanimated';
 import { Progress } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
+import { useEffect, useState } from 'react';
 
-const TotalProgress = () => {
-  const [progress, setProgress] = React.useState(0);
+type Step = {
+  step: number;
+  duration: number;
+  name: string;
+  automatic: boolean;
+  isRest: boolean;
+};
+
+interface TotalProgressProps {
+  steps: Step[];
+  currentStep: number;
+}
+
+const TotalProgress = ({ steps, currentStep }: TotalProgressProps) => {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (currentStep) {
+      updateProgressValue();
+    }
+  }, [currentStep]);
 
   function updateProgressValue() {
-    setProgress(Math.floor(Math.random() * 100));
+    const progress: number = Math.round((currentStep / steps.length) * 100);
+    console.log('ASD currentStep: ', currentStep, 'len: ', steps.length, 'progress ', progress);
+    setProgress(progress);
   }
 
   return (
     <>
       <View className="flex-row items-center overflow-hidden p-2">
         <View className="relative h-8 flex-1">
-          <Progress value={progress} className="h-8 flex-1" indicatorClassName="bg-purple-500" />
+          <Progress value={progress} className="h-8 flex-1" indicatorClassName="bg-slate-500" />
           <LayoutAnimationConfig skipEntering>
             <Animated.View
               key={progress}
@@ -29,11 +49,9 @@ const TotalProgress = () => {
             </Animated.View>
           </LayoutAnimationConfig>
         </View>
+
+        <Text></Text>
       </View>
-      {/*TODO: remove this*/}
-      <Button onPress={updateProgressValue}>
-        <Text>TEST total progress</Text>
-      </Button>
     </>
   );
 };
