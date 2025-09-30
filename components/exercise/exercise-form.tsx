@@ -77,12 +77,7 @@ export function ExerciseForm() {
   const handleSubmit = async () => {
     setLoading(true);
 
-    if (
-      !exercise.name ||
-      !exercise.description ||
-      !exercise.categoryId ||
-      !exercise.exerciseTypeId
-    ) {
+    if (!exercise.name || !exercise.categoryId || !exercise.exerciseTypeId) {
       setShowAlert(true);
       setLoading(false);
       return;
