@@ -1,12 +1,22 @@
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Text } from '../ui/text';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Switch } from '../ui/switch';
 import { formatTime } from '@/utils/format-time';
+import { Button } from '../ui/button';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+} from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface Hiit {
   rounds: number;
@@ -27,7 +37,25 @@ export default function FastWorkouts() {
     cycles: 1,
     cycleRestTime: 0,
   });
+  const router = useRouter();
+  const scale = useSharedValue(1);
 
+  const handleStart = () => {
+    // animation when button is pressed
+    scale.value = withSequence(
+      // scale down
+      withSpring(0.8, { damping: 10, stiffness: 100 }),
+      // bounce back
+      withSpring(1, { damping: 10, stiffness: 100 })
+    );
+    // navigate to workout screen
+    router.push({
+      pathname: '/(tabs)/workout',
+      params: { hiitJson: JSON.stringify(hiit), totalTime: totalTime },
+    });
+  };
+
+  // calculates the amount of seconds based on the user input
   const getTotalTime = () => {
     let result: number = 0;
     if (hiit) {
@@ -35,7 +63,6 @@ export default function FastWorkouts() {
       const totalCycleRestTime = hiit.cycles > 1 ? (hiit.cycles - 1) * hiit.cycleRestTime : 0;
       result = hiit.cycles * cycleTime + totalCycleRestTime;
     }
-    console.log('totalTime:', result); // Debug
     setTotalTime(result);
   };
 
@@ -72,6 +99,11 @@ export default function FastWorkouts() {
   const onLabelPress = () => {
     setCycleChecked((prev) => !prev);
   };
+
+  const animatedStyles = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
     <View className="flex w-full max-w-sm flex-col gap-6 pt-4">
       <Tabs value={tabValue} onValueChange={setTabValue}>
@@ -175,6 +207,13 @@ export default function FastWorkouts() {
                 <Text className="font-bold">{formatTime(totalTime)}</Text>
               </View>
             </CardContent>
+            <CardFooter className="flex-col gap-3 pb-0">
+              <AnimatedPressable style={[animatedStyles]}>
+                <Button onPress={handleStart}>
+                  <Text>Start</Text>
+                </Button>
+              </AnimatedPressable>
+            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
