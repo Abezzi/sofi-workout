@@ -5,8 +5,6 @@ import { Text } from '@/components/ui/text';
 import { useEffect, useRef, useState } from 'react';
 import { Progress } from '../ui/progress';
 import { useAudioPlayer } from 'expo-audio';
-import { Check } from 'lucide-react-native';
-import { Icon } from '../ui/icon';
 
 type Step = {
   step: number;
@@ -23,7 +21,7 @@ type CountdownPropsType = {
 
 const Countdown = ({ steps, onStepChange }: CountdownPropsType) => {
   const [currentTimer, setCurrentTimer] = useState({ index: 0, timeLeft: 0 });
-  const [progress, setProgress] = useState(100);
+  const [progress, setProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | number | null>(null);
 
@@ -39,39 +37,72 @@ const Countdown = ({ steps, onStepChange }: CountdownPropsType) => {
   useEffect(() => {
     if (steps.length > 0) {
       setCurrentTimer({ index: 0, timeLeft: steps[0].duration });
+      setProgress(0);
       setIsLoading(false);
     } else {
       setIsLoading(true);
     }
   }, [steps]);
 
-  // single interval for the entire workout
+  // timer logic
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !steps.length) return;
 
     intervalRef.current = setInterval(() => {
       setCurrentTimer((prev) => {
         if (prev.index >= steps.length) {
-          if (intervalRef.current !== null) clearInterval(intervalRef.current);
-          return prev; // Workout complete, no more updates
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          return prev;
         }
 
         const currentStep = steps[prev.index];
         if (!currentStep.automatic) {
-          // skip non-automatic steps (if any)
-          return prev;
+          return prev; // Skip non-automatic steps
         }
 
-        if (prev.timeLeft > 0) {
-          return { ...prev, timeLeft: prev.timeLeft - 1 };
+        const newTimeLeft = prev.timeLeft - 1;
+        if (newTimeLeft > 0) {
+          const percentOfTimeRemaining = (newTimeLeft / currentStep.duration) * 100;
+          setProgress(percentOfTimeRemaining);
+
+          // Audio playback
+          if (newTimeLeft === 30 && currentStep.duration >= 30) {
+            player.seekTo(0);
+            player.play();
+          } else if (newTimeLeft === 5) {
+            player5.seekTo(0);
+            player5.play();
+          } else if (newTimeLeft === 4) {
+            player4.seekTo(0);
+            player4.play();
+          } else if (newTimeLeft === 3) {
+            player3.seekTo(0);
+            player3.play();
+          } else if (newTimeLeft === 2) {
+            player2.seekTo(0);
+            player2.play();
+          } else if (newTimeLeft === 1) {
+            player1.seekTo(0);
+            player1.play();
+          }
+
+          return { ...prev, timeLeft: newTimeLeft };
         } else {
+          // Step complete
+          infoSound.seekTo(0);
+          infoSound.play();
+
           const nextIndex = prev.index + 1;
-          onStepChange(nextIndex);
           if (nextIndex < steps.length) {
+            setProgress(100);
+            // Defer onStepChange to avoid render-phase conflict
+            setTimeout(() => onStepChange(nextIndex), 0);
             return { index: nextIndex, timeLeft: steps[nextIndex].duration };
           } else {
-            if (intervalRef.current !== null) clearInterval(intervalRef.current);
-            // complete
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setProgress(0);
+            // Defer onStepChange to avoid render-phase conflict
+            setTimeout(() => onStepChange(nextIndex), 0);
             return { index: nextIndex, timeLeft: 0 };
           }
         }
@@ -82,40 +113,6 @@ const Countdown = ({ steps, onStepChange }: CountdownPropsType) => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [isLoading, steps, onStepChange]);
-
-  useEffect(() => {
-    const { index, timeLeft } = currentTimer;
-    // console.log('index: ', index, 'len: ', steps.length);
-    if (isLoading || steps.length === 0 || index >= steps.length) return;
-
-    const currentStep = steps[index];
-    const percentOfTimeRemaining = (timeLeft / currentStep.duration) * 100;
-    setProgress(percentOfTimeRemaining);
-
-    // audio
-    if (timeLeft === 30 && currentStep.duration >= 30) {
-      player.seekTo(0);
-      player.play();
-    } else if (timeLeft === 5) {
-      player5.seekTo(0);
-      player5.play();
-    } else if (timeLeft === 4) {
-      player4.seekTo(0);
-      player4.play();
-    } else if (timeLeft === 3) {
-      player3.seekTo(0);
-      player3.play();
-    } else if (timeLeft === 2) {
-      player2.seekTo(0);
-      player2.play();
-    } else if (timeLeft === 1) {
-      player1.seekTo(0);
-      player1.play();
-    } else if (timeLeft === 0) {
-      infoSound.seekTo(0);
-      infoSound.play();
-    }
-  }, [currentTimer, steps, isLoading]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
