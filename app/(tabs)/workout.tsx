@@ -37,6 +37,15 @@ export default function WorkoutScreen() {
     let stepCount: number = 0;
 
     if (hiit) {
+      // preparation before starting
+      stepsTemp.push({
+        step: stepCount,
+        duration: 10,
+        name: 'Get Ready',
+        automatic: true,
+        isRest: true,
+      });
+      stepCount++;
       for (let cycle = 0; cycle < hiit.cycles; cycle++) {
         for (let round = 0; round < hiit.rounds; round++) {
           stepsTemp.push({
