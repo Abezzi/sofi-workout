@@ -130,7 +130,8 @@ const Countdown = ({ steps, onStepChange }: CountdownPropsType) => {
 
   return (
     <View className="items-center justify-center">
-      <Card className="rounder-2xl w-full max-w-sm p-6">
+      <Card
+        className={`rounder-2xl w-full max-w-sm p-6 ${currentStep.isRest ? '' : 'bg-green-100'}`}>
         <CardHeader>
           <CardTitle className="pb-2 text-center uppercase">
             {isLoading ? 'Loading...' : isWorkoutComplete ? 'Workout Complete' : currentStep.name}
