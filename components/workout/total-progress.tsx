@@ -28,7 +28,7 @@ const TotalProgress = ({ steps, currentStep }: TotalProgressProps) => {
 
   function updateProgressValue() {
     const progress: number = Math.round((currentStep / steps.length) * 100);
-    console.log('ASD currentStep: ', currentStep, 'len: ', steps.length, 'progress ', progress);
+    // console.log('ASD currentStep: ', currentStep, 'len: ', steps.length, 'progress ', progress);
     setProgress(progress);
   }
 

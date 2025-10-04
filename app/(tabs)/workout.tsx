@@ -76,7 +76,6 @@ export default function WorkoutScreen() {
           stepCount++;
         }
       }
-      console.log('generated steps: ', stepsTemp);
       setSteps(stepsTemp);
     }
   };
@@ -87,11 +86,9 @@ export default function WorkoutScreen() {
 
   // load parameters
   useEffect(() => {
-    console.log('received params:', { hiitJson, totalTime });
     if (hiitJson) {
       try {
         const parsedHiit = JSON.parse(hiitJson as string);
-        console.log('parsed hiit: ', parsedHiit);
         setHiit(parsedHiit);
       } catch (error) {
         console.log('error parsing the params of hiit: ', error);
@@ -106,7 +103,6 @@ export default function WorkoutScreen() {
   }, [hiit]);
 
   useEffect(() => {
-    console.log('steps updated: ', steps);
     if (steps.length) {
       setCurrentStep(0);
     }
