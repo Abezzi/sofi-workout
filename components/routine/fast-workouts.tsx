@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Text } from '../ui/text';
 import { useState } from 'react';
 import Hiit from './interval-training/hiit';
+import Emom from './interval-training/emom';
 
 export default function FastWorkouts() {
   const [tabValue, setTabValue] = useState<string>('hiit');
@@ -26,6 +27,9 @@ export default function FastWorkouts() {
         </TabsList>
         <TabsContent value="hiit">
           <Hiit />
+        </TabsContent>
+        <TabsContent value="emom">
+          <Emom />
         </TabsContent>
       </Tabs>
     </View>

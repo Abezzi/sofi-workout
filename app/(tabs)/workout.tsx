@@ -14,6 +14,13 @@ interface Hiit {
   cycleRestTime: number;
 }
 
+interface Emom {
+  rounds: number;
+  workTime: number;
+  cycles: number;
+  cycleRestTime: number;
+}
+
 type Step = {
   step: number;
   duration: number;
@@ -26,11 +33,15 @@ type Step = {
 export default function WorkoutScreen() {
   const [steps, setSteps] = useState<Step[]>([]);
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [hiit, setHiit] = useState<Hiit | null>(null);
   const { hiitJson, totalTime } = useLocalSearchParams() as {
     hiitJson: string;
     totalTime: string;
   };
-  const [hiit, setHiit] = useState<Hiit | null>(null);
+  const [emom, setEmom] = useState<Emom | null>(null);
+  const { emomJson } = useLocalSearchParams() as {
+    emomJson: string;
+  };
 
   const convertHiitToSteps = () => {
     let stepsTemp: Step[] = [];
@@ -80,10 +91,51 @@ export default function WorkoutScreen() {
     }
   };
 
+  const convertEmomToSteps = () => {
+    let stepsTemp: Step[] = [];
+    let stepCount: number = 0;
+
+    if (emom) {
+      // preparation before starting
+      stepsTemp.push({
+        step: stepCount,
+        duration: 10,
+        name: 'Get Ready',
+        automatic: true,
+        isRest: true,
+      });
+      stepCount++;
+      for (let cycle = 0; cycle < emom.cycles; cycle++) {
+        for (let round = 0; round < emom.rounds; round++) {
+          stepsTemp.push({
+            step: stepCount,
+            duration: emom.workTime,
+            name: 'Work',
+            automatic: true,
+            isRest: false,
+          });
+          stepCount++;
+        }
+        if (cycle < emom.cycles - 1) {
+          stepsTemp.push({
+            step: stepCount,
+            duration: emom.cycleRestTime,
+            name: 'Cycle Rest',
+            automatic: true,
+            isRest: true,
+          });
+          stepCount++;
+        }
+      }
+      setSteps(stepsTemp);
+    }
+  };
+
   const handleStepChange = (step: number) => {
     setCurrentStep(step);
   };
 
+  // HIIT
   // load parameters
   useEffect(() => {
     if (hiitJson) {
@@ -102,6 +154,24 @@ export default function WorkoutScreen() {
     }
   }, [hiit]);
 
+  // EMOM
+  useEffect(() => {
+    if (emomJson) {
+      try {
+        const parsedEmom = JSON.parse(emomJson as string);
+        setEmom(parsedEmom);
+      } catch (error) {
+        console.log('error parsing the params of emom: ', error);
+      }
+    }
+  }, [emomJson]);
+
+  useEffect(() => {
+    if (emom) {
+      convertEmomToSteps();
+    }
+  }, [emom]);
+
   useEffect(() => {
     if (steps.length) {
       setCurrentStep(0);
@@ -114,9 +184,12 @@ export default function WorkoutScreen() {
       <Countdown steps={steps} onStepChange={handleStepChange} />
       <MediaControl />
       <Routine />
+      <Text>Hiit Stuff</Text>
       <Text>{hiitJson}</Text>
       <Text>{steps.map((x) => x.duration + ' ')}</Text>
       <Text>current step: {currentStep}</Text>
+      <Text>Emom</Text>
+      <Text>{emomJson}</Text>
     </>
   );
 }
