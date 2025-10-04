@@ -21,6 +21,14 @@ interface Emom {
   cycleRestTime: number;
 }
 
+interface Tabata {
+  rounds: number;
+  workTime: number;
+  restTime: number;
+  cycles: number;
+  cycleRestTime: number;
+}
+
 type Step = {
   step: number;
   duration: number;
@@ -41,6 +49,10 @@ export default function WorkoutScreen() {
   const [emom, setEmom] = useState<Emom | null>(null);
   const { emomJson } = useLocalSearchParams() as {
     emomJson: string;
+  };
+  const [tabata, setTabata] = useState<Tabata | null>(null);
+  const { tabataJson } = useLocalSearchParams() as {
+    tabataJson: string;
   };
 
   const convertHiitToSteps = () => {
@@ -131,6 +143,54 @@ export default function WorkoutScreen() {
     }
   };
 
+  const convertTabataToSteps = () => {
+    let stepsTemp: Step[] = [];
+    let stepCount: number = 0;
+
+    if (tabata) {
+      // preparation before starting
+      stepsTemp.push({
+        step: stepCount,
+        duration: 10,
+        name: 'Get Ready',
+        automatic: true,
+        isRest: true,
+      });
+      stepCount++;
+      for (let cycle = 0; cycle < tabata.cycles; cycle++) {
+        for (let round = 0; round < tabata.rounds; round++) {
+          stepsTemp.push({
+            step: stepCount,
+            duration: tabata.workTime,
+            name: 'Work',
+            automatic: true,
+            isRest: false,
+          });
+          stepCount++;
+          stepsTemp.push({
+            step: stepCount,
+            duration: tabata.restTime,
+            name: 'Rest',
+            automatic: true,
+            isRest: true,
+          });
+          stepCount++;
+        }
+        if (cycle < tabata.cycles - 1) {
+          stepsTemp.push({
+            step: stepCount,
+            duration: tabata.cycleRestTime,
+            name: 'Cycle Rest',
+            automatic: true,
+            isRest: true,
+          });
+          stepCount++;
+        }
+      }
+      setSteps(stepsTemp);
+    }
+  };
+
   const handleStepChange = (step: number) => {
     setCurrentStep(step);
   };
@@ -172,6 +232,24 @@ export default function WorkoutScreen() {
     }
   }, [emom]);
 
+  // TABATA
+  useEffect(() => {
+    if (tabataJson) {
+      try {
+        const parsedTabata = JSON.parse(tabataJson as string);
+        setTabata(parsedTabata);
+      } catch (error) {
+        console.log('error parsing the params of tabata: ', error);
+      }
+    }
+  }, [tabataJson]);
+
+  useEffect(() => {
+    if (tabata) {
+      convertTabataToSteps();
+    }
+  }, [tabata]);
+
   useEffect(() => {
     if (steps.length) {
       setCurrentStep(0);
@@ -184,12 +262,6 @@ export default function WorkoutScreen() {
       <Countdown steps={steps} onStepChange={handleStepChange} />
       <MediaControl />
       <Routine />
-      <Text>Hiit Stuff</Text>
-      <Text>{hiitJson}</Text>
-      <Text>{steps.map((x) => x.duration + ' ')}</Text>
-      <Text>current step: {currentStep}</Text>
-      <Text>Emom</Text>
-      <Text>{emomJson}</Text>
     </>
   );
 }
