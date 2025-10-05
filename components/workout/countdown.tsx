@@ -147,7 +147,7 @@ const Countdown = ({ steps, onStepChange }: CountdownPropsType) => {
                   <Text className="text-2xl text-green-600">Congratulations!🎉</Text>
                 </View>
               ) : (
-                <Text className="text-9xl">{formatTime(timeLeft)}</Text>
+                <Text className="truncate text-8xl">{formatTime(timeLeft)}</Text>
               )}
             </Animated.View>
           </LayoutAnimationConfig>

@@ -29,6 +29,10 @@ interface Tabata {
   cycleRestTime: number;
 }
 
+interface Amrap {
+  workTime: number;
+}
+
 type Step = {
   step: number;
   duration: number;
@@ -53,6 +57,10 @@ export default function WorkoutScreen() {
   const [tabata, setTabata] = useState<Tabata | null>(null);
   const { tabataJson } = useLocalSearchParams() as {
     tabataJson: string;
+  };
+  const [amrap, setAmrap] = useState<Amrap | null>(null);
+  const { amrapJson } = useLocalSearchParams() as {
+    amrapJson: string;
   };
 
   const convertHiitToSteps = () => {
@@ -191,6 +199,31 @@ export default function WorkoutScreen() {
     }
   };
 
+  const convertAmrapToSteps = () => {
+    let stepsTemp: Step[] = [];
+    let stepCount: number = 0;
+
+    if (amrap) {
+      // preparation before starting
+      stepsTemp.push({
+        step: stepCount,
+        duration: 10,
+        name: 'Get Ready',
+        automatic: true,
+        isRest: true,
+      });
+      stepCount++;
+      stepsTemp.push({
+        step: stepCount,
+        duration: amrap.workTime,
+        name: 'Work',
+        automatic: true,
+        isRest: false,
+      });
+      setSteps(stepsTemp);
+    }
+  };
+
   const handleStepChange = (step: number) => {
     setCurrentStep(step);
   };
@@ -249,6 +282,24 @@ export default function WorkoutScreen() {
       convertTabataToSteps();
     }
   }, [tabata]);
+
+  // AMRAP
+  useEffect(() => {
+    if (amrapJson) {
+      try {
+        const parsedAmrap = JSON.parse(amrapJson as string);
+        setAmrap(parsedAmrap);
+      } catch (error) {
+        console.log('error parsing the params of amrap: ', error);
+      }
+    }
+  }, [amrapJson]);
+
+  useEffect(() => {
+    if (amrap) {
+      convertAmrapToSteps();
+    }
+  }, [amrap]);
 
   useEffect(() => {
     if (steps.length) {

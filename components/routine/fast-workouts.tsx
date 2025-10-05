@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Hiit from './interval-training/hiit';
 import Emom from './interval-training/emom';
 import Tabata from './interval-training/tabata';
+import Amrap from './interval-training/amrap';
 
 export default function FastWorkouts() {
   const [tabValue, setTabValue] = useState<string>('hiit');
@@ -34,6 +35,9 @@ export default function FastWorkouts() {
         </TabsContent>
         <TabsContent value="tabata">
           <Tabata />
+        </TabsContent>
+        <TabsContent value="amrap">
+          <Amrap />
         </TabsContent>
       </Tabs>
     </View>
