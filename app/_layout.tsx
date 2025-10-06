@@ -1,5 +1,4 @@
 import '@/global.css';
-
 import { NAV_THEME } from '@/lib/theme';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
@@ -26,6 +25,15 @@ import {
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import migrations from '@/drizzle/migrations';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Constants from 'expo-constants';
+
+// public key for clerk production
+const publishableKey =
+  Constants.expoConfig?.extra?.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+if (!publishableKey) {
+  throw new Error('Missing Clerk publishableKey. Check your app.json');
+}
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -77,7 +85,7 @@ export default function RootLayout() {
 function ThemedApp() {
   const { colorScheme } = useColorScheme();
   return (
-    <ClerkProvider tokenCache={tokenCache}>
+    <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <GestureHandlerRootView>
         <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
           <DatabaseInitializer />

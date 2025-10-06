@@ -22,7 +22,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ],
+      "package": "com.abezzi.sofiworkout"
     },
     "web": {
       "bundler": "metro",
@@ -38,6 +43,13 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6a58b853-1e4a-47d5-9190-5cfabe613d6c"
+      },
+      "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": ""
     }
   }
 }
