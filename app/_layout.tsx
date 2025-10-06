@@ -4,7 +4,7 @@ import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { ThemeProvider } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
@@ -115,12 +115,19 @@ SplashScreen.preventAutoHideAsync();
 
 function Routes() {
   const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
 
   React.useEffect(() => {
     if (isLoaded) {
       SplashScreen.hideAsync();
+      // redirect based on authentication
+      if (isSignedIn) {
+        router.replace('/(tabs)/home');
+      } else {
+        router.replace('/(auth)/sign-in');
+      }
     }
-  }, [isLoaded]);
+  }, [isLoaded, isSignedIn]);
 
   if (!isLoaded) {
     return null;

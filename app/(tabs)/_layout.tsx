@@ -5,14 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { useColorScheme } from 'nativewind';
 import { MoonStarIcon, SunIcon } from 'lucide-react-native';
+import { UserMenu } from '@/components/user-menu';
 
 export default function TabsLayout() {
   const { colors } = useTheme();
 
   return (
     <Tabs
+      initialRouteName="home"
       screenOptions={{
-        headerRight: () => <ThemeToggle />,
+        headerRight: () => (
+          <>
+            <ThemeToggle />
+            <UserMenu />
+          </>
+        ),
         headerStyle: {
           backgroundColor: colors.card,
         },
@@ -22,7 +29,7 @@ export default function TabsLayout() {
           borderTopColor: colors.border,
         },
         tabBarActiveTintColor: colors.primary, // Use theme color for active tab
-        tabBarInactiveTintColor: colors.text, // Use theme color for inactive tab
+        tabBarInactiveTintColor: colors.background, // Use theme color for inactive tab
       }}>
       <Tabs.Screen
         name="home"
