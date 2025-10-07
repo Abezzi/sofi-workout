@@ -26,6 +26,9 @@ import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import migrations from '@/drizzle/migrations';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Constants from 'expo-constants';
+import { Provider } from 'react-redux';
+import store, { persistor } from '@/src/store/storeSetup';
+import { PersistGate } from 'redux-persist/integration/react';
 
 // public key for clerk production
 const publishableKey =
@@ -79,7 +82,13 @@ function DatabaseInitializer() {
 }
 
 export default function RootLayout() {
-  return <AppWithDrizzle />;
+  return (
+    <Provider store={store}>
+      <PersistGate loading={<ActivityIndicator size="large" />} persistor={persistor}>
+        <AppWithDrizzle />
+      </PersistGate>
+    </Provider>
+  );
 }
 
 function ThemedApp() {

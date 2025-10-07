@@ -24,17 +24,17 @@ export default function MediaControl({
   isPaused,
 }: MediaControlProps) {
   return (
-    <View className="flex flex-row items-center justify-center gap-1">
-      <Button onPress={onRewind}>
+    <View className="m-2 flex flex-row items-center justify-center gap-1">
+      <Button onPress={onRewind} size="lg">
         <Icon as={Rewind} className="text-primary-foreground" />
       </Button>
-      <Button onPress={onStartPause}>
+      <Button onPress={onStartPause} size="lg">
         <Icon as={isPaused ? Play : Pause} className="text-primary-foreground" />
       </Button>
-      <Button onPress={onStop}>
+      <Button onPress={onStop} size="lg">
         <Icon as={Square} className="text-primary-foreground" />
       </Button>
-      <Button onPress={onFastForward}>
+      <Button onPress={onFastForward} size="lg">
         <Icon as={FastForward} className="text-primary-foreground" />
       </Button>
     </View>

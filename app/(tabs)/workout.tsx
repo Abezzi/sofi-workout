@@ -6,6 +6,19 @@ import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useAudioPlayer } from 'expo-audio';
+import { useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/src/store/storeSetup';
+import {
+  initialize,
+  tick,
+  startPause,
+  stop,
+  nextStep,
+  previousStep,
+} from '@/src/store/slices/workout/timerSlice';
+import { useSelector } from 'react-redux';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { View } from 'react-native';
 
 interface Hiit {
   rounds: number;
@@ -44,12 +57,10 @@ type Step = {
 };
 
 export default function WorkoutScreen() {
-  const [steps, setSteps] = useState<Step[]>([]);
-  const [currentStep, setCurrentStep] = useState<number>(0);
-  const [currentTimer, setCurrentTimer] = useState({ index: 0, timeLeft: 0 });
-  const [progress, setProgress] = useState(0);
-  const [isPaused, setIsPaused] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { steps, currentTimer, progress, isPaused, isLoading, currentStep } = useSelector(
+    (state: RootState) => state.timer
+  );
   const [hiit, setHiit] = useState<Hiit | null>(null);
   const { hiitJson } = useLocalSearchParams() as {
     hiitJson: string;
@@ -120,7 +131,7 @@ export default function WorkoutScreen() {
           stepCount++;
         }
       }
-      setSteps(stepsTemp);
+      dispatch(initialize({ steps: stepsTemp }));
     }
   };
 
@@ -160,7 +171,7 @@ export default function WorkoutScreen() {
           stepCount++;
         }
       }
-      setSteps(stepsTemp);
+      dispatch(initialize({ steps: stepsTemp }));
     }
   };
 
@@ -208,7 +219,7 @@ export default function WorkoutScreen() {
           stepCount++;
         }
       }
-      setSteps(stepsTemp);
+      dispatch(initialize({ steps: stepsTemp }));
     }
   };
 
@@ -233,123 +244,65 @@ export default function WorkoutScreen() {
         automatic: true,
         isRest: false,
       });
-      setSteps(stepsTemp);
+      dispatch(initialize({ steps: stepsTemp }));
     }
   };
 
   // media control handlers
   const handleStartPause = () => {
-    setIsPaused(!isPaused);
+    dispatch(startPause({ isPaused: !isPaused }));
   };
 
   const handleStop = () => {
-    setIsPaused(true);
-    setCurrentTimer({ index: 0, timeLeft: steps[0]?.duration || 0 });
-    setProgress(0);
-    setCurrentStep(0);
+    dispatch(stop());
   };
 
   const handleRewind = () => {
-    const prevIndex = currentTimer.index - 1;
-    if (prevIndex >= 0) {
-      setCurrentTimer({ index: prevIndex, timeLeft: steps[prevIndex].duration });
-      setProgress(100);
-      setCurrentStep(prevIndex);
-      setIsPaused(true);
-    }
+    dispatch(previousStep());
   };
 
   const handleFastForward = () => {
-    const nextIndex = currentTimer.index + 1;
-    if (nextIndex < steps.length) {
-      setCurrentTimer({ index: nextIndex, timeLeft: steps[nextIndex].duration });
-      setProgress(100);
-      setCurrentStep(nextIndex);
-      setIsPaused(true);
-    }
+    dispatch(nextStep());
   };
 
-  // init currentTimer when steps change
-  useEffect(() => {
-    if (steps.length > 0) {
-      setCurrentTimer({ index: 0, timeLeft: steps[0].duration });
-      setProgress(0);
-      setIsLoading(false);
-      setIsPaused(true);
-      setCurrentStep(0);
-    } else {
-      setIsLoading(true);
-    }
-  }, [steps]);
-
-  // timer logic
+  // timer logic with audio
   useEffect(() => {
     if (isLoading || !steps.length || isPaused) return;
 
     const interval = setInterval(() => {
-      setCurrentTimer((prev) => {
-        if (prev.index >= steps.length) {
-          clearInterval(interval);
-          return prev;
-        }
+      const currentTimeLeft = currentTimer.timeLeft;
+      const currentStepObj = steps[currentTimer.index];
 
-        const currentStep = steps[prev.index];
-        if (!currentStep.automatic) {
-          return prev; // Skip non-automatic steps
-        }
+      if (currentTimeLeft === 31 && currentStepObj?.duration >= 30) {
+        player.seekTo(0);
+        player.play();
+      } else if (currentTimeLeft === 6) {
+        player5.seekTo(0);
+        player5.play();
+      } else if (currentTimeLeft === 5) {
+        player4.seekTo(0);
+        player4.play();
+      } else if (currentTimeLeft === 4) {
+        player3.seekTo(0);
+        player3.play();
+      } else if (currentTimeLeft === 3) {
+        player2.seekTo(0);
+        player2.play();
+      } else if (currentTimeLeft === 2) {
+        player1.seekTo(0);
+        player1.play();
+      } else if (currentTimeLeft === 1 && currentTimer.index < steps.length) {
+        infoSound.seekTo(0);
+        infoSound.play();
+      }
 
-        const newTimeLeft = prev.timeLeft - 1;
-        if (newTimeLeft > 0) {
-          const percentOfTimeRemaining = (newTimeLeft / currentStep.duration) * 100;
-          setProgress(percentOfTimeRemaining);
-
-          // Audio playback
-          if (newTimeLeft === 30 && currentStep.duration >= 30) {
-            player.seekTo(0);
-            player.play();
-          } else if (newTimeLeft === 5) {
-            player5.seekTo(0);
-            player5.play();
-          } else if (newTimeLeft === 4) {
-            player4.seekTo(0);
-            player4.play();
-          } else if (newTimeLeft === 3) {
-            player3.seekTo(0);
-            player3.play();
-          } else if (newTimeLeft === 2) {
-            player2.seekTo(0);
-            player2.play();
-          } else if (newTimeLeft === 1) {
-            player1.seekTo(0);
-            player1.play();
-          }
-
-          return { ...prev, timeLeft: newTimeLeft };
-        } else {
-          // Step complete
-          infoSound.seekTo(0);
-          infoSound.play();
-
-          const nextIndex = prev.index + 1;
-          if (nextIndex < steps.length) {
-            setProgress(100);
-            setCurrentStep(nextIndex);
-            return { index: nextIndex, timeLeft: steps[nextIndex].duration };
-          } else {
-            clearInterval(interval);
-            setProgress(0);
-            setCurrentStep(nextIndex);
-            return { index: nextIndex, timeLeft: 0 };
-          }
-        }
-      });
+      dispatch(tick());
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isLoading, steps, isPaused]);
+  }, [isLoading, steps, isPaused, currentTimer, dispatch]);
 
   // HIIT
-  // load parameters
   useEffect(() => {
     if (hiitJson) {
       try {
@@ -421,12 +374,6 @@ export default function WorkoutScreen() {
     }
   }, [amrap]);
 
-  useEffect(() => {
-    if (steps.length) {
-      setCurrentStep(0);
-    }
-  }, [steps]);
-
   // keep awake when screen loaded, deactivate it when leaving
   useFocusEffect(
     useCallback(() => {
@@ -438,7 +385,7 @@ export default function WorkoutScreen() {
   );
 
   return (
-    <>
+    <View>
       <TotalProgress steps={steps} currentStep={currentStep} />
       <Countdown
         steps={steps}
@@ -454,7 +401,9 @@ export default function WorkoutScreen() {
         onFastForward={handleFastForward}
         isPaused={isPaused}
       />
-      <Routine />
-    </>
+      {/*
+        <Routine />
+      */}
+    </View>
   );
 }
