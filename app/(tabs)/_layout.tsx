@@ -29,7 +29,7 @@ export default function TabsLayout() {
           borderTopColor: colors.border,
         },
         tabBarActiveTintColor: colors.primary, // Use theme color for active tab
-        tabBarInactiveTintColor: colors.background, // Use theme color for inactive tab
+        tabBarInactiveTintColor: colors.text, // Use theme color for inactive tab
       }}>
       <Tabs.Screen
         name="home"
