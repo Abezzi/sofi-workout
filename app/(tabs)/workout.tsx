@@ -3,8 +3,9 @@ import Countdown from '@/components/workout/countdown';
 import MediaControl from '@/components/workout/media-control';
 import Routine from '@/components/workout/routine';
 import TotalProgress from '@/components/workout/total-progress';
-import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 interface Hiit {
   rounds: number;
@@ -306,6 +307,16 @@ export default function WorkoutScreen() {
       setCurrentStep(0);
     }
   }, [steps]);
+
+  // keep awake when screen loaded, deactivate it when leaving
+  useFocusEffect(
+    useCallback(() => {
+      activateKeepAwakeAsync();
+      return () => {
+        deactivateKeepAwake();
+      };
+    }, [])
+  );
 
   return (
     <>
