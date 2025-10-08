@@ -1,4 +1,4 @@
-export const formatTime = (totalSeconds: number): string => {
+export const formatTimeLong = (totalSeconds: number): string => {
   if (totalSeconds <= 0) return '0 minutes';
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -14,4 +14,10 @@ export const formatTime = (totalSeconds: number): string => {
     result += ` ${seconds} second${seconds !== 1 ? 's' : ''}`;
   }
   return result.trim() || '0 minutes';
+};
+
+export const formatTimeShort = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };

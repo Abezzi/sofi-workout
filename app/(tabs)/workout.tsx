@@ -1,6 +1,6 @@
 import Countdown from '@/components/workout/countdown';
 import MediaControl from '@/components/workout/media-control';
-import Routine from '@/components/workout/routine';
+import RoutineDisplay from '@/components/workout/routine-display';
 import TotalProgress from '@/components/workout/total-progress';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -17,7 +17,6 @@ import {
   previousStep,
 } from '@/src/store/slices/workout/timerSlice';
 import { useSelector } from 'react-redux';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { View } from 'react-native';
 
 interface Hiit {
@@ -385,7 +384,7 @@ export default function WorkoutScreen() {
   );
 
   return (
-    <View>
+    <View className="items-center">
       <TotalProgress steps={steps} currentStep={currentStep} />
       <Countdown
         steps={steps}
@@ -401,9 +400,7 @@ export default function WorkoutScreen() {
         onFastForward={handleFastForward}
         isPaused={isPaused}
       />
-      {/*
-        <Routine />
-      */}
+      <RoutineDisplay />
     </View>
   );
 }

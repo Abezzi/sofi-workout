@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
-import { formatTime } from '@/utils/format-time';
+import { formatTimeLong } from '@/utils/format-time';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, Pressable } from 'react-native';
@@ -121,7 +121,7 @@ export default function Amrap() {
         </View>
         <View className="items-center pt-2">
           <Text>Total Time</Text>
-          <Text className="font-bold">{formatTime(totalTime)}</Text>
+          <Text className="font-bold">{formatTimeLong(totalTime)}</Text>
         </View>
       </CardContent>
       <CardFooter className="flex-col gap-3 pb-0">
