@@ -6,6 +6,7 @@ import { category } from './category';
 import { routine } from './routine';
 import { routine_exercise } from './routine_exercise';
 import { exercise_set } from './exercise_set';
+import { rest_timer } from './rest_timer';
 
 export * from './category';
 export * from './exercise_type';
@@ -40,5 +41,20 @@ export const exerciseSetRelations = relations(exercise_set, ({ one }) => ({
   routine: one(routine_exercise, {
     fields: [exercise_set.routineExerciseId],
     references: [routine_exercise.id],
+  }),
+}));
+
+export const restTimerRelations = relations(rest_timer, ({ one }) => ({
+  routine: one(routine, {
+    fields: [rest_timer.routineId],
+    references: [routine.id],
+  }),
+  routine_exercise: one(routine_exercise, {
+    fields: [rest_timer.routineExerciseId],
+    references: [routine_exercise.id],
+  }),
+  exercise_set: one(exercise_set, {
+    fields: [rest_timer.exerciseSetId],
+    references: [exercise_set.id],
   }),
 }));
