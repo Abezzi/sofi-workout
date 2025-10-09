@@ -5,7 +5,7 @@ import TotalProgress from '@/components/workout/total-progress';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { useAudioPlayer, AudioMode, AudioModule } from 'expo-audio';
+import { useAudioPlayer, AudioModule } from 'expo-audio';
 import { useDispatch } from 'react-redux';
 import store, { RootState, AppDispatch } from '@/src/store/storeSetup';
 import {
