@@ -1,4 +1,4 @@
-import { Check, ListPlus, Loader2, Save, X } from 'lucide-react-native';
+import { Check, ListPlus, Loader2, X } from 'lucide-react-native';
 import { Button } from '../ui/button';
 import {
   Dialog,
@@ -164,7 +164,7 @@ export function AddExerciseDialog({ open, onConfirm, onCancel }: AddExerciseDial
         <PortalHost name="dialog-overlay" />
         <DialogHeader>
           <DialogTitle>Add Exercise</DialogTitle>
-          <DialogDescription>Here i should have the selection of exercises.</DialogDescription>
+          <DialogDescription>You can edit the exercises even after adding them.</DialogDescription>
         </DialogHeader>
         <View className="grid gap-4">
           <View className="gap-3">
