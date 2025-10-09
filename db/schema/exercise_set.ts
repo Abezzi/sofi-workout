@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable } from 'drizzle-orm/sqlite-core';
 import { routine_exercise } from './routine_exercise';
 
 export const exercise_set = sqliteTable('exercise_set', {
