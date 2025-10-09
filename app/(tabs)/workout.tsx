@@ -5,9 +5,9 @@ import TotalProgress from '@/components/workout/total-progress';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { useAudioPlayer } from 'expo-audio';
+import { useAudioPlayer, AudioMode, AudioModule } from 'expo-audio';
 import { useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '@/src/store/storeSetup';
+import store, { RootState, AppDispatch } from '@/src/store/storeSetup';
 import {
   initialize,
   tick,
@@ -18,42 +18,16 @@ import {
 } from '@/src/store/slices/workout/timerSlice';
 import { useSelector } from 'react-redux';
 import { View } from 'react-native';
-
-interface Hiit {
-  rounds: number;
-  workTime: number;
-  restTime: number;
-  cycles: number;
-  cycleRestTime: number;
-}
-
-interface Emom {
-  rounds: number;
-  workTime: number;
-  cycles: number;
-  cycleRestTime: number;
-}
-
-interface Tabata {
-  rounds: number;
-  workTime: number;
-  restTime: number;
-  cycles: number;
-  cycleRestTime: number;
-}
-
-interface Amrap {
-  workTime: number;
-}
-
-type Step = {
-  step: number;
-  duration: number;
-  name: string;
-  // if its of type do something x amount of time => 'true' : 'false'
-  automatic: boolean;
-  isRest: boolean;
-};
+import {
+  Hiit,
+  Emom,
+  Tabata,
+  Amrap,
+  convertHiitToSteps,
+  convertEmomToSteps,
+  convertTabataToSteps,
+  convertAmrapToSteps,
+} from '@/components/workout/convert-interval-routines';
 
 export default function WorkoutScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -77,175 +51,39 @@ export default function WorkoutScreen() {
   const { amrapJson } = useLocalSearchParams() as {
     amrapJson: string;
   };
+  const [currentSoundFile, setCurrentSoundFile] = useState<any>(null);
+  const player = useAudioPlayer(currentSoundFile);
 
-  let player = useAudioPlayer(require('../../assets/audio/alert.mp3'));
-  let player5 = useAudioPlayer(require('../../assets/audio/countdown/esMX/male/5.mp3'));
-  let player4 = useAudioPlayer(require('../../assets/audio/countdown/esMX/male/4.mp3'));
-  let player3 = useAudioPlayer(require('../../assets/audio/countdown/esMX/male/3.mp3'));
-  let player2 = useAudioPlayer(require('../../assets/audio/countdown/esMX/male/2.mp3'));
-  let player1 = useAudioPlayer(require('../../assets/audio/countdown/esMX/male/1.mp3'));
-  let infoSound = useAudioPlayer(require('../../assets/audio/info.mp3'));
+  useEffect(() => {
+    AudioModule.setAudioModeAsync({
+      allowsRecording: false,
+      playsInSilentMode: true,
+      shouldPlayInBackground: true,
+    });
+  }, []);
 
-  const convertHiitToSteps = () => {
-    let stepsTemp: Step[] = [];
-    let stepCount: number = 0;
-
-    if (hiit) {
-      // preparation before starting
-      stepsTemp.push({
-        step: stepCount,
-        duration: 10,
-        name: 'Get Ready',
-        automatic: true,
-        isRest: true,
-      });
-      stepCount++;
-      for (let cycle = 0; cycle < hiit.cycles; cycle++) {
-        for (let round = 0; round < hiit.rounds; round++) {
-          stepsTemp.push({
-            step: stepCount,
-            duration: hiit.workTime,
-            name: 'Work',
-            automatic: true,
-            isRest: false,
-          });
-          stepCount++;
-          stepsTemp.push({
-            step: stepCount,
-            duration: hiit.restTime,
-            name: 'Rest',
-            automatic: true,
-            isRest: true,
-          });
-          stepCount++;
-        }
-        if (cycle < hiit.cycles - 1) {
-          stepsTemp.push({
-            step: stepCount,
-            duration: hiit.cycleRestTime,
-            name: 'Cycle Rest',
-            automatic: true,
-            isRest: true,
-          });
-          stepCount++;
-        }
+  const playSound = async (file: any) => {
+    try {
+      if (currentSoundFile !== file) {
+        // reload the player with the new file
+        setCurrentSoundFile(file);
+      } else {
+        await player.seekTo(0);
+        player.play();
       }
-      dispatch(initialize({ steps: stepsTemp }));
+    } catch (error) {
+      console.error('Error playing sound:', error);
     }
   };
 
-  const convertEmomToSteps = () => {
-    let stepsTemp: Step[] = [];
-    let stepCount: number = 0;
-
-    if (emom) {
-      // preparation before starting
-      stepsTemp.push({
-        step: stepCount,
-        duration: 10,
-        name: 'Get Ready',
-        automatic: true,
-        isRest: true,
-      });
-      stepCount++;
-      for (let cycle = 0; cycle < emom.cycles; cycle++) {
-        for (let round = 0; round < emom.rounds; round++) {
-          stepsTemp.push({
-            step: stepCount,
-            duration: emom.workTime,
-            name: 'Work',
-            automatic: true,
-            isRest: false,
-          });
-          stepCount++;
-        }
-        if (cycle < emom.cycles - 1) {
-          stepsTemp.push({
-            step: stepCount,
-            duration: emom.cycleRestTime,
-            name: 'Cycle Rest',
-            automatic: true,
-            isRest: true,
-          });
-          stepCount++;
-        }
-      }
-      dispatch(initialize({ steps: stepsTemp }));
+  // when the current sound changes seek to the start of the audio file and play it
+  useEffect(() => {
+    if (currentSoundFile) {
+      console.log('sound changed');
+      player.seekTo(0);
+      player.play();
     }
-  };
-
-  const convertTabataToSteps = () => {
-    let stepsTemp: Step[] = [];
-    let stepCount: number = 0;
-
-    if (tabata) {
-      // preparation before starting
-      stepsTemp.push({
-        step: stepCount,
-        duration: 10,
-        name: 'Get Ready',
-        automatic: true,
-        isRest: true,
-      });
-      stepCount++;
-      for (let cycle = 0; cycle < tabata.cycles; cycle++) {
-        for (let round = 0; round < tabata.rounds; round++) {
-          stepsTemp.push({
-            step: stepCount,
-            duration: tabata.workTime,
-            name: 'Work',
-            automatic: true,
-            isRest: false,
-          });
-          stepCount++;
-          stepsTemp.push({
-            step: stepCount,
-            duration: tabata.restTime,
-            name: 'Rest',
-            automatic: true,
-            isRest: true,
-          });
-          stepCount++;
-        }
-        if (cycle < tabata.cycles - 1) {
-          stepsTemp.push({
-            step: stepCount,
-            duration: tabata.cycleRestTime,
-            name: 'Cycle Rest',
-            automatic: true,
-            isRest: true,
-          });
-          stepCount++;
-        }
-      }
-      dispatch(initialize({ steps: stepsTemp }));
-    }
-  };
-
-  const convertAmrapToSteps = () => {
-    let stepsTemp: Step[] = [];
-    let stepCount: number = 0;
-
-    if (amrap) {
-      // preparation before starting
-      stepsTemp.push({
-        step: stepCount,
-        duration: 10,
-        name: 'Get Ready',
-        automatic: true,
-        isRest: true,
-      });
-      stepCount++;
-      stepsTemp.push({
-        step: stepCount,
-        duration: amrap.workTime,
-        name: 'Work',
-        automatic: true,
-        isRest: false,
-      });
-      dispatch(initialize({ steps: stepsTemp }));
-    }
-  };
+  }, [currentSoundFile, player]);
 
   // media control handlers
   const handleStartPause = () => {
@@ -269,30 +107,26 @@ export default function WorkoutScreen() {
     if (isLoading || !steps.length || isPaused) return;
 
     const interval = setInterval(() => {
-      const currentTimeLeft = currentTimer.timeLeft;
-      const currentStepObj = steps[currentTimer.index];
+      const state = store.getState().timer;
+      const currentTimeLeft = state.currentTimer.timeLeft;
+      const currentStepObj = state.steps[currentTimer.index];
+
+      console.log('time left', currentTimeLeft);
 
       if (currentTimeLeft === 31 && currentStepObj?.duration >= 30) {
-        player.seekTo(0);
-        player.play();
+        playSound(require('../../assets/audio/alert.mp3'));
       } else if (currentTimeLeft === 6) {
-        player5.seekTo(0);
-        player5.play();
+        playSound(require('../../assets/audio/countdown/esMX/male/5.mp3'));
       } else if (currentTimeLeft === 5) {
-        player4.seekTo(0);
-        player4.play();
+        playSound(require('../../assets/audio/countdown/esMX/male/4.mp3'));
       } else if (currentTimeLeft === 4) {
-        player3.seekTo(0);
-        player3.play();
+        playSound(require('../../assets/audio/countdown/esMX/male/3.mp3'));
       } else if (currentTimeLeft === 3) {
-        player2.seekTo(0);
-        player2.play();
+        playSound(require('../../assets/audio/countdown/esMX/male/2.mp3'));
       } else if (currentTimeLeft === 2) {
-        player1.seekTo(0);
-        player1.play();
+        playSound(require('../../assets/audio/countdown/esMX/male/1.mp3'));
       } else if (currentTimeLeft === 1 && currentTimer.index < steps.length) {
-        infoSound.seekTo(0);
-        infoSound.play();
+        playSound(require('../../assets/audio/info.mp3'));
       }
 
       dispatch(tick());
@@ -315,7 +149,8 @@ export default function WorkoutScreen() {
 
   useEffect(() => {
     if (hiit) {
-      convertHiitToSteps();
+      const stepsTemp = convertHiitToSteps(hiit);
+      dispatch(initialize({ steps: stepsTemp }));
     }
   }, [hiit]);
 
@@ -333,7 +168,8 @@ export default function WorkoutScreen() {
 
   useEffect(() => {
     if (emom) {
-      convertEmomToSteps();
+      const stepsTemp = convertEmomToSteps(emom);
+      dispatch(initialize({ steps: stepsTemp }));
     }
   }, [emom]);
 
@@ -351,7 +187,8 @@ export default function WorkoutScreen() {
 
   useEffect(() => {
     if (tabata) {
-      convertTabataToSteps();
+      const stepsTemp = convertTabataToSteps(tabata);
+      dispatch(initialize({ steps: stepsTemp }));
     }
   }, [tabata]);
 
@@ -369,7 +206,8 @@ export default function WorkoutScreen() {
 
   useEffect(() => {
     if (amrap) {
-      convertAmrapToSteps();
+      const stepsTemp = convertAmrapToSteps(amrap);
+      dispatch(initialize({ steps: stepsTemp }));
     }
   }, [amrap]);
 
