@@ -79,7 +79,6 @@ export default function WorkoutScreen() {
   // when the current sound changes seek to the start of the audio file and play it
   useEffect(() => {
     if (currentSoundFile) {
-      console.log('sound changed');
       player.seekTo(0);
       player.play();
     }
@@ -110,8 +109,6 @@ export default function WorkoutScreen() {
       const state = store.getState().timer;
       const currentTimeLeft = state.currentTimer.timeLeft;
       const currentStepObj = state.steps[currentTimer.index];
-
-      console.log('time left', currentTimeLeft);
 
       if (currentTimeLeft === 31 && currentStepObj?.duration >= 30) {
         playSound(require('../../assets/audio/alert.mp3'));
