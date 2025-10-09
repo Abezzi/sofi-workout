@@ -14,6 +14,7 @@ export * from './exercise';
 export * from './routine';
 export * from './routine_exercise';
 export * from './exercise_set';
+export * from './rest_timer';
 
 export const exerciseRelations = relations(exercise, ({ one }) => ({
   category: one(category, {

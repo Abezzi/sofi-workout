@@ -4,7 +4,8 @@ import { routine } from './routine';
 import { exercise_set } from './exercise_set';
 
 const restTimerTypes = ['set', 'exercise'] as const;
-export type RestTimerType = (typeof restTimerTypes)[number];
+// FIXME: not sure if I should export this type or not
+type RestTimerType = (typeof restTimerTypes)[number];
 
 export const rest_timer = sqliteTable('rest_timer', {
   id: integer('id').primaryKey({ autoIncrement: true }),
