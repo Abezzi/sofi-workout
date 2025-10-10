@@ -20,12 +20,15 @@ import {
 } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
-import { Routine, RoutineExercise, ExerciseSet } from '@/db/schema';
+import { Routine, RoutineExercise, ExerciseSet, RestTimer } from '@/db/schema';
 import { postRoutine } from '@/db/queries/routine.queries';
 import { postExerciseSet } from '@/db/queries/exercise_set.queries';
 import { postRoutineExercise } from '@/db/queries/routine_exercise.queries';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { postRestTimer } from '@/db/queries/routine_timer.queries';
 
 interface ExerciseItem {
   key: string;
@@ -52,6 +55,7 @@ export default function NewRoutineScreen() {
   const [routine, setRoutine] = useState<Routine>({
     id: 0,
     name: '',
+    restMode: 'automatic',
   });
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -63,7 +67,9 @@ export default function NewRoutineScreen() {
       android: insets.bottom + 24,
     }),
   };
-
+  const [setRest, setSetRest] = useState('0');
+  const [restBetweenExercise, setRestBetweenExercise] = useState('0');
+  const [manualRestCheck, setManualRestCheck] = useState<boolean>(false);
   const [exercises, setExercises] = useState<ExerciseItem[]>([]);
 
   function changeNavigationTitle() {
@@ -131,11 +137,16 @@ export default function NewRoutineScreen() {
     });
   }
 
+  const onCheckedChange = (checked: boolean) => {
+    setManualRestCheck(checked);
+    setRoutine({ id: routine.id, name: routine.name, restMode: checked ? 'manual' : 'automatic' });
+  };
+
   function handleAddExercise() {
     setOpenDialog(true);
   }
 
-  const handleInputChange = (field: keyof Routine, value: string) => {
+  const handleInputChange = (field: keyof Routine, value: string | boolean) => {
     setRoutine((prev) => ({
       ...prev,
       [field]: value,
@@ -149,6 +160,14 @@ export default function NewRoutineScreen() {
       const routineExerciseIds = await saveRoutineExercise(routineId);
       if (routineExerciseIds) {
         await saveExerciseSet(routineExerciseIds);
+        if (!manualRestCheck && setRest && restBetweenExercise) {
+          await saveRestTimer(
+            'automatic',
+            routineId,
+            parseInt(setRest),
+            parseInt(restBetweenExercise)
+          );
+        }
       }
     }
     setLoading(false);
@@ -169,7 +188,9 @@ export default function NewRoutineScreen() {
     setOpenDialog(false);
   }
 
-  function handleAddRest() {}
+  function handleAddRest() {
+    console.log('adding rest');
+  }
 
   useEffect(() => {
     changeNavigationTitle();
@@ -257,17 +278,109 @@ export default function NewRoutineScreen() {
     }
   };
 
+  const saveRestTimer = async (
+    restMode: 'automatic' | 'manual',
+    routineId: number,
+    setRest: number,
+    restBetweenExercise: number
+  ) => {
+    try {
+      let response;
+      if (restMode === 'automatic') {
+        const setRestTimer: RestTimer = {
+          id: 0,
+          routineId: routineId,
+          routineExerciseId: null,
+          exerciseSetId: null,
+          restTime: setRest,
+          type: 'set',
+        };
+        const restBetweenExerciseRestTimer: RestTimer = {
+          id: 0,
+          routineId: routineId,
+          routineExerciseId: null,
+          exerciseSetId: null,
+          restTime: restBetweenExercise,
+          type: 'exercise',
+        };
+        response = await postRestTimer(setRestTimer);
+        if (response.success) {
+          console.log(
+            `Rest timer saved successfully: routineId=${routineId}, restTime=${setRest}, type=set`
+          );
+        }
+        response = await postRestTimer(restBetweenExerciseRestTimer);
+        if (response.success) {
+          console.log(
+            `Rest timer saved successfully: routineId=${routineId}, restTime=${restBetweenExercise}, type=exercise`
+          );
+        }
+      } else if (restMode === 'manual') {
+        // TODO
+      } else {
+        // TODO
+        throw Error;
+      }
+    } catch (error) {
+      console.error('error in saveRestTimer: ', error);
+    }
+  };
+
   return (
     <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
       <CardHeader>
-        <View className="flex-row items-center justify-center">
+        <View className="flex-row items-center justify-center gap-2">
           <Button onPress={handleAddExercise}>
             <Text>Add Exercise</Text>
           </Button>
-          <Button onPress={handleAddRest} variant="outline" className="shadow shadow-foreground/5">
-            <Text>Add Rest</Text>
-          </Button>
+          <View className="flex-col items-center">
+            <Label nativeID="manualRestCheck" htmlFor="manualRestCheck">
+              Rest Mode
+            </Label>
+            <Switch
+              id="manualRestCheck"
+              nativeID="manualRestCheck"
+              checked={manualRestCheck}
+              onCheckedChange={onCheckedChange}
+            />
+            {manualRestCheck ? <Label>MANUAL</Label> : <Label>AUTOMATIC</Label>}
+          </View>
         </View>
+        {manualRestCheck ? (
+          <View className="flex-row items-center gap-2 px-4">
+            <Button
+              onPress={handleAddRest}
+              variant="outline"
+              className="shadow shadow-foreground/5">
+              <Text>Add Rest</Text>
+            </Button>
+          </View>
+        ) : (
+          <View className="flex-row items-center gap-2 px-4">
+            <View className="flex-1">
+              <Label nativeID="setRest">Set Rest</Label>
+              <Input
+                aria-labelledby="setRest"
+                value={setRest}
+                onChangeText={setSetRest}
+                keyboardType="numeric"
+                selectTextOnFocus={true}
+                className="h-12"
+              />
+            </View>
+            <View>
+              <Label nativeID="restBetweenExercise">Rest Between Exercises</Label>
+              <Input
+                aria-labelledby="restBetweenExercise"
+                value={restBetweenExercise}
+                onChangeText={setRestBetweenExercise}
+                keyboardType="numeric"
+                selectTextOnFocus={true}
+                className="h-12"
+              />
+            </View>
+          </View>
+        )}
       </CardHeader>
       <CardContent>
         <View className="px-4 pb-4">
