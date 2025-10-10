@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
-import { useNavigation } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { DraggableExerciseList } from '@/components/routine/draggable-exercise-list';
 import { Platform, View } from 'react-native';
@@ -71,6 +71,7 @@ export default function NewRoutineScreen() {
   const [restBetweenExercise, setRestBetweenExercise] = useState('0');
   const [manualRestCheck, setManualRestCheck] = useState<boolean>(false);
   const [exercises, setExercises] = useState<ExerciseItem[]>([]);
+  const router = useRouter();
 
   function changeNavigationTitle() {
     navigation.setOptions({
@@ -171,6 +172,11 @@ export default function NewRoutineScreen() {
       }
     }
     setLoading(false);
+    // TODO: sent an alert of success creating the routine or failed to create the routine
+    // navigate to home after creating it
+    router.push({
+      pathname: '/(tabs)/home',
+    });
   }
 
   function handleConfirmDialog(newExercise: ExerciseItem) {
