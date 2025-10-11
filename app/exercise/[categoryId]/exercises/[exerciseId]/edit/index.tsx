@@ -34,7 +34,7 @@ import { getAllExerciseType } from '@/db/queries/exercise_type.queries';
 type Exercise = {
   id: number;
   name: string;
-  description: string;
+  description: string | null;
   categoryId: number;
   exerciseTypeId: number;
 };
@@ -158,7 +158,7 @@ export default function EditExercise() {
               placeholder="Description..."
               aria-labelledby="exerciseDescription"
               aria-errormessage="inputError"
-              value={exercise.description}
+              value={exercise.description || undefined}
               onChangeText={(exerciseDescription) =>
                 handleInputChange('description', exerciseDescription)
               }
