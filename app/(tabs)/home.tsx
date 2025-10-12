@@ -59,7 +59,16 @@ export default function Screen() {
   }, []);
 
   const handleStart = () => {
-    console.log('starting...');
+    if (selectedRoutine) {
+      router.push({
+        pathname: '/(tabs)/workout',
+        params: { selectedRoutine: selectedRoutine.value },
+      });
+      console.log(`starting routine: ${selectedRoutine.value}...`);
+    } else {
+      // TODO: this should be an alert or message below the select
+      console.log('select a routine first');
+    }
   };
 
   return (
@@ -103,6 +112,9 @@ export default function Screen() {
                 </SelectGroup>
               </SelectContent>
             </Select>
+            <Button onPress={handleStart}>
+              <Text>Start</Text>
+            </Button>
           </View>
           {/*Tabs with the quick routines*/}
           <FastWorkouts />

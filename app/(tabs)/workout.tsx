@@ -28,6 +28,7 @@ import {
   convertTabataToSteps,
   convertAmrapToSteps,
 } from '@/components/workout/convert-interval-routines';
+import { convertRoutineToSteps } from '@/components/routine/convert-routine';
 
 export default function WorkoutScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -53,6 +54,9 @@ export default function WorkoutScreen() {
   };
   const [currentSoundFile, setCurrentSoundFile] = useState<any>(null);
   const player = useAudioPlayer(currentSoundFile);
+  const { selectedRoutine } = useLocalSearchParams() as {
+    selectedRoutine: string;
+  };
 
   useEffect(() => {
     AudioModule.setAudioModeAsync({
@@ -207,6 +211,22 @@ export default function WorkoutScreen() {
       dispatch(initialize({ steps: stepsTemp }));
     }
   }, [amrap]);
+
+  useEffect(() => {
+    if (selectedRoutine) {
+      (async () => {
+        try {
+          const stepsTemp = await convertRoutineToSteps(parseInt(selectedRoutine));
+          console.log('stepsTemp: ', stepsTemp);
+          if (stepsTemp) {
+            dispatch(initialize({ steps: stepsTemp }));
+          }
+        } catch (error) {
+          console.error('Error converting routine to steps:', error);
+        }
+      })();
+    }
+  }, [selectedRoutine]);
 
   // keep awake when screen loaded, deactivate it when leaving
   useFocusEffect(
