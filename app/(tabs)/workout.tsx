@@ -143,7 +143,7 @@ export default function WorkoutScreen() {
         const parsedHiit = JSON.parse(hiitJson as string);
         setHiit(parsedHiit);
       } catch (error) {
-        console.log('error parsing the params of hiit: ', error);
+        console.error('error parsing the params of hiit: ', error);
       }
     }
   }, [hiitJson]);
@@ -162,7 +162,7 @@ export default function WorkoutScreen() {
         const parsedEmom = JSON.parse(emomJson as string);
         setEmom(parsedEmom);
       } catch (error) {
-        console.log('error parsing the params of emom: ', error);
+        console.error('error parsing the params of emom: ', error);
       }
     }
   }, [emomJson]);
@@ -181,7 +181,7 @@ export default function WorkoutScreen() {
         const parsedTabata = JSON.parse(tabataJson as string);
         setTabata(parsedTabata);
       } catch (error) {
-        console.log('error parsing the params of tabata: ', error);
+        console.error('error parsing the params of tabata: ', error);
       }
     }
   }, [tabataJson]);
@@ -200,7 +200,7 @@ export default function WorkoutScreen() {
         const parsedAmrap = JSON.parse(amrapJson as string);
         setAmrap(parsedAmrap);
       } catch (error) {
-        console.log('error parsing the params of amrap: ', error);
+        console.error('error parsing the params of amrap: ', error);
       }
     }
   }, [amrapJson]);
@@ -217,7 +217,7 @@ export default function WorkoutScreen() {
       (async () => {
         try {
           const stepsTemp = await convertRoutineToSteps(parseInt(selectedRoutine));
-          console.log('stepsTemp: ', stepsTemp);
+          // console.log('stepsTemp: ', stepsTemp);
           if (stepsTemp) {
             dispatch(initialize({ steps: stepsTemp }));
           }
