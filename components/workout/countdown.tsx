@@ -3,14 +3,7 @@ import Animated, { LayoutAnimationConfig } from 'react-native-reanimated';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Progress } from '../ui/progress';
-
-type Step = {
-  step: number;
-  duration: number;
-  name: string;
-  automatic: boolean;
-  isRest: boolean;
-};
+import { Step } from '@/types/workout';
 
 type CountdownPropsType = {
   steps: Step[];
@@ -31,9 +24,10 @@ const Countdown = ({ steps, currentTimer, progress, isLoading, isPaused }: Count
   };
 
   const { index: currentStepIndex, timeLeft } = currentTimer;
-  const currentStep = steps[currentStepIndex] || { name: 'Waiting', duration: 0 };
+  const currentStep = steps[currentStepIndex] || { name: 'Waiting', quantity: 0 };
   const nextStep = steps[currentStepIndex + 1] || { name: 'Complete' };
   const isWorkoutComplete = currentStepIndex >= steps.length;
+  const isAutomatic = currentStep.automatic;
 
   return (
     <Card className={`rounder-2xl w-full max-w-sm p-6 ${currentStep.isRest ? '' : 'bg-green-100'}`}>
@@ -52,12 +46,15 @@ const Countdown = ({ steps, currentTimer, progress, isLoading, isPaused }: Count
               <View className="flex flex-row">
                 <Text className="text-2xl text-green-600">Congratulations!🎉</Text>
               </View>
-            ) : (
+            ) : isAutomatic ? (
               <Text className="truncate text-8xl">{formatTime(timeLeft)}</Text>
+            ) : (
+              // TODO: this is a place holder
+              <Text className="text-6xl">6 x 10 kg</Text>
             )}
           </Animated.View>
         </LayoutAnimationConfig>
-        {!isLoading && !isWorkoutComplete && (
+        {!isLoading && !isWorkoutComplete && isAutomatic && (
           <Progress
             value={progress}
             indicatorClassName={

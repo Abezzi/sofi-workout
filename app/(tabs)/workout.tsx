@@ -114,7 +114,7 @@ export default function WorkoutScreen() {
       const currentTimeLeft = state.currentTimer.timeLeft;
       const currentStepObj = state.steps[currentTimer.index];
 
-      if (currentTimeLeft === 31 && currentStepObj?.duration >= 30) {
+      if (currentTimeLeft === 31 && currentStepObj?.quantity >= 30) {
         playSound(require('../../assets/audio/alert.mp3'));
       } else if (currentTimeLeft === 6) {
         playSound(require('../../assets/audio/countdown/esMX/male/5.mp3'));

@@ -1,3 +1,4 @@
+import { Step } from '@/types/workout';
 export interface Hiit {
   rounds: number;
   workTime: number;
@@ -25,14 +26,6 @@ export interface Amrap {
   workTime: number;
 }
 
-export type Step = {
-  step: number;
-  duration: number;
-  name: string;
-  automatic: boolean;
-  isRest: boolean;
-};
-
 export const convertHiitToSteps = (hiit: Hiit): Step[] => {
   let stepsTemp: Step[] = [];
   let stepCount: number = 0;
@@ -40,38 +33,42 @@ export const convertHiitToSteps = (hiit: Hiit): Step[] => {
   // preparation before starting
   stepsTemp.push({
     step: stepCount,
-    duration: 10,
     name: 'Get Ready',
     automatic: true,
     isRest: true,
+    quantity: 10,
+    weight: null,
   });
   stepCount++;
   for (let cycle = 0; cycle < hiit.cycles; cycle++) {
     for (let round = 0; round < hiit.rounds; round++) {
       stepsTemp.push({
         step: stepCount,
-        duration: hiit.workTime,
+        quantity: hiit.workTime,
         name: 'Work',
         automatic: true,
         isRest: false,
+        weight: null,
       });
       stepCount++;
       stepsTemp.push({
         step: stepCount,
-        duration: hiit.restTime,
+        quantity: hiit.restTime,
         name: 'Rest',
         automatic: true,
         isRest: true,
+        weight: null,
       });
       stepCount++;
     }
     if (cycle < hiit.cycles - 1) {
       stepsTemp.push({
         step: stepCount,
-        duration: hiit.cycleRestTime,
+        quantity: hiit.cycleRestTime,
         name: 'Cycle Rest',
         automatic: true,
         isRest: true,
+        weight: null,
       });
       stepCount++;
     }
@@ -86,30 +83,33 @@ export const convertEmomToSteps = (emom: Emom): Step[] => {
   // preparation before starting
   stepsTemp.push({
     step: stepCount,
-    duration: 10,
+    quantity: 10,
     name: 'Get Ready',
     automatic: true,
     isRest: true,
+    weight: null,
   });
   stepCount++;
   for (let cycle = 0; cycle < emom.cycles; cycle++) {
     for (let round = 0; round < emom.rounds; round++) {
       stepsTemp.push({
         step: stepCount,
-        duration: emom.workTime,
+        quantity: emom.workTime,
         name: 'Work',
         automatic: true,
         isRest: false,
+        weight: null,
       });
       stepCount++;
     }
     if (cycle < emom.cycles - 1) {
       stepsTemp.push({
         step: stepCount,
-        duration: emom.cycleRestTime,
+        quantity: emom.cycleRestTime,
         name: 'Cycle Rest',
         automatic: true,
         isRest: true,
+        weight: null,
       });
       stepCount++;
     }
@@ -124,38 +124,42 @@ export const convertTabataToSteps = (tabata: Tabata): Step[] => {
   // preparation before starting
   stepsTemp.push({
     step: stepCount,
-    duration: 10,
+    quantity: 10,
     name: 'Get Ready',
     automatic: true,
     isRest: true,
+    weight: null,
   });
   stepCount++;
   for (let cycle = 0; cycle < tabata.cycles; cycle++) {
     for (let round = 0; round < tabata.rounds; round++) {
       stepsTemp.push({
         step: stepCount,
-        duration: tabata.workTime,
+        quantity: tabata.workTime,
         name: 'Work',
         automatic: true,
         isRest: false,
+        weight: null,
       });
       stepCount++;
       stepsTemp.push({
         step: stepCount,
-        duration: tabata.restTime,
+        quantity: tabata.restTime,
         name: 'Rest',
         automatic: true,
         isRest: true,
+        weight: null,
       });
       stepCount++;
     }
     if (cycle < tabata.cycles - 1) {
       stepsTemp.push({
         step: stepCount,
-        duration: tabata.cycleRestTime,
+        quantity: tabata.cycleRestTime,
         name: 'Cycle Rest',
         automatic: true,
         isRest: true,
+        weight: null,
       });
       stepCount++;
     }
@@ -170,18 +174,20 @@ export const convertAmrapToSteps = (amrap: Amrap): Step[] => {
   // preparation before starting
   stepsTemp.push({
     step: stepCount,
-    duration: 10,
+    quantity: 10,
     name: 'Get Ready',
     automatic: true,
     isRest: true,
+    weight: null,
   });
   stepCount++;
   stepsTemp.push({
     step: stepCount,
-    duration: amrap.workTime,
+    quantity: amrap.workTime,
     name: 'Work',
     automatic: true,
     isRest: false,
+    weight: null,
   });
   return stepsTemp;
 };

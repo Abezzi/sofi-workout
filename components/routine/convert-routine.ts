@@ -1,12 +1,5 @@
-import { getRoutineById, getRoutineWithExerciseAndRest } from '@/db/queries/routine.queries';
-
-export type Step = {
-  step: number;
-  duration: number;
-  name: string;
-  automatic: boolean;
-  isRest: boolean;
-};
+import { getRoutineWithExerciseAndRest } from '@/db/queries/routine.queries';
+import { Step } from '@/types/workout';
 
 export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<Step[]> => {
   let stepsTemp: Step[] = [];
@@ -19,10 +12,11 @@ export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<
     // get ready step 0
     stepsTemp.push({
       step: stepCount,
-      duration: 10,
+      quantity: 10,
       name: 'Get Ready',
       automatic: true,
       isRest: true,
+      weight: null,
     });
     stepCount++;
 
@@ -43,10 +37,11 @@ export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<
         // add step for the set
         stepsTemp.push({
           step: stepCount,
-          duration: 0, //TODO: implement duration for exercise_type == time exercises
+          quantity: set.quantity,
           name: `${exercise.name} - Set ${set.setNumber} (${set.quantity} reps, ${set.weight} kg)`,
           automatic: isExerciseAutomatic,
           isRest: false,
+          weight: set.weight,
         });
         stepCount++;
 
@@ -54,10 +49,11 @@ export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<
         if (isAutomatic && setRestTimer && j < exercise.sets.length - 1) {
           stepsTemp.push({
             step: stepCount,
-            duration: setRestTimer.restTime,
+            quantity: setRestTimer.restTime,
             name: `Rest after ${exercise.name} - Set ${set.setNumber}`,
             automatic: true,
             isRest: true,
+            weight: null,
           });
           stepCount++;
         }
@@ -67,10 +63,11 @@ export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<
       if (isAutomatic && exerciseRestTimer && i < routineData.exercises.length - 1) {
         stepsTemp.push({
           step: stepCount,
-          duration: exerciseRestTimer.restTime,
+          quantity: exerciseRestTimer.restTime,
           name: `Rest after ${exercise.name}`,
           automatic: true,
           isRest: true,
+          weight: null,
         });
         stepCount++;
       }

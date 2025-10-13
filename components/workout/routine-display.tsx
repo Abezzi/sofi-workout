@@ -6,14 +6,7 @@ import { FlatList, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatTimeShort } from '@/utils/format-time';
 import { memo } from 'react';
-
-interface Step {
-  step: number;
-  duration: number;
-  name: string;
-  automatic: boolean;
-  isRest: boolean;
-}
+import { Step } from '@/types/workout';
 
 interface StepItemProps {
   step: Step;
@@ -27,7 +20,7 @@ const StepItem = memo(({ step, isCurrent }: StepItemProps) => {
         isCurrent ? 'border-2 border-blue-500 bg-blue-100' : 'bg-gray-100'
       }`}>
       <Text className={`text-base ${isCurrent ? 'font-semibold text-blue-700' : 'text-gray-700'}`}>
-        {step.name} {step.automatic ? '(' + formatTimeShort(step.duration) + ')' : ''}
+        {step.name} {step.automatic ? '(' + formatTimeShort(step.quantity) + ')' : ''}
       </Text>
       <Text className={`text-sm ${isCurrent ? 'text-blue-600' : 'text-gray-500'}`}>
         {step.isRest ? 'Rest' : 'Work'}

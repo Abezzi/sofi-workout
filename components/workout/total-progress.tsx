@@ -3,14 +3,7 @@ import Animated, { FadeInUp, FadeOutDown, LayoutAnimationConfig } from 'react-na
 import { Progress } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
 import { useEffect, useState } from 'react';
-
-type Step = {
-  step: number;
-  duration: number;
-  name: string;
-  automatic: boolean;
-  isRest: boolean;
-};
+import { Step } from '@/types/workout';
 
 interface TotalProgressProps {
   steps: Step[];
@@ -48,8 +41,6 @@ const TotalProgress = ({ steps, currentStep }: TotalProgressProps) => {
             </Animated.View>
           </LayoutAnimationConfig>
         </View>
-
-        <Text></Text>
       </View>
     </>
   );

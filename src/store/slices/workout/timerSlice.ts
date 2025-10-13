@@ -1,12 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-export type Step = {
-  step: number;
-  duration: number;
-  name: string;
-  automatic: boolean;
-  isRest: boolean;
-};
+import { Step } from '@/types/workout';
 
 export type TimerState = {
   steps: Step[];
@@ -34,7 +27,7 @@ const timerSlice = createSlice({
       const steps = action.payload.steps;
       if (steps.length > 0) {
         state.steps = steps;
-        state.currentTimer = { index: 0, timeLeft: steps[0].duration };
+        state.currentTimer = { index: 0, timeLeft: steps[0].quantity };
         state.progress = 0;
         state.isLoading = false;
         state.isPaused = true;
@@ -58,13 +51,13 @@ const timerSlice = createSlice({
       }
       const newTimeLeft = state.currentTimer.timeLeft - 1;
       if (newTimeLeft > 0) {
-        const percentOfTimeRemaining = (newTimeLeft / currentStep.duration) * 100;
+        const percentOfTimeRemaining = (newTimeLeft / currentStep.quantity) * 100;
         state.currentTimer.timeLeft = newTimeLeft;
         state.progress = percentOfTimeRemaining;
       } else {
         const nextIndex = state.currentTimer.index + 1;
         if (nextIndex < state.steps.length) {
-          state.currentTimer = { index: nextIndex, timeLeft: state.steps[nextIndex].duration };
+          state.currentTimer = { index: nextIndex, timeLeft: state.steps[nextIndex].quantity };
           state.progress = 100;
           state.currentStep = nextIndex;
         } else {
@@ -79,7 +72,7 @@ const timerSlice = createSlice({
       state.isPaused = action.payload.isPaused;
     },
     stop: (state) => {
-      state.currentTimer = { index: 0, timeLeft: state.steps[0]?.duration || 0 };
+      state.currentTimer = { index: 0, timeLeft: state.steps[0]?.quantity || 0 };
       state.progress = 0;
       state.currentStep = 0;
       state.isPaused = true;
@@ -87,7 +80,7 @@ const timerSlice = createSlice({
     nextStep: (state) => {
       const nextIndex = state.currentTimer.index + 1;
       if (nextIndex < state.steps.length) {
-        state.currentTimer = { index: nextIndex, timeLeft: state.steps[nextIndex].duration };
+        state.currentTimer = { index: nextIndex, timeLeft: state.steps[nextIndex].quantity };
         state.progress = 100;
         state.currentStep = nextIndex;
         state.isPaused = true;
@@ -96,7 +89,7 @@ const timerSlice = createSlice({
     previousStep: (state) => {
       const prevIndex = state.currentTimer.index - 1;
       if (prevIndex >= 0) {
-        state.currentTimer = { index: prevIndex, timeLeft: state.steps[prevIndex].duration };
+        state.currentTimer = { index: prevIndex, timeLeft: state.steps[prevIndex].quantity };
         state.progress = 100;
         state.currentStep = prevIndex;
         state.isPaused = true;
