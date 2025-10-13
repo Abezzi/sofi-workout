@@ -26,7 +26,7 @@ const TotalProgress = ({ steps, currentStep }: TotalProgressProps) => {
 
   return (
     <>
-      <View className="flex-row items-center overflow-hidden p-2">
+      <View className="mx-2 flex-row items-center overflow-hidden p-2">
         <View className="relative h-8 flex-1">
           <Progress value={progress} className="h-8 flex-1" indicatorClassName="bg-slate-500" />
           <LayoutAnimationConfig skipEntering>

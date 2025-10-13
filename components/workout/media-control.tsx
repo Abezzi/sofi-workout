@@ -25,17 +25,33 @@ export default function MediaControl({
 }: MediaControlProps) {
   return (
     <View className="m-2 flex flex-row items-center justify-center gap-1">
-      <Button onPress={onRewind} size="lg">
-        <Icon as={Rewind} className="text-primary-foreground" />
+      <Button
+        onPress={onRewind}
+        variant="outline"
+        size="lg"
+        className="bg-background dark:bg-primary-foreground">
+        <Icon as={Rewind} className="text-primary dark:text-white" />
       </Button>
-      <Button onPress={onStartPause} size="lg">
-        <Icon as={isPaused ? Play : Pause} className="text-primary-foreground" />
+      <Button
+        onPress={onStartPause}
+        variant="outline"
+        size="lg"
+        className="bg-background dark:bg-primary-foreground">
+        <Icon as={isPaused ? Play : Pause} className="text-primary dark:text-white" />
       </Button>
-      <Button onPress={onStop} size="lg">
-        <Icon as={Square} className="text-primary-foreground" />
+      <Button
+        onPress={onStop}
+        variant="outline"
+        size="lg"
+        className="bg-background dark:bg-primary-foreground">
+        <Icon as={Square} className="text-primary dark:text-white" />
       </Button>
-      <Button onPress={onFastForward} size="lg">
-        <Icon as={FastForward} className="text-primary-foreground" />
+      <Button
+        onPress={onFastForward}
+        variant="outline"
+        size="lg"
+        className="bg-background dark:bg-primary-foreground">
+        <Icon as={FastForward} className="text-primary dark:text-white" />
       </Button>
     </View>
   );

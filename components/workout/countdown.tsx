@@ -30,7 +30,8 @@ const Countdown = ({ steps, currentTimer, progress, isLoading, isPaused }: Count
   const isAutomatic = currentStep.automatic;
 
   return (
-    <Card className={`rounder-2xl w-full max-w-sm p-6 ${currentStep.isRest ? '' : 'bg-green-100'}`}>
+    <Card
+      className={`rounder-2xl w-full max-w-sm p-6 ${currentStep.isRest ? '' : 'bg-green-100 dark:bg-green-700'}`}>
       <CardHeader>
         <CardTitle className="pb-2 text-center uppercase">
           {isLoading ? 'Loading...' : isWorkoutComplete ? 'Workout Complete' : currentStep.name}
@@ -49,8 +50,9 @@ const Countdown = ({ steps, currentTimer, progress, isLoading, isPaused }: Count
             ) : isAutomatic ? (
               <Text className="truncate text-8xl">{formatTime(timeLeft)}</Text>
             ) : (
-              // TODO: this is a place holder
-              <Text className="text-6xl">6 x 10 kg</Text>
+              <Text className="text-6xl">
+                {currentStep.quantity}x{currentStep.weight} kg
+              </Text>
             )}
           </Animated.View>
         </LayoutAnimationConfig>

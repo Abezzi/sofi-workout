@@ -17,9 +17,12 @@ const StepItem = memo(({ step, isCurrent }: StepItemProps) => {
   return (
     <View
       className={`mb-2 rounded-lg p-3 ${
-        isCurrent ? 'border-2 border-blue-500 bg-blue-100' : 'bg-gray-100'
+        isCurrent
+          ? 'border-2 border-blue-500 bg-blue-100'
+          : 'bg-gray-100 dark:bg-primary-foreground'
       }`}>
-      <Text className={`text-base ${isCurrent ? 'font-semibold text-blue-700' : 'text-gray-700'}`}>
+      <Text
+        className={`text-base ${isCurrent ? 'font-semibold text-blue-700' : 'text-gray-700 dark:text-white'}`}>
         {step.name} {step.automatic ? '(' + formatTimeShort(step.quantity) + ')' : ''}
       </Text>
       <Text className={`text-sm ${isCurrent ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -43,7 +46,7 @@ const RoutineDisplay = () => {
   return (
     <Card className="rounder-2xl w-full max-w-sm">
       <CardHeader className="items-center">
-        <Text className="text-lg font-bold">Routine</Text>
+        <Text className="text-gray text-lg font-bold outline dark:text-white">Routine</Text>
       </CardHeader>
       <CardContent>
         {steps.length > 0 ? (
