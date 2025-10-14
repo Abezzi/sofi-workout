@@ -45,7 +45,10 @@ export const convertHiitToSteps = (hiit: Hiit): Step[] => {
       stepsTemp.push({
         step: stepCount,
         quantity: hiit.workTime,
-        name: 'Work',
+        name:
+          hiit.cycles > 1
+            ? `Work ${round + 1} of ${hiit.rounds} :: Cycle: ${cycle + 1}/${hiit.cycles}`
+            : `Work ${round + 1} of ${hiit.rounds}`,
         automatic: true,
         isRest: false,
         weight: null,
@@ -95,7 +98,10 @@ export const convertEmomToSteps = (emom: Emom): Step[] => {
       stepsTemp.push({
         step: stepCount,
         quantity: emom.workTime,
-        name: 'Work',
+        name:
+          emom.cycles > 1
+            ? `Work ${round + 1} of ${emom.rounds} :: Cycle: ${cycle + 1}/${emom.cycles}`
+            : `Work ${round + 1} of ${emom.rounds}`,
         automatic: true,
         isRest: false,
         weight: null,
@@ -136,7 +142,10 @@ export const convertTabataToSteps = (tabata: Tabata): Step[] => {
       stepsTemp.push({
         step: stepCount,
         quantity: tabata.workTime,
-        name: 'Work',
+        name:
+          tabata.cycles > 1
+            ? `Work ${round + 1} of ${tabata.rounds} :: Cycle: ${cycle + 1}/${tabata.cycles}`
+            : `Work ${round + 1} of ${tabata.rounds}`,
         automatic: true,
         isRest: false,
         weight: null,
