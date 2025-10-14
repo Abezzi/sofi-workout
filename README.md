@@ -55,6 +55,10 @@ Or scan the QR code with the [Expo Go](https://expo.dev/go) app to test on your 
 - 🎨 Styled with [Tailwind CSS](https://tailwindcss.com/) via [Nativewind](https://www.nativewind.dev/)
 - 📦 UI powered by [React Native Reusables](https://github.com/founded-labs/react-native-reusables)
 - 🚀 New Architecture enabled
+- 🙋‍♂️ Redux Toolkit
+- 📋 Draggable Flatlist
+- 💽 DrizzleORM with SQLite
+- 🌙 Dark Mode
 - 🔥 Edge to Edge enabled
 - 📱 Runs on iOS, Android, and Web
 
