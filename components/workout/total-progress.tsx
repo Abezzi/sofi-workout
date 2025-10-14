@@ -28,7 +28,11 @@ const TotalProgress = ({ steps, currentStep }: TotalProgressProps) => {
     <>
       <View className="mx-2 flex-row items-center overflow-hidden p-2">
         <View className="relative h-8 flex-1">
-          <Progress value={progress} className="h-8 flex-1" indicatorClassName="bg-slate-500" />
+          <Progress
+            value={progress}
+            className="h-8 flex-1 border border-border outline"
+            indicatorClassName="bg-primary-foreground"
+          />
           <LayoutAnimationConfig skipEntering>
             <Animated.View
               key={progress}
