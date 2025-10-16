@@ -14,13 +14,11 @@ const TotalProgress = ({ steps, currentStep }: TotalProgressProps) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (currentStep) {
-      updateProgressValue();
-    }
-  }, [currentStep]);
+    updateProgressValue();
+  }, [currentStep, steps.length]);
 
   function updateProgressValue() {
-    const progress: number = Math.round((currentStep / steps.length) * 100);
+    const progress: number = steps.length > 0 ? Math.round((currentStep / steps.length) * 100) : 0;
     setProgress(progress);
   }
 
