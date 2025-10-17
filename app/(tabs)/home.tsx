@@ -19,6 +19,7 @@ import { Routine } from '@/db/schema';
 import { getAllRoutines } from '@/db/queries/routine.queries';
 import { Label } from '@/components/ui/label';
 import FastWorkouts from '@/components/routine/fast-workouts';
+import RoutineList from '@/components/routine/routine-list';
 
 type Option = {
   value: string;
@@ -116,6 +117,8 @@ export default function Screen() {
               <Text>Start</Text>
             </Button>
           </View>
+          {/*Routine List*/}
+          <RoutineList />
           {/*Tabs with the quick routines*/}
           <FastWorkouts />
         </CardContent>
