@@ -28,17 +28,6 @@ type Option = {
 
 export default function Screen() {
   const insets = useSafeAreaInsets();
-  const [selectedRoutine, setSelectedRoutine] = useState<Option | undefined>(undefined);
-  const [loadingRoutines, setLoadingRoutines] = useState<boolean>(false);
-  const [routineData, setRoutineData] = useState<Routine[]>([]);
-  const ref = useRef<TriggerRef>(null);
-  const contentInsets = {
-    top: insets.top,
-    bottom: Platform.select({
-      ios: insets.bottom,
-      android: insets.bottom + 24,
-    }),
-  };
 
   function handleNewRoutine() {
     router.push({ pathname: '/routine/new-routine' });
@@ -47,30 +36,6 @@ export default function Screen() {
   function handleCopyRoutine() {
     router.push({ pathname: '/routine/copy-routine' });
   }
-
-  const loadAllRoutines = async () => {
-    setLoadingRoutines(true);
-    const data = await getAllRoutines();
-    if (data !== undefined) setRoutineData(data);
-    setLoadingRoutines(false);
-  };
-
-  useEffect(() => {
-    loadAllRoutines();
-  }, []);
-
-  const handleStart = () => {
-    if (selectedRoutine) {
-      router.push({
-        pathname: '/(tabs)/workout',
-        params: { selectedRoutine: selectedRoutine.value },
-      });
-      console.log(`starting routine: ${selectedRoutine.value}...`);
-    } else {
-      // TODO: this should be an alert or message below the select
-      console.log('select a routine first');
-    }
-  };
 
   return (
     <View className="flex-1" style={{ paddingBottom: insets.bottom }}>
@@ -91,33 +56,8 @@ export default function Screen() {
         </CardHeader>
 
         <CardContent>
-          {/*Routine Select*/}
-          <View>
-            <Label htmlFor="routine">Routine to load:</Label>
-            <Select
-              id="routine"
-              disabled={loadingRoutines}
-              value={selectedRoutine}
-              onValueChange={(option) => setSelectedRoutine(option)}>
-              <SelectTrigger ref={ref}>
-                <SelectValue placeholder="Select a Routine..." className="text-lg" />
-              </SelectTrigger>
-              <SelectContent insets={contentInsets} className="max-h-96 w-auto rounded-md">
-                <SelectGroup>
-                  <SelectLabel className="text-lg">routines</SelectLabel>
-                  {routineData.map((routine) => (
-                    <SelectItem key={routine.id} label={routine.name} value={routine.id.toString()}>
-                      {routine.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Button onPress={handleStart}>
-              <Text>Start</Text>
-            </Button>
-          </View>
           {/*Routine List*/}
+          <Label htmlFor="routine">Select a Routine:</Label>
           <RoutineList />
           {/*Tabs with the quick routines*/}
           <FastWorkouts />
