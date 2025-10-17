@@ -1,12 +1,13 @@
-import { FlatList, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 import { Text } from '../ui/text';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import {
   getRoutinesWithExerciseAndRest,
   RoutineWithExerciseAndRest,
 } from '@/db/queries/routine.queries';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
+import { router } from 'expo-router';
 import { Icon } from '../ui/icon';
 import { Ghost } from 'lucide-react-native';
 
@@ -26,9 +27,10 @@ interface RoutineItemProps {
       weight: number;
     }[];
   }[];
+  id: number;
 }
 
-const RoutineItem = memo(({ name, exercises }: RoutineItemProps) => {
+const RoutineItem = memo(({ name, exercises, id }: RoutineItemProps) => {
   // filter exercises to get unique categories
   const uniqueCategories = exercises.filter(
     (exercise, index, self) =>
@@ -36,24 +38,39 @@ const RoutineItem = memo(({ name, exercises }: RoutineItemProps) => {
   );
 
   return (
-    <View className="mb-2 items-center rounded-lg border-2 border-primary bg-gray-100 p-3 dark:bg-primary-foreground">
-      <Text className="text-base font-semibold">{name}</Text>
-      <View className="flex flex-row">
-        {uniqueCategories.length > 0 ? (
-          uniqueCategories.map((exercise) =>
-            exercise.category ? (
-              <Text key={exercise.category.id} style={{ color: `${exercise.category.color}` }}>
-                ■
-              </Text>
-            ) : null
-          )
-        ) : (
-          <Text>No categories available</Text>
-        )}
+    <Pressable onPress={() => handleOnPress(id)}>
+      <View className="w-48 items-center rounded-lg border border-primary bg-gray-100 p-3 dark:bg-primary-foreground">
+        <Text
+          className="line-clamp-2 break-words text-center align-middle text-base font-medium"
+          numberOfLines={2}
+          ellipsizeMode="tail"
+          style={{ minHeight: 55 }}>
+          {name}
+        </Text>
+        <View className="flex flex-row">
+          {uniqueCategories.length > 0 ? (
+            uniqueCategories.map((exercise) =>
+              exercise.category ? (
+                <Text key={exercise.category.id} style={{ color: `${exercise.category.color}` }}>
+                  ■
+                </Text>
+              ) : null
+            )
+          ) : (
+            <Text>No categories</Text>
+          )}
+        </View>
       </View>
-    </View>
+    </Pressable>
   );
 });
+
+const handleOnPress = (id: number) => {
+  router.push({
+    pathname: '/(tabs)/workout',
+    params: { selectedRoutine: id },
+  });
+};
 
 export default function RoutineList() {
   const [routines, setRoutines] = useState<RoutineWithExerciseAndRest[]>();
@@ -84,20 +101,20 @@ export default function RoutineList() {
   });
 
   return (
-    <Card className="p-0 align-middle">
+    <Card className="m-0 p-0">
       {routines && routines.length > 0 ? (
         <>
           <FlatList
             data={routines}
             horizontal={true}
-            renderItem={({ item }) => <RoutineItem name={item.name} exercises={item.exercises} />}
+            renderItem={({ item }) => (
+              <RoutineItem name={item.name} exercises={item.exercises} id={item.id} />
+            )}
             initialNumToRender={10}
             maxToRenderPerBatch={10}
             windowSize={5}
             getItemLayout={getItemLayout}
-            contentContainerStyle={{
-              paddingHorizontal: 10,
-            }}
+            ItemSeparatorComponent={() => <View className="w-1" />}
           />
         </>
       ) : (
