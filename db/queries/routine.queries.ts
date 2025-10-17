@@ -11,7 +11,7 @@ import {
 import { eq, and } from 'drizzle-orm';
 import { db } from '..';
 
-interface RoutineWithExerciseAndRest {
+export interface RoutineWithExerciseAndRest {
   id: number;
   name: string;
   restMode: 'automatic' | 'manual';
@@ -245,5 +245,68 @@ export async function getRoutineWithExerciseAndRest(
   } catch (error) {
     console.log('Error in getRoutineWithExerciseAndRest:', error);
     return undefined;
+  }
+}
+
+export async function getRoutinesWithExerciseAndRest(): Promise<RoutineWithExerciseAndRest[]> {
+  try {
+    return await db.transaction(async (tx) => {
+      // fetch all routines with their exercises and sets
+      const mainData = await tx
+        .select()
+        .from(routine)
+        .leftJoin(routine_exercise, eq(routine.id, routine_exercise.routineId))
+        .leftJoin(exercise, eq(routine_exercise.exerciseId, exercise.id))
+        .leftJoin(category, eq(exercise.categoryId, category.id))
+        .leftJoin(exercise_type, eq(exercise.exerciseTypeId, exercise_type.id))
+        .leftJoin(exercise_set, eq(routine_exercise.id, exercise_set.routineExerciseId))
+        .where(eq(routine.restMode, 'automatic'));
+
+      if (mainData.length === 0) {
+        return [];
+      }
+      const restTimersRaw = await tx.select().from(rest_timer);
+
+      // group mainData by routineId
+      const routinesMap = new Map<number, any[]>();
+      mainData.forEach((record) => {
+        const routineId = record.routine.id;
+        if (!routinesMap.has(routineId)) {
+          routinesMap.set(routineId, []);
+        }
+        routinesMap.get(routineId)!.push(record);
+      });
+
+      // transform each routine
+      const routines: RoutineWithExerciseAndRest[] = [];
+      for (const [routineId, records] of routinesMap) {
+        let transformed = transformDbToRoutineExerciseAndRest(records);
+
+        // filter and map rest timers
+        transformed.restTimers = restTimersRaw
+          .filter((rt) => rt.routineId === routineId)
+          .map((rt) => ({
+            id: rt.id,
+            routineId: rt.routineId,
+            routineExerciseId: rt.routineExerciseId || null,
+            exerciseSetId: rt.exerciseSetId || null,
+            restTime: rt.restTime,
+            type: rt.type,
+          }));
+
+        // sort rest timers by id
+        transformed.restTimers.sort((a, b) => a.id - b.id);
+
+        routines.push(transformed);
+      }
+
+      // Sort routines by id
+      routines.sort((a, b) => a.id - b.id);
+
+      return routines;
+    });
+  } catch (error) {
+    console.log('Error in getRoutinesWithExerciseAndRest:', error);
+    return [];
   }
 }
