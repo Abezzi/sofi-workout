@@ -4,7 +4,7 @@ import { Text } from '@/components/ui/text';
 import { useNavigation, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { DraggableExerciseList } from '@/components/routine/draggable-exercise-list';
-import { Platform, View } from 'react-native';
+import { Alert, Platform, ToastAndroid, View } from 'react-native';
 import { AddExerciseDialog } from '@/components/routine/add-exercise-dialog';
 import {
   ArrowLeft,
@@ -49,6 +49,11 @@ interface ExerciseItem {
   }[];
 }
 
+interface Errors {
+  routineName: string;
+  exercises: string;
+}
+
 export default function NewRoutineScreen() {
   const navigation = useNavigation();
   const [routineExercises, setRoutineExercises] = useState<RoutineExercise[]>([]);
@@ -71,7 +76,41 @@ export default function NewRoutineScreen() {
   const [restBetweenExercise, setRestBetweenExercise] = useState('0');
   const [manualRestCheck, setManualRestCheck] = useState<boolean>(false);
   const [exercises, setExercises] = useState<ExerciseItem[]>([]);
+  const [errors, setErrors] = useState<Errors>();
+  const [isFormValid, setIsFormValid] = useState(false);
   const router = useRouter();
+
+  const errorsAlert = () => {
+    if (!errors) return;
+
+    const filteredErrors = Object.values(errors).filter((error: string) => error !== ''); // Explicit typing
+
+    if (filteredErrors.length === 0) return;
+
+    Alert.alert(
+      'Invalid Fields',
+      `Should complete all the required fields:\n${filteredErrors
+        .map((error) => `- ${error}`)
+        .join('\n')}`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+        },
+      ]
+    );
+  };
+
+  const successToast = () => {
+    ToastAndroid.showWithGravity(
+      'Routine Saved Successfully',
+      ToastAndroid.SHORT,
+      ToastAndroid.CENTER
+    );
+  };
 
   function changeNavigationTitle() {
     navigation.setOptions({
@@ -156,27 +195,31 @@ export default function NewRoutineScreen() {
 
   async function handleSubmit() {
     setLoading(true);
-    const routineId = await saveRoutine();
-    if (routineId) {
-      const routineExerciseIds = await saveRoutineExercise(routineId);
-      if (routineExerciseIds) {
-        await saveExerciseSet(routineExerciseIds);
-        if (!manualRestCheck && setRest && restBetweenExercise) {
-          await saveRestTimer(
-            'automatic',
-            routineId,
-            parseInt(setRest),
-            parseInt(restBetweenExercise)
-          );
+    if (isFormValid) {
+      const routineId = await saveRoutine();
+      if (routineId) {
+        const routineExerciseIds = await saveRoutineExercise(routineId);
+        if (routineExerciseIds) {
+          await saveExerciseSet(routineExerciseIds);
+          if (!manualRestCheck && setRest && restBetweenExercise) {
+            await saveRestTimer(
+              'automatic',
+              routineId,
+              parseInt(setRest),
+              parseInt(restBetweenExercise)
+            );
+          }
         }
       }
+      setLoading(false);
+      successToast();
+      router.push({
+        pathname: '/(tabs)/home',
+      });
+    } else {
+      errorsAlert();
+      setLoading(false);
     }
-    setLoading(false);
-    // TODO: sent an alert of success creating the routine or failed to create the routine
-    // navigate to home after creating it
-    router.push({
-      pathname: '/(tabs)/home',
-    });
   }
 
   function handleConfirmDialog(newExercise: ExerciseItem) {
@@ -201,6 +244,25 @@ export default function NewRoutineScreen() {
   useEffect(() => {
     changeNavigationTitle();
   }, [navigation]);
+
+  useEffect(() => {
+    validateForm();
+  }, [routine.name, exercises]);
+
+  const validateForm = () => {
+    let errors: Errors = { routineName: '', exercises: '' };
+
+    if (!routine.name) {
+      errors.routineName = 'Routine name is required';
+    }
+
+    if (!exercises || exercises.length === 0) {
+      errors.exercises = 'Add at least one exercise before saving';
+    }
+
+    setErrors(errors);
+    setIsFormValid(Object.keys(errors).length === 0);
+  };
 
   const saveRoutine = async () => {
     if (routine) {
@@ -396,6 +458,7 @@ export default function NewRoutineScreen() {
             autoCapitalize="none"
             value={routine.name}
             onChangeText={(routineName) => handleInputChange('name', routineName)}
+            className={`${errors && errors.routineName ? 'border border-red-500' : ''}`}
           />
         </View>
         {exercises.length > 0 ? (
