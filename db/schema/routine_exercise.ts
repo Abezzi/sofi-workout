@@ -6,10 +6,10 @@ export const routine_exercise = sqliteTable('routine_exercise', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   routineId: integer('routine_id')
     .notNull()
-    .references(() => routine.id),
+    .references(() => routine.id, { onDelete: 'cascade' }),
   exerciseId: integer('exercise_id')
     .notNull()
-    .references(() => exercise.id),
+    .references(() => exercise.id, { onDelete: 'cascade' }),
   position: integer('position').notNull(),
 });
 

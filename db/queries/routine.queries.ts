@@ -310,3 +310,11 @@ export async function getRoutinesWithExerciseAndRest(): Promise<RoutineWithExerc
     return [];
   }
 }
+
+export async function deleteRoutineById(routineId: number): Promise<void> {
+  try {
+    await db.delete(routine).where(eq(routine.id, routineId));
+  } catch (error) {
+    console.log(error);
+  }
+}

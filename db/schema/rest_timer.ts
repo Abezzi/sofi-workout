@@ -11,8 +11,10 @@ export const rest_timer = sqliteTable('rest_timer', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   routineId: integer('routine_id')
     .notNull()
-    .references(() => routine_exercise.id),
-  routineExerciseId: integer('routine_exercise_id').references(() => routine.id),
+    .references(() => routine_exercise.id, { onDelete: 'cascade' }),
+  routineExerciseId: integer('routine_exercise_id').references(() => routine.id, {
+    onDelete: 'cascade',
+  }),
   exerciseSetId: integer('exercise_set_id').references(() => exercise_set.id),
   restTime: integer('rest_time').notNull(),
   type: text('type', { enum: restTimerTypes }).notNull(),
