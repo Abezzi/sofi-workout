@@ -261,7 +261,7 @@ export default function NewRoutineScreen() {
     }
 
     setErrors(errors);
-    setIsFormValid(Object.keys(errors).length === 0);
+    setIsFormValid(Object.values(errors).every((error) => error === ''));
   };
 
   const saveRoutine = async () => {
