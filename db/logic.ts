@@ -3,6 +3,10 @@ import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { category } from '../db/schema/category';
 import { exercise_type } from './schema/exercise_type';
 import { exercise } from './schema/exercise';
+import { routine } from './schema/routine';
+import { routine_exercise } from './schema/routine_exercise';
+import { exercise_set } from './schema/exercise_set';
+import { rest_timer } from './schema/rest_timer';
 
 const expo = SQLite.openDatabaseSync('db.db', { enableChangeListener: true });
 const db = drizzle(expo);
@@ -42,6 +46,10 @@ export async function resetDatabase() {
     await expo.runAsync('DROP TABLE IF EXISTS category;');
     await expo.runAsync('DROP TABLE IF EXISTS exercise_type;');
     await expo.runAsync('DROP TABLE IF EXISTS exercise;');
+    await expo.runAsync('DROP TABLE IF EXISTS exercise_set;');
+    await expo.runAsync('DROP TABLE IF EXISTS rest_timer;');
+    await expo.runAsync('DROP TABLE IF EXISTS routine;');
+    await expo.runAsync('DROP TABLE IF EXISTS routine_exercise;');
     console.log('✅ Database reset successfully.');
   } catch (error) {
     console.error('❌ Error resetting database:', error);
