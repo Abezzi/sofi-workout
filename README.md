@@ -1,13 +1,3 @@
-# Clerk Auth Template
-
-This is a [React Native](https://reactnative.dev) project built with [Expo](https://expo.dev), [Clerk](https://go.clerk.com/gjgxNgT), and [React Native Reusables](https://reactnativereusables.com).
-
-It was initialized using the following command:
-
-```bash
-npx react-native-reusables/cli@latest init -t sofi-workout
-```
-
 ## Getting Started
 
 Before running the app, make sure to:
@@ -47,6 +37,8 @@ Or scan the QR code with the [Expo Go](https://expo.dev/go) app to test on your 
 - Verify email screen
 - User profile button
 - Sign out screen
+- Routines, exercises and categories creation
+- Workout timer with controls and routine step watcher
 
 ## Project Features
 
@@ -59,6 +51,8 @@ Or scan the QR code with the [Expo Go](https://expo.dev/go) app to test on your 
 - 📋 Draggable Flatlist
 - 💽 DrizzleORM with SQLite
 - 🌙 Dark Mode
+- 🗓️ Calendar and Workout History
+- 👥 Share Routines with others
 - 🔥 Edge to Edge enabled
 - 📱 Runs on iOS, Android, and Web
 
@@ -73,3 +67,7 @@ Or scan the QR code with the [Expo Go](https://expo.dev/go) app to test on your 
 ---
 
 If this template helps you move faster, consider giving [React Native Reusables](https://github.com/founded-labs/react-native-reusables) a ⭐ on GitHub. It helps a lot!
+
+## DB Diagram
+
+- [diagram](https://dbdiagram.io/d/68d565aed2b621e422eccbc2) made with dbdiagram.io
