@@ -1,4 +1,11 @@
-import { ActivityIndicator, FlatList, Pressable, ToastAndroid, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  ToastAndroid,
+  View,
+} from 'react-native';
 import { Text } from '../ui/text';
 import { Card } from '@/components/ui/card';
 import {
@@ -43,6 +50,7 @@ export default function RoutineList() {
   const [routines, setRoutines] = useState<RoutineWithExerciseAndRest[]>();
   const [activeItemId, setActiveItemId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const getRoutines = async () => {
     try {
@@ -57,6 +65,18 @@ export default function RoutineList() {
       console.log(error);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await getRoutines();
+      sendToast('Routines Refreshed');
+    } catch (error) {
+      console.log('error refreshing ', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -73,7 +93,7 @@ export default function RoutineList() {
 
   const emptyListComponent = () => {
     return (
-      <View className="items-center">
+      <View className="flex-1 items-center justify-center">
         <Text className="font-semibold">Your routine list is empty</Text>
         <Text className="text-sm text-muted-foreground">
           add routines by pressing 'New Routine'
@@ -213,7 +233,7 @@ export default function RoutineList() {
     <Card className="m-0 p-0">
       <>
         {loading ? (
-          <View className="items-center justify-center">
+          <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" />
             <Text>Loading Routines...</Text>
           </View>
@@ -236,6 +256,7 @@ export default function RoutineList() {
             getItemLayout={getItemLayout}
             ItemSeparatorComponent={() => <View className="w-1" />}
             ListEmptyComponent={emptyListComponent}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           />
         )}
       </>
