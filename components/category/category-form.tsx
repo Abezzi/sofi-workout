@@ -55,7 +55,7 @@ export function CategoryForm() {
       setShowAlert(false);
       setLoading(false);
       const router = useRouter();
-      router.navigate('/exercise/category');
+      router.navigate('/(tabs)/exercise');
       return;
     } else {
       // console.log("something happened");
@@ -105,7 +105,7 @@ export function CategoryForm() {
           ) : (
             <Button onPress={handleSubmit}>
               <Icon as={Save} className="text-primary-foreground" />
-              <Text>Create</Text>
+              <Text className="text-primary-foreground">Create</Text>
             </Button>
           )}
         </CardFooter>
