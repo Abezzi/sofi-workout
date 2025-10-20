@@ -1,4 +1,4 @@
-import { FlatList, Pressable, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ToastAndroid, View } from 'react-native';
 import { Text } from '../ui/text';
 import { Card } from '@/components/ui/card';
 import {
@@ -35,6 +35,10 @@ interface RoutineItemProps {
   setActiveItem: (id: number | null) => void;
 }
 
+const sendToast = (message: string) => {
+  ToastAndroid.showWithGravity(message, ToastAndroid.SHORT, ToastAndroid.CENTER);
+};
+
 export default function RoutineList() {
   const [routines, setRoutines] = useState<RoutineWithExerciseAndRest[]>();
   const [activeItemId, setActiveItemId] = useState<number | null>(null);
@@ -42,11 +46,13 @@ export default function RoutineList() {
 
   const getRoutines = async () => {
     try {
+      setLoading(true);
       let routineData: RoutineWithExerciseAndRest[] = await getRoutinesWithExerciseAndRest();
 
       if (routineData !== undefined) {
         setRoutines(routineData);
       }
+      setLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -120,6 +126,8 @@ export default function RoutineList() {
     const handleOnDelete = async (id: number) => {
       setLoading(true);
       await deleteRoutineById(id);
+      await getRoutines();
+      sendToast('Routine Deleted Successfully!');
       setLoading(false);
     };
 
@@ -204,28 +212,32 @@ export default function RoutineList() {
   return (
     <Card className="m-0 p-0">
       <>
-        <FlatList
-          data={routines}
-          horizontal={true}
-          renderItem={({ item }) => (
-            <RoutineItem
-              name={item.name}
-              exercises={item.exercises}
-              id={item.id}
-              isActive={activeItemId === item.id}
-              setActiveItem={setActiveItemId}
-            />
-          )}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={5}
-          getItemLayout={getItemLayout}
-          ItemSeparatorComponent={() => <View className="w-1" />}
-          ListEmptyComponent={emptyListComponent}
-          refreshing={loading}
-          // centers the empty list component
-          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
-        />
+        {loading ? (
+          <View className="items-center justify-center">
+            <ActivityIndicator size="large" />
+            <Text>Loading Routines...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={routines}
+            horizontal={true}
+            renderItem={({ item }) => (
+              <RoutineItem
+                name={item.name}
+                exercises={item.exercises}
+                id={item.id}
+                isActive={activeItemId === item.id}
+                setActiveItem={setActiveItemId}
+              />
+            )}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            getItemLayout={getItemLayout}
+            ItemSeparatorComponent={() => <View className="w-1" />}
+            ListEmptyComponent={emptyListComponent}
+          />
+        )}
       </>
     </Card>
   );
