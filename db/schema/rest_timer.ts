@@ -15,7 +15,9 @@ export const rest_timer = sqliteTable('rest_timer', {
   routineExerciseId: integer('routine_exercise_id').references(() => routine.id, {
     onDelete: 'cascade',
   }),
-  exerciseSetId: integer('exercise_set_id').references(() => exercise_set.id),
+  exerciseSetId: integer('exercise_set_id').references(() => exercise_set.id, {
+    onDelete: 'cascade',
+  }),
   restTime: integer('rest_time').notNull(),
   type: text('type', { enum: restTimerTypes }).notNull(),
 });

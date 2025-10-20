@@ -5,7 +5,7 @@ export const exercise_set = sqliteTable('exercise_set', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   routineExerciseId: integer('routine_exercise_id')
     .notNull()
-    .references(() => routine_exercise.id),
+    .references(() => routine_exercise.id, { onDelete: 'cascade' }),
   setNumber: integer('setNumber').notNull(),
   quantity: integer('quantity').notNull(),
   weight: integer('weight').notNull(),

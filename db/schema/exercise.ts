@@ -8,10 +8,10 @@ export const exercise = sqliteTable('exercise', {
   description: text('description'),
   categoryId: integer('category_id')
     .notNull()
-    .references(() => category.id),
+    .references(() => category.id, { onDelete: 'cascade' }),
   exerciseTypeId: integer('exercise_type_id')
     .notNull()
-    .references(() => exercise_type.id),
+    .references(() => exercise_type.id, { onDelete: 'cascade' }),
 });
 
 export type Exercise = typeof exercise.$inferSelect;
