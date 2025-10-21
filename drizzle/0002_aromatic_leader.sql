@@ -1,0 +1,1 @@
+ALTER TABLE `routine` ADD `description` text;

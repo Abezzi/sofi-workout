@@ -6,6 +6,7 @@ export type RestTimerType = (typeof restModeTypes)[number];
 export const routine = sqliteTable('routine', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
+  description: text('description'),
   restMode: text('rest_mode', { enum: restModeTypes }).notNull(),
 });
 

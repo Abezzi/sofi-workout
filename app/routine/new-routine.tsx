@@ -20,7 +20,7 @@ import {
 } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
-import { Routine, RoutineExercise, ExerciseSet, RestTimer } from '@/db/schema';
+import { Routine, ExerciseSet, RestTimer } from '@/db/schema';
 import { postRoutine } from '@/db/queries/routine.queries';
 import { postExerciseSet } from '@/db/queries/exercise_set.queries';
 import { postRoutineExercise } from '@/db/queries/routine_exercise.queries';
@@ -56,10 +56,10 @@ interface Errors {
 
 export default function NewRoutineScreen() {
   const navigation = useNavigation();
-  const [routineExercises, setRoutineExercises] = useState<RoutineExercise[]>([]);
   const [routine, setRoutine] = useState<Routine>({
     id: 0,
     name: '',
+    description: '',
     restMode: 'automatic',
   });
   const [loading, setLoading] = useState(false);
@@ -179,7 +179,12 @@ export default function NewRoutineScreen() {
 
   const onCheckedChange = (checked: boolean) => {
     setManualRestCheck(checked);
-    setRoutine({ id: routine.id, name: routine.name, restMode: checked ? 'manual' : 'automatic' });
+    setRoutine({
+      id: routine.id,
+      description: routine.description,
+      name: routine.name,
+      restMode: checked ? 'manual' : 'automatic',
+    });
   };
 
   function handleAddExercise() {
@@ -193,7 +198,7 @@ export default function NewRoutineScreen() {
     }));
   };
 
-  async function handleSubmit() {
+  const handleSubmit = async () => {
     setLoading(true);
     if (isFormValid) {
       const routineId = await saveRoutine();
@@ -220,7 +225,7 @@ export default function NewRoutineScreen() {
       errorsAlert();
       setLoading(false);
     }
-  }
+  };
 
   function handleConfirmDialog(newExercise: ExerciseItem) {
     setExercises((prev) => [
@@ -301,7 +306,6 @@ export default function NewRoutineScreen() {
           return null;
         }
       }
-      setRoutineExercises(newRoutineExercises);
       return savedRoutineExerciseIds;
     } catch (error) {
       console.log('error (catch) in save routine exercise: ', error);
@@ -452,13 +456,22 @@ export default function NewRoutineScreen() {
       </CardHeader>
       <CardContent>
         <View className="px-4 pb-4">
+          <Label>Name</Label>
           <Input
-            placeholder="Routine Name..."
+            placeholder="My Favorite Routine"
             id="routineName"
-            autoCapitalize="none"
             value={routine.name}
             onChangeText={(routineName) => handleInputChange('name', routineName)}
             className={`${errors && errors.routineName ? 'border border-red-500' : ''}`}
+          />
+          <Label>Description</Label>
+          <Input
+            placeholder="This will make you stronger"
+            id="description"
+            value={routine.description ? routine.description : undefined}
+            onChangeText={(routineDescription) =>
+              handleInputChange('description', routineDescription)
+            }
           />
         </View>
         {exercises.length > 0 ? (

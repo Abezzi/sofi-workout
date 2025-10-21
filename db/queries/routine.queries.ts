@@ -14,6 +14,7 @@ import { db } from '..';
 export interface RoutineWithExerciseAndRest {
   id: number;
   name: string;
+  description: string;
   restMode: 'automatic' | 'manual';
   exercises: {
     id: number;
@@ -43,6 +44,7 @@ export function transformDbToRoutine(dbRecord: any): Routine {
   return {
     id: dbRecord.id,
     name: dbRecord.name,
+    description: dbRecord.description,
     restMode: dbRecord.restMode,
   };
 }
@@ -53,6 +55,7 @@ export function transformDbToRoutineExerciseAndRest(dbRecord: any[]): RoutineWit
     return {
       id: 0,
       name: '',
+      description: '',
       restMode: 'manual',
       exercises: [],
       restTimers: [],
@@ -66,6 +69,7 @@ export function transformDbToRoutineExerciseAndRest(dbRecord: any[]): RoutineWit
   const routine: RoutineWithExerciseAndRest = {
     id: routineData.routine.id,
     name: routineData.routine.name,
+    description: routineData.routine.description,
     restMode: routineData.routine.restMode,
     exercises: [],
     restTimers: [],
@@ -147,6 +151,7 @@ export function transformRoutineToDb(routine: Partial<Routine>): any {
 
   if (routine.id !== undefined) dbRecord.id = routine.id;
   if (routine.name !== undefined) dbRecord.name = routine.name;
+  if (routine.description !== undefined) dbRecord.description = routine.description;
   if (routine.restMode !== undefined) dbRecord.restMode = routine.restMode;
 
   return dbRecord;
@@ -158,6 +163,7 @@ export async function postRoutine(
   try {
     const result = await db.insert(routine).values({
       name: routineToPost.name,
+      description: routineToPost.description,
       restMode: routineToPost.restMode,
     });
     return { success: true, id: result.lastInsertRowId };
