@@ -95,7 +95,7 @@ export default function Amrap() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <Text>Amrap</Text>
+          <Text>AMRAP</Text>
         </CardTitle>
         <CardDescription>
           <View>

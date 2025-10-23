@@ -112,7 +112,7 @@ export default function Tabata() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <Text>tabata</Text>
+          <Text>Tabata</Text>
         </CardTitle>
         <CardDescription>
           <View>
