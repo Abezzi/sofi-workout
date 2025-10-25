@@ -199,31 +199,36 @@ export default function NewRoutineScreen() {
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
-    if (isFormValid) {
-      const routineId = await saveRoutine();
-      if (routineId) {
-        const routineExerciseIds = await saveRoutineExercise(routineId);
-        if (routineExerciseIds) {
-          await saveExerciseSet(routineExerciseIds);
-          if (!manualRestCheck && setRest && restBetweenExercise) {
-            await saveRestTimer(
-              'automatic',
-              routineId,
-              parseInt(setRest),
-              parseInt(restBetweenExercise)
-            );
+    try {
+      setLoading(true);
+      if (isFormValid) {
+        const routineId = await saveRoutine();
+        if (routineId) {
+          const routineExerciseIds = await saveRoutineExercise(routineId);
+          if (routineExerciseIds) {
+            await saveExerciseSet(routineExerciseIds);
+            if (!manualRestCheck && setRest && restBetweenExercise) {
+              await saveRestTimer(
+                'automatic',
+                routineId,
+                parseInt(setRest),
+                parseInt(restBetweenExercise)
+              );
+            }
           }
         }
+        setLoading(false);
+        successToast();
+        router.push({
+          pathname: '/(tabs)/home',
+        });
+      } else {
+        errorsAlert();
+        setLoading(false);
       }
+    } catch (error) {
       setLoading(false);
-      successToast();
-      router.push({
-        pathname: '/(tabs)/home',
-      });
-    } else {
-      errorsAlert();
-      setLoading(false);
+      console.log('error submiting the routine');
     }
   };
 
@@ -495,7 +500,7 @@ export default function NewRoutineScreen() {
             <Text>Saving...</Text>
           </Button>
         ) : (
-          <Button onPress={handleSubmit}>
+          <Button disabled={loading} onPress={handleSubmit}>
             <Icon as={Save} className="text-primary-foreground" />
             <Text>Save</Text>
           </Button>
