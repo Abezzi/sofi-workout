@@ -29,6 +29,7 @@ import {
   convertAmrapToSteps,
 } from '@/components/workout/convert-interval-routines';
 import { convertRoutineToSteps } from '@/components/routine/convert-routine';
+import * as Speech from 'expo-speech';
 
 export default function WorkoutScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -135,6 +136,19 @@ export default function WorkoutScreen() {
 
     return () => clearInterval(interval);
   }, [isLoading, steps, isPaused, currentTimer, dispatch]);
+
+  // text to speech the name of the exercise when the step changes
+  useEffect(() => {
+    const state = store.getState().timer;
+    const currentStepObj = state.steps[currentStep];
+
+    const tellWhichStepIsNext = (stepName: string) => {
+      const speech = stepName;
+      Speech.speak(speech);
+    };
+
+    tellWhichStepIsNext(currentStepObj.name);
+  }, [steps, currentStep]);
 
   // HIIT
   useEffect(() => {
