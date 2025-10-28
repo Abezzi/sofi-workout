@@ -75,8 +75,6 @@ export function transformDbToRoutineExerciseAndRest(dbRecord: any[]): RoutineWit
     restTimers: [],
   };
 
-  console.log('routine object', routine);
-
   // map to track unique exercises by routine_exercise.id
   const exerciseMap = new Map<number, any>();
 

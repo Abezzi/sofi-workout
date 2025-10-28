@@ -100,7 +100,6 @@ function ThemedApp() {
   const { colorScheme } = useColorScheme();
   const dispatch = useDispatch<AppDispatch>();
   const currentLanguage = useSelector((state: RootState) => state.locale.currentLanguage);
-  console.log('current language: ', currentLanguage);
 
   useEffect(() => {
     if (currentLanguage) {
