@@ -30,6 +30,7 @@ import {
 } from '@/components/workout/convert-interval-routines';
 import { convertRoutineToSteps } from '@/components/routine/convert-routine';
 import * as Speech from 'expo-speech';
+import countdownSounds from '@/components/workout/countdown-sounds';
 
 export default function WorkoutScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -60,6 +61,10 @@ export default function WorkoutScreen() {
   };
   const [speechLanguage, setSpeechLanguage] = useState<string>('');
   const currentLanguage = useSelector((state: RootState) => state.locale.currentLanguage);
+  const [countdownVoice, setCountdownVoice] = useState<string>('');
+  const currentCountdownVoice = useSelector(
+    (state: RootState) => state.settings.currentCountdownVoice
+  );
 
   // sets and updates the speech language
   useEffect(() => {
@@ -69,6 +74,11 @@ export default function WorkoutScreen() {
       setSpeechLanguage('es-MX');
     }
   }, [currentLanguage]);
+
+  // set the countdown voice from the assets
+  useEffect(() => {
+    setCountdownVoice(currentCountdownVoice);
+  }, [currentCountdownVoice]);
 
   // sets the audio options
   useEffect(() => {
@@ -128,17 +138,17 @@ export default function WorkoutScreen() {
       const currentStepObj = state.steps[currentTimer.index];
 
       if (currentTimeLeft === 31 && currentStepObj?.quantity >= 30) {
-        playSound(require('../../assets/audio/alert.mp3'));
+        playSound(countdownSounds.alertSound);
       } else if (currentTimeLeft === 6) {
-        playSound(require('../../assets/audio/countdown/esMX/male/5.mp3'));
+        playSound(countdownSounds.getCountdownSound(countdownVoice, '5'));
       } else if (currentTimeLeft === 5) {
-        playSound(require('../../assets/audio/countdown/esMX/male/4.mp3'));
+        playSound(countdownSounds.getCountdownSound(countdownVoice, '4'));
       } else if (currentTimeLeft === 4) {
-        playSound(require('../../assets/audio/countdown/esMX/male/3.mp3'));
+        playSound(countdownSounds.getCountdownSound(countdownVoice, '3'));
       } else if (currentTimeLeft === 3) {
-        playSound(require('../../assets/audio/countdown/esMX/male/2.mp3'));
+        playSound(countdownSounds.getCountdownSound(countdownVoice, '2'));
       } else if (currentTimeLeft === 2) {
-        playSound(require('../../assets/audio/countdown/esMX/male/1.mp3'));
+        playSound(countdownSounds.getCountdownSound(countdownVoice, '1'));
       } else if (currentTimeLeft === 1 && currentTimer.index < steps.length) {
         playSound(require('../../assets/audio/info.mp3'));
       }

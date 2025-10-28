@@ -1,7 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-type Weight = 'kg' | 'lb';
-type CountdownVoice = 'male-enUS' | 'female-enUS' | 'male-esMX' | 'male-koKR' | 'female-koKR';
+export type Weight = 'kg' | 'lb';
+export type CountdownVoice =
+  | 'enUS/male'
+  | 'enUS/female'
+  | 'esMX/male'
+  | 'koKR/male'
+  | 'koKR/female';
 
 type SettingsState = {
   currentWeight: Weight | null;
@@ -10,7 +15,7 @@ type SettingsState = {
 
 const initialState: SettingsState = {
   currentWeight: 'kg',
-  currentCountdownVoice: 'male-enUS',
+  currentCountdownVoice: 'enUS/male',
 };
 
 const settingsSlice = createSlice({

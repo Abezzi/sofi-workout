@@ -5,7 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Text } from '@/components/ui/text';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import type { TriggerRef } from '@rn-primitives/popover';
-import { Languages, LogOutIcon, PlusIcon, SettingsIcon } from 'lucide-react-native';
+import { Languages, LogOutIcon, PlusIcon, SettingsIcon, Speech } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
 import {
@@ -21,13 +21,23 @@ import { useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/src/store/storeSetup';
 import { useDispatch } from 'react-redux';
 import { Language, setLanguage } from '@/src/store/slices/locale/localeSlice';
+import { CountdownVoice, setCountdownVoice } from '@/src/store/slices/settings/settingsSlice';
 
 const languageOptions: { value: Language; label: string }[] = [
   { value: 'en', label: 'English' },
   { value: 'es', label: 'Español' },
 ];
 
+const countdownVoiceOptions: { value: CountdownVoice; label: string }[] = [
+  { value: 'enUS/male', label: 'Male English' },
+  { value: 'enUS/female', label: 'Female English' },
+  { value: 'esMX/male', label: 'Hombre Español' },
+  { value: 'koKR/male', label: '한국 남자' },
+  { value: 'koKR/female', label: '한국 여성' },
+];
+
 type LanguageOption = (typeof languageOptions)[number];
+type CountdownVoiceOption = (typeof countdownVoiceOptions)[number];
 
 export function UserMenu() {
   const { user } = useUser();
@@ -35,8 +45,12 @@ export function UserMenu() {
   const popoverTriggerRef = React.useRef<TriggerRef>(null);
 
   const currentLanguage = useSelector((state: RootState) => state.locale.currentLanguage);
+  const currentCountdownVoice = useSelector(
+    (state: RootState) => state.settings.currentCountdownVoice
+  );
   const dispatch = useDispatch<AppDispatch>();
 
+  // language
   const selectedLanguage = React.useMemo<LanguageOption | undefined>(() => {
     if (!currentLanguage) return undefined;
     return languageOptions.find((opt) => opt.value === currentLanguage);
@@ -45,6 +59,25 @@ export function UserMenu() {
   const handleLanguageChange = (option: { value: string; label: string } | undefined) => {
     if (option && (option.value === 'en' || option.value === 'es')) {
       dispatch(setLanguage(option.value as Language));
+    }
+  };
+
+  // countdown voice
+  const selectedCountdownVoice = React.useMemo<CountdownVoiceOption | undefined>(() => {
+    if (!currentCountdownVoice) return undefined;
+    return countdownVoiceOptions.find((opt) => opt.value === currentCountdownVoice);
+  }, [currentCountdownVoice]);
+
+  const handleCountdownVoiceChange = (option: { value: string; label: string } | undefined) => {
+    if (
+      option &&
+      (option.value === 'enUS/male' ||
+        option.value === 'enUS/female' ||
+        option.value === 'esMX/male' ||
+        option.value === 'koKR/male' ||
+        option.value === 'koKR/female')
+    ) {
+      dispatch(setCountdownVoice(option.value as CountdownVoice));
     }
   };
 
@@ -90,6 +123,7 @@ export function UserMenu() {
               <Text>Sign Out</Text>
             </Button>
           </View>
+          {/*app language*/}
           <View className="flex flex-row">
             <View className="size-10 items-center justify-center">
               <Icon as={Languages} className="size-5" />
@@ -104,6 +138,33 @@ export function UserMenu() {
                   {languageOptions.map((lang) => (
                     <SelectItem key={lang.value} label={lang.label} value={lang.value}>
                       {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </View>
+          {/*countdown voice*/}
+          <View className="flex flex-row">
+            <View className="size-10 items-center justify-center">
+              <Icon as={Speech} className="size-5" />
+            </View>
+            <Select
+              id="countdownVoice"
+              value={selectedCountdownVoice}
+              onValueChange={handleCountdownVoiceChange}>
+              <SelectTrigger className="h-12">
+                <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Countdown Voice</SelectLabel>
+                  {countdownVoiceOptions.map((countdown_voice) => (
+                    <SelectItem
+                      key={countdown_voice.value}
+                      label={countdown_voice.label}
+                      value={countdown_voice.value}>
+                      {countdown_voice.label}
                     </SelectItem>
                   ))}
                 </SelectGroup>
