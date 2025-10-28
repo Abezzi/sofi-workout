@@ -7,7 +7,7 @@ const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
   // which slices gonna persist
-  whitelist: ['timer', 'settings'],
+  whitelist: ['timer', 'settings', 'locale'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
