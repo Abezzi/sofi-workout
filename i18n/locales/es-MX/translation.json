@@ -1,0 +1,9 @@
+{
+  "language": "Language",
+  "tabs": {
+    "home": "Inicio",
+    "exercise": "Ejercicio",
+    "workout": "Entrenamiento",
+    "calendar": "Calendario"
+  }
+}

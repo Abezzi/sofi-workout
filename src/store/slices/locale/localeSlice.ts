@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { initializeI18n } from '@/i18n';
 
-export type Language = 'en' | 'es';
+export type Language = 'en' | 'es' | 'ko';
 
 type LocaleState = {
   currentLanguage: Language | null;
@@ -16,6 +17,8 @@ const localeSlice = createSlice({
   reducers: {
     setLanguage: (state, action: PayloadAction<Language>) => {
       state.currentLanguage = action.payload;
+      // syncs the language from redux state to i18n
+      initializeI18n(action.payload);
     },
   },
 });

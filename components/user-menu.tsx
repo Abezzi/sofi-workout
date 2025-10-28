@@ -26,6 +26,7 @@ import { CountdownVoice, setCountdownVoice } from '@/src/store/slices/settings/s
 const languageOptions: { value: Language; label: string }[] = [
   { value: 'en', label: 'English' },
   { value: 'es', label: 'Español' },
+  { value: 'ko', label: '한국어' },
 ];
 
 const countdownVoiceOptions: { value: CountdownVoice; label: string }[] = [
@@ -57,7 +58,7 @@ export function UserMenu() {
   }, [currentLanguage]);
 
   const handleLanguageChange = (option: { value: string; label: string } | undefined) => {
-    if (option && (option.value === 'en' || option.value === 'es')) {
+    if (option && (option.value === 'en' || option.value === 'es' || option.value === 'ko')) {
       dispatch(setLanguage(option.value as Language));
     }
   };

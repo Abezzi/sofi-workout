@@ -6,9 +6,11 @@ import { Icon } from '@/components/ui/icon';
 import { useColorScheme } from 'nativewind';
 import { MoonStarIcon, SunIcon } from 'lucide-react-native';
 import { UserMenu } from '@/components/user-menu';
+import { useTranslation } from 'react-i18next';
 
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -35,7 +37,7 @@ export default function TabsLayout() {
         name="home"
         options={{
           title: 'Home',
-          headerTitle: 'Home',
+          headerTitle: t('tabs.home'),
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => <LucideHome size={size} color={color} />,
         }}
@@ -44,7 +46,7 @@ export default function TabsLayout() {
         name="exercise"
         options={{
           title: 'Exercises',
-          headerTitle: 'Exercises',
+          headerTitle: t('tabs.exercise'),
           tabBarLabel: 'Exercises',
           tabBarIcon: ({ color, size }) => <Dumbbell size={size} color={color} />,
         }}
@@ -53,7 +55,7 @@ export default function TabsLayout() {
         name="workout"
         options={{
           title: 'Workout',
-          headerTitle: 'Workout',
+          headerTitle: t('tabs.workout'),
           tabBarLabel: 'Workout',
           tabBarIcon: ({ color, size }) => <BicepsFlexed size={size} color={color} />,
         }}
@@ -62,7 +64,7 @@ export default function TabsLayout() {
         name="calendar"
         options={{
           title: 'Calendar',
-          headerTitle: 'Calendar',
+          headerTitle: t('tabs.calendar'),
           tabBarLabel: 'Calendar',
           tabBarIcon: ({ color, size }) => <LucideCalendar size={size} color={color} />,
         }}

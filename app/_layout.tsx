@@ -27,8 +27,13 @@ import migrations from '@/drizzle/migrations';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Constants from 'expo-constants';
 import { Provider } from 'react-redux';
-import store, { persistor } from '@/src/store/storeSetup';
+import store, { AppDispatch, persistor, RootState } from '@/src/store/storeSetup';
 import { PersistGate } from 'redux-persist/integration/react';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { initializeI18n } from '@/i18n';
+import { setLanguage } from '@/src/store/slices/locale/localeSlice';
+import { getDeviceLanguage } from '@/utils/locale';
 
 // public key for clerk production
 const publishableKey =
@@ -93,6 +98,18 @@ export default function RootLayout() {
 
 function ThemedApp() {
   const { colorScheme } = useColorScheme();
+  const dispatch = useDispatch<AppDispatch>();
+  const currentLanguage = useSelector((state: RootState) => state.locale.currentLanguage);
+  console.log('current language: ', currentLanguage);
+
+  useEffect(() => {
+    if (currentLanguage) {
+      initializeI18n(currentLanguage);
+    } else {
+      dispatch(setLanguage(getDeviceLanguage()));
+    }
+  }, [currentLanguage, dispatch]);
+
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <GestureHandlerRootView>

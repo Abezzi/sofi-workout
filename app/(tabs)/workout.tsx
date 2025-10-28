@@ -72,6 +72,8 @@ export default function WorkoutScreen() {
       setSpeechLanguage('en-ENG');
     } else if (currentLanguage === 'es') {
       setSpeechLanguage('es-MX');
+    } else if (currentLanguage === 'ko') {
+      setSpeechLanguage('ko-KR');
     }
   }, [currentLanguage]);
 

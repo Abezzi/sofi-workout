@@ -1,0 +1,9 @@
+{
+  "language": "언어",
+  "tabs": {
+    "home": "홈",
+    "exercise": "운동",
+    "workout": "워크아웃",
+    "calendar": "캘린더"
+  }
+}
