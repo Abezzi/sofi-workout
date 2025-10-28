@@ -162,14 +162,18 @@ export default function WorkoutScreen() {
   // text to speech the name of the exercise when the step changes
   useEffect(() => {
     const state = store.getState().timer;
-    const currentStepObj = state.steps[currentStep];
+    if (currentStep) {
+      const currentStepObj = state.steps[currentStep];
 
-    const tellWhichStepIsNext = (stepName: string) => {
-      const speech = stepName;
-      Speech.speak(speech, { language: speechLanguage });
-    };
+      const tellWhichStepIsNext = (stepName: string) => {
+        const speech = stepName;
+        Speech.speak(speech, { language: speechLanguage });
+      };
 
-    tellWhichStepIsNext(currentStepObj.name);
+      if (currentStepObj && currentStepObj.name) {
+        tellWhichStepIsNext(currentStepObj.name);
+      }
+    }
   }, [steps, currentStep]);
 
   // HIIT
