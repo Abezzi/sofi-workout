@@ -5,14 +5,48 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Text } from '@/components/ui/text';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import type { TriggerRef } from '@rn-primitives/popover';
-import { LogOutIcon, PlusIcon, SettingsIcon } from 'lucide-react-native';
+import { Languages, LogOutIcon, PlusIcon, SettingsIcon } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
+import { useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/src/store/storeSetup';
+import { useDispatch } from 'react-redux';
+import { Language, setLanguage } from '@/src/store/slices/locale/localeSlice';
+
+const languageOptions: { value: Language; label: string }[] = [
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Español' },
+];
+
+type LanguageOption = (typeof languageOptions)[number];
 
 export function UserMenu() {
   const { user } = useUser();
   const { signOut } = useAuth();
   const popoverTriggerRef = React.useRef<TriggerRef>(null);
+
+  const currentLanguage = useSelector((state: RootState) => state.locale.currentLanguage);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const selectedLanguage = React.useMemo<LanguageOption | undefined>(() => {
+    if (!currentLanguage) return undefined;
+    return languageOptions.find((opt) => opt.value === currentLanguage);
+  }, [currentLanguage]);
+
+  const handleLanguageChange = (option: { value: string; label: string } | undefined) => {
+    if (option && (option.value === 'en' || option.value === 'es')) {
+      dispatch(setLanguage(option.value as Language));
+    }
+  };
 
   async function onSignOut() {
     popoverTriggerRef.current?.close();
@@ -55,6 +89,26 @@ export function UserMenu() {
               <Icon as={LogOutIcon} className="size-4" />
               <Text>Sign Out</Text>
             </Button>
+          </View>
+          <View className="flex flex-row">
+            <View className="size-10 items-center justify-center">
+              <Icon as={Languages} className="size-5" />
+            </View>
+            <Select id="language" value={selectedLanguage} onValueChange={handleLanguageChange}>
+              <SelectTrigger className="h-12">
+                <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Languages</SelectLabel>
+                  {languageOptions.map((lang) => (
+                    <SelectItem key={lang.value} label={lang.label} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </View>
         </View>
         <Button

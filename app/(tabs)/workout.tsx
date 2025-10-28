@@ -58,7 +58,19 @@ export default function WorkoutScreen() {
   const { selectedRoutine } = useLocalSearchParams() as {
     selectedRoutine: string;
   };
+  const [speechLanguage, setSpeechLanguage] = useState<string>('');
+  const currentLanguage = useSelector((state: RootState) => state.locale.currentLanguage);
 
+  // sets and updates the speech language
+  useEffect(() => {
+    if (currentLanguage === 'en') {
+      setSpeechLanguage('en-ENG');
+    } else if (currentLanguage === 'es') {
+      setSpeechLanguage('es-MX');
+    }
+  }, [currentLanguage]);
+
+  // sets the audio options
   useEffect(() => {
     AudioModule.setAudioModeAsync({
       allowsRecording: false,
@@ -144,7 +156,7 @@ export default function WorkoutScreen() {
 
     const tellWhichStepIsNext = (stepName: string) => {
       const speech = stepName;
-      Speech.speak(speech);
+      Speech.speak(speech, { language: speechLanguage });
     };
 
     tellWhichStepIsNext(currentStepObj.name);
