@@ -1,9 +1,44 @@
 {
-  "language": "Language",
+  "language": "Lenguaje",
   "tabs": {
     "home": "Inicio",
     "exercise": "Ejercicio",
     "workout": "Entrenamiento",
     "calendar": "Calendario"
+  },
+  "home_screen": {
+    "new_routine": "Nueva Rutina",
+    "copy_routine": "Copiar Rutina",
+    "select_routine": "Selecciona una Rutina:"
+  },
+  "interval_training": {
+    "hiit": {
+      "title": "HIIT",
+      "description": "Entrenamiento Interválico de Intervalos de Alta Intensidad."
+    },
+    "emom": {
+      "title": "EMOM",
+      "description": "Cada Minuto en el Minuto."
+    },
+    "tabata": {
+      "title": "Tabata",
+      "description": "Protocolo Tabata (mismo formato: 20s trabajo / 10s descanso × 8 rondas)"
+    },
+    "amrap": {
+      "title": "AMRAP",
+      "description": "Tantas Rondas/Repeticiones Como Sea Posible"
+    },
+    "rounds": "Rondas",
+    "cycles": "Ciclos",
+    "cycles_rest_time": "Tiempo de Descanso de Ciclos",
+    "rest": "Descanso",
+    "work": "Trabajo",
+    "total_time": "Tiempo Total",
+    "start": "Empezar"
+  },
+  "time": {
+    "second": "segundo",
+    "minute": "minuto",
+    "hour": "hora"
   }
 }

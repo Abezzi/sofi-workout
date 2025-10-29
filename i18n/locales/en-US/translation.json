@@ -5,5 +5,40 @@
     "exercise": "Exercises",
     "workout": "Workout",
     "calendar": "Workout"
+  },
+  "home_screen": {
+    "new_routine": "New Routine",
+    "copy_routine": "Copy Routine",
+    "select_routine": "Select a Routine:"
+  },
+  "interval_training": {
+    "hiit": {
+      "title": "HIIT",
+      "description": "High-Intensity Interval Training."
+    },
+    "emom": {
+      "title": "EMOM",
+      "description": "Every Minute on the Minute."
+    },
+    "tabata": {
+      "title": "Tabata",
+      "description": "Tabata (specific 4-min protocol)"
+    },
+    "amrap": {
+      "title": "AMRAP",
+      "description": "As Many Rounds/Reps As Possible."
+    },
+    "rounds": "Round",
+    "cycles": "Cycles",
+    "cycles_rest_time": "Cycles Rest Time",
+    "rest": "Rest",
+    "work": "Work",
+    "total_time": "Total Time",
+    "start": "Start"
+  },
+  "time": {
+    "second": "second",
+    "minute": "minute",
+    "hour": "hour"
   }
 }
