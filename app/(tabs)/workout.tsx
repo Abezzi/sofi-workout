@@ -31,6 +31,7 @@ import {
 import { convertRoutineToSteps } from '@/components/routine/convert-routine';
 import * as Speech from 'expo-speech';
 import countdownSounds from '@/components/workout/countdown-sounds';
+import { useTranslation } from 'react-i18next';
 
 export default function WorkoutScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -65,6 +66,7 @@ export default function WorkoutScreen() {
   const currentCountdownVoice = useSelector(
     (state: RootState) => state.settings.currentCountdownVoice
   );
+  const { t } = useTranslation();
 
   // sets and updates the speech language
   useEffect(() => {
@@ -192,7 +194,7 @@ export default function WorkoutScreen() {
 
   useEffect(() => {
     if (hiit) {
-      const stepsTemp = convertHiitToSteps(hiit);
+      const stepsTemp = convertHiitToSteps(hiit, t);
       dispatch(initialize({ steps: stepsTemp }));
     }
   }, [hiit]);
@@ -211,7 +213,7 @@ export default function WorkoutScreen() {
 
   useEffect(() => {
     if (emom) {
-      const stepsTemp = convertEmomToSteps(emom);
+      const stepsTemp = convertEmomToSteps(emom, t);
       dispatch(initialize({ steps: stepsTemp }));
     }
   }, [emom]);
@@ -230,7 +232,7 @@ export default function WorkoutScreen() {
 
   useEffect(() => {
     if (tabata) {
-      const stepsTemp = convertTabataToSteps(tabata);
+      const stepsTemp = convertTabataToSteps(tabata, t);
       dispatch(initialize({ steps: stepsTemp }));
     }
   }, [tabata]);
@@ -249,7 +251,7 @@ export default function WorkoutScreen() {
 
   useEffect(() => {
     if (amrap) {
-      const stepsTemp = convertAmrapToSteps(amrap);
+      const stepsTemp = convertAmrapToSteps(amrap, t);
       dispatch(initialize({ steps: stepsTemp }));
     }
   }, [amrap]);
@@ -258,7 +260,7 @@ export default function WorkoutScreen() {
     if (selectedRoutine) {
       (async () => {
         try {
-          const stepsTemp = await convertRoutineToSteps(parseInt(selectedRoutine));
+          const stepsTemp = await convertRoutineToSteps(parseInt(selectedRoutine), t);
           // console.log('stepsTemp: ', stepsTemp);
           if (stepsTemp) {
             dispatch(initialize({ steps: stepsTemp }));
