@@ -14,6 +14,7 @@ import { Text } from '@/components/ui/text';
 import { formatTimeLong } from '@/utils/format-time';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Pressable } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -42,6 +43,7 @@ export default function Emom() {
   });
   const router = useRouter();
   const scale = useSharedValue(1);
+  const { t } = useTranslation();
 
   const handleStart = () => {
     // animation when button is pressed
@@ -110,15 +112,17 @@ export default function Emom() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <Text>EMOM</Text>
+          <Text>{t('interval_training.emom.title')}</Text>
         </CardTitle>
         <CardDescription>
           <View>
-            <Text className="text-sm text-muted-foreground">Every minute on the minute.</Text>
+            <Text className="text-sm text-muted-foreground">
+              {t('interval_training.emom.description')}
+            </Text>
           </View>
           <View className="flex flex-row gap-2">
             <Label nativeID="cycleCheck" htmlFor="cycleCheck" onPress={onLabelPress}>
-              Cycles
+              {t('interval_training.cycles')}
             </Label>
             <Switch
               id="cycleCheck"
@@ -132,7 +136,7 @@ export default function Emom() {
       <CardContent>
         <View className="gap-3">
           <View className="flex flex-row items-center justify-between">
-            <Label htmlFor="rounds">Rounds</Label>
+            <Label htmlFor="rounds">{t('interval_training.rounds')}</Label>
             <Input
               className="w-auto"
               id="rounds"
@@ -141,7 +145,7 @@ export default function Emom() {
               value={emom.rounds.toString()}
               onChangeText={(rounds) => handleInputChange('rounds', rounds)}
             />
-            <Label htmlFor="work">Work</Label>
+            <Label htmlFor="work">{t('interval_training.work')}</Label>
             <Input
               className="w-auto"
               id="work"
@@ -153,7 +157,7 @@ export default function Emom() {
           </View>
           {cycleChecked ? (
             <View className="flex flex-row items-center justify-between">
-              <Label htmlFor="cyles">Cycles</Label>
+              <Label htmlFor="cyles">{t('interval_training.cycles')}</Label>
               <Input
                 className="w-auto"
                 id="cycles"
@@ -162,7 +166,7 @@ export default function Emom() {
                 value={emom.cycles.toString()}
                 onChangeText={(cycles) => handleInputChange('cycles', cycles)}
               />
-              <Label htmlFor="cyleRestTime">Cycle Rest Time</Label>
+              <Label htmlFor="cyleRestTime">{t('interval_training.cycles_rest_time')}</Label>
               <Input
                 className="w-auto"
                 id="cyleRestTime"
@@ -177,14 +181,14 @@ export default function Emom() {
           )}
         </View>
         <View className="items-center pt-2">
-          <Text>Total Time</Text>
+          <Text>{t('interval_training.total_time')}</Text>
           <Text className="font-bold">{formatTimeLong(totalTime)}</Text>
         </View>
       </CardContent>
       <CardFooter className="flex-col gap-3 pb-0">
         <AnimatedPressable style={[animatedStyles]}>
           <Button onPress={handleStart}>
-            <Text>Start</Text>
+            <Text>{t('interval_training.start')}</Text>
           </Button>
         </AnimatedPressable>
       </CardFooter>

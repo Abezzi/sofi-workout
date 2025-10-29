@@ -9,11 +9,11 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
 import { formatTimeLong } from '@/utils/format-time';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Pressable } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -36,6 +36,7 @@ export default function Amrap() {
   });
   const router = useRouter();
   const scale = useSharedValue(1);
+  const { t } = useTranslation();
 
   const handleStart = () => {
     // animation when button is pressed
@@ -95,12 +96,12 @@ export default function Amrap() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <Text>AMRAP</Text>
+          <Text>{t('interval_training.amrap.title')}</Text>
         </CardTitle>
         <CardDescription>
           <View>
             <Text className="text-sm text-muted-foreground">
-              Get as many rounds as you can in the desired time
+              {t('interval_training.amrap.description')}
             </Text>
           </View>
         </CardDescription>
@@ -108,7 +109,7 @@ export default function Amrap() {
       <CardContent>
         <View className="gap-3">
           <View className="flex flex-row items-center justify-between">
-            <Label htmlFor="work">Work</Label>
+            <Label htmlFor="work">{t('interval_training.work')}</Label>
             <Input
               className="w-auto"
               id="work"
@@ -120,14 +121,14 @@ export default function Amrap() {
           </View>
         </View>
         <View className="items-center pt-2">
-          <Text>Total Time</Text>
+          <Text>{t('interval_training.total_time')}</Text>
           <Text className="font-bold">{formatTimeLong(totalTime)}</Text>
         </View>
       </CardContent>
       <CardFooter className="flex-col gap-3 pb-0">
         <AnimatedPressable style={[animatedStyles]}>
           <Button onPress={handleStart}>
-            <Text>Start</Text>
+            <Text>{t('interval_training.start')}</Text>
           </Button>
         </AnimatedPressable>
       </CardFooter>
