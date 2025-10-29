@@ -40,5 +40,18 @@
     "second": "second",
     "minute": "minute",
     "hour": "hour"
+  },
+  "convert_routine": {
+    "get_ready": "Get Ready",
+    "set": "Set",
+    "reps": "Reps",
+    "rest": "Rest",
+    "work": "Work",
+    "of": "of",
+    "cycle": "Cycle",
+    "cycle_rest": "Cycle Rest",
+    "rest_after": "Rest After",
+    "paused": "paused",
+    "next": "NEXT"
   }
 }

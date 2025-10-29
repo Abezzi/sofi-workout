@@ -3,8 +3,8 @@
   "tabs": {
     "home": "홈",
     "exercise": "운동",
-    "workout": "운동",
-    "calendar": "기록"
+    "workout": "워크아웃",
+    "calendar": "워크아웃"
   },
   "home_screen": {
     "new_routine": "새 루틴",
@@ -18,15 +18,15 @@
     },
     "emom": {
       "title": "EMOM",
-      "description": "매분마다 반복."
+      "description": "매 분마다 시작."
     },
     "tabata": {
       "title": "타바타",
-      "description": "타바타 (4분 특화 프로토콜)"
+      "description": "타바타 (특정 4분 프로토콜)"
     },
     "amrap": {
       "title": "AMRAP",
-      "description": "최대한 많은 라운드/반복."
+      "description": "가능한 한 많은 라운드/반복."
     },
     "rounds": "라운드",
     "cycles": "사이클",
@@ -40,5 +40,18 @@
     "second": "초",
     "minute": "분",
     "hour": "시간"
+  },
+  "convert_routine": {
+    "get_ready": "준비",
+    "set": "세트",
+    "reps": "반복",
+    "rest": "휴식",
+    "work": "운동",
+    "of": "/",
+    "cycle": "사이클",
+    "cycle_rest": "사이클 휴식",
+    "rest_after": "이후 휴식",
+    "paused": "일시정지",
+    "next": "다음"
   }
 }
