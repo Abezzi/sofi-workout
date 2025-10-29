@@ -3,7 +3,42 @@
   "tabs": {
     "home": "홈",
     "exercise": "운동",
-    "workout": "워크아웃",
-    "calendar": "캘린더"
+    "workout": "운동",
+    "calendar": "기록"
+  },
+  "home_screen": {
+    "new_routine": "새 루틴",
+    "copy_routine": "루틴 복사",
+    "select_routine": "루틴 선택:"
+  },
+  "interval_training": {
+    "hiit": {
+      "title": "HIIT",
+      "description": "고강도 인터벌 트레이닝."
+    },
+    "emom": {
+      "title": "EMOM",
+      "description": "매분마다 반복."
+    },
+    "tabata": {
+      "title": "타바타",
+      "description": "타바타 (4분 특화 프로토콜)"
+    },
+    "amrap": {
+      "title": "AMRAP",
+      "description": "최대한 많은 라운드/반복."
+    },
+    "rounds": "라운드",
+    "cycles": "사이클",
+    "cycles_rest_time": "사이클 휴식 시간",
+    "rest": "휴식",
+    "work": "운동",
+    "total_time": "총 시간",
+    "start": "시작"
+  },
+  "time": {
+    "second": "초",
+    "minute": "분",
+    "hour": "시간"
   }
 }
