@@ -38,7 +38,7 @@ export default function TabsLayout() {
         options={{
           title: 'Home',
           headerTitle: t('tabs.home'),
-          tabBarLabel: 'Home',
+          tabBarLabel: t('tabs.home'),
           tabBarIcon: ({ color, size }) => <LucideHome size={size} color={color} />,
         }}
       />
@@ -47,7 +47,7 @@ export default function TabsLayout() {
         options={{
           title: 'Exercises',
           headerTitle: t('tabs.exercise'),
-          tabBarLabel: 'Exercises',
+          tabBarLabel: t('tabs.exercise'),
           tabBarIcon: ({ color, size }) => <Dumbbell size={size} color={color} />,
         }}
       />
@@ -56,7 +56,7 @@ export default function TabsLayout() {
         options={{
           title: 'Workout',
           headerTitle: t('tabs.workout'),
-          tabBarLabel: 'Workout',
+          tabBarLabel: t('tabs.workout'),
           tabBarIcon: ({ color, size }) => <BicepsFlexed size={size} color={color} />,
         }}
       />
@@ -65,7 +65,7 @@ export default function TabsLayout() {
         options={{
           title: 'Calendar',
           headerTitle: t('tabs.calendar'),
-          tabBarLabel: 'Calendar',
+          tabBarLabel: t('tabs.calendar'),
           tabBarIcon: ({ color, size }) => <LucideCalendar size={size} color={color} />,
         }}
       />
