@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatTimeShort } from '@/utils/format-time';
 import { memo, useEffect, useRef } from 'react';
 import { Step } from '@/types/workout';
+import { useTranslation } from 'react-i18next';
 
 interface StepItemProps {
   step: Step;
@@ -15,6 +16,7 @@ interface StepItemProps {
 }
 
 const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
+  const { t } = useTranslation();
   return (
     <View
       className={`mb-2 rounded-lg p-3 ${isCurrent
@@ -34,7 +36,7 @@ const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
       </Text>
       <Text
         className={`text-sm ${isCurrent ? 'font-semibold' : 'text-gray-500 dark:text-gray-200'}`}>
-        {step.isRest ? 'Rest' : 'Work'}
+        {step.isRest ? t('convert_routine.rest') : t('convert_routine.work')}
       </Text>
     </View>
   );

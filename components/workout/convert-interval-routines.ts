@@ -1,4 +1,5 @@
 import { Step } from '@/types/workout';
+import { TFunction } from 'i18next';
 export interface Hiit {
   rounds: number;
   workTime: number;
@@ -26,14 +27,14 @@ export interface Amrap {
   workTime: number;
 }
 
-export const convertHiitToSteps = (hiit: Hiit): Step[] => {
+export const convertHiitToSteps = (hiit: Hiit, t: TFunction): Step[] => {
   let stepsTemp: Step[] = [];
   let stepCount: number = 0;
 
   // preparation before starting
   stepsTemp.push({
     step: stepCount,
-    name: 'Get Ready',
+    name: t('convert_routine.get_ready'),
     automatic: true,
     isRest: true,
     quantity: 10,
@@ -47,8 +48,8 @@ export const convertHiitToSteps = (hiit: Hiit): Step[] => {
         quantity: hiit.workTime,
         name:
           hiit.cycles > 1
-            ? `Work ${round + 1} of ${hiit.rounds} :: Cycle: ${cycle + 1}/${hiit.cycles}`
-            : `Work ${round + 1} of ${hiit.rounds}`,
+            ? `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${hiit.rounds} :: ${t('convert_routine.cycle')}: ${cycle + 1}/${hiit.cycles}`
+            : `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${hiit.rounds}`,
         automatic: true,
         isRest: false,
         weight: null,
@@ -57,7 +58,7 @@ export const convertHiitToSteps = (hiit: Hiit): Step[] => {
       stepsTemp.push({
         step: stepCount,
         quantity: hiit.restTime,
-        name: 'Rest',
+        name: t('convert_routine.rest'),
         automatic: true,
         isRest: true,
         weight: null,
@@ -68,7 +69,7 @@ export const convertHiitToSteps = (hiit: Hiit): Step[] => {
       stepsTemp.push({
         step: stepCount,
         quantity: hiit.cycleRestTime,
-        name: 'Cycle Rest',
+        name: t('convert_routine.cycle_rest'),
         automatic: true,
         isRest: true,
         weight: null,
@@ -79,7 +80,7 @@ export const convertHiitToSteps = (hiit: Hiit): Step[] => {
   return stepsTemp;
 };
 
-export const convertEmomToSteps = (emom: Emom): Step[] => {
+export const convertEmomToSteps = (emom: Emom, t: TFunction): Step[] => {
   let stepsTemp: Step[] = [];
   let stepCount: number = 0;
 
@@ -87,7 +88,7 @@ export const convertEmomToSteps = (emom: Emom): Step[] => {
   stepsTemp.push({
     step: stepCount,
     quantity: 10,
-    name: 'Get Ready',
+    name: t('convert_routine.get_ready'),
     automatic: true,
     isRest: true,
     weight: null,
@@ -100,8 +101,8 @@ export const convertEmomToSteps = (emom: Emom): Step[] => {
         quantity: emom.workTime,
         name:
           emom.cycles > 1
-            ? `Work ${round + 1} of ${emom.rounds} :: Cycle: ${cycle + 1}/${emom.cycles}`
-            : `Work ${round + 1} of ${emom.rounds}`,
+            ? `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${emom.rounds} :: ${t('convert_routine.cycle')}: ${cycle + 1}/${emom.cycles}`
+            : `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${emom.rounds}`,
         automatic: true,
         isRest: false,
         weight: null,
@@ -112,7 +113,7 @@ export const convertEmomToSteps = (emom: Emom): Step[] => {
       stepsTemp.push({
         step: stepCount,
         quantity: emom.cycleRestTime,
-        name: 'Cycle Rest',
+        name: t('convert_routine.cycle_rest'),
         automatic: true,
         isRest: true,
         weight: null,
@@ -123,7 +124,7 @@ export const convertEmomToSteps = (emom: Emom): Step[] => {
   return stepsTemp;
 };
 
-export const convertTabataToSteps = (tabata: Tabata): Step[] => {
+export const convertTabataToSteps = (tabata: Tabata, t: TFunction): Step[] => {
   let stepsTemp: Step[] = [];
   let stepCount: number = 0;
 
@@ -131,7 +132,7 @@ export const convertTabataToSteps = (tabata: Tabata): Step[] => {
   stepsTemp.push({
     step: stepCount,
     quantity: 10,
-    name: 'Get Ready',
+    name: t('convert_routine.get_ready'),
     automatic: true,
     isRest: true,
     weight: null,
@@ -144,8 +145,8 @@ export const convertTabataToSteps = (tabata: Tabata): Step[] => {
         quantity: tabata.workTime,
         name:
           tabata.cycles > 1
-            ? `Work ${round + 1} of ${tabata.rounds} :: Cycle: ${cycle + 1}/${tabata.cycles}`
-            : `Work ${round + 1} of ${tabata.rounds}`,
+            ? `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${tabata.rounds} :: ${t('convert_routine.cycle')}: ${cycle + 1}/${tabata.cycles}`
+            : `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${tabata.rounds}`,
         automatic: true,
         isRest: false,
         weight: null,
@@ -154,7 +155,7 @@ export const convertTabataToSteps = (tabata: Tabata): Step[] => {
       stepsTemp.push({
         step: stepCount,
         quantity: tabata.restTime,
-        name: 'Rest',
+        name: t('convert_routine.rest'),
         automatic: true,
         isRest: true,
         weight: null,
@@ -165,7 +166,7 @@ export const convertTabataToSteps = (tabata: Tabata): Step[] => {
       stepsTemp.push({
         step: stepCount,
         quantity: tabata.cycleRestTime,
-        name: 'Cycle Rest',
+        name: t('convert_routine.cycle_rest'),
         automatic: true,
         isRest: true,
         weight: null,
@@ -176,7 +177,7 @@ export const convertTabataToSteps = (tabata: Tabata): Step[] => {
   return stepsTemp;
 };
 
-export const convertAmrapToSteps = (amrap: Amrap): Step[] => {
+export const convertAmrapToSteps = (amrap: Amrap, t: TFunction): Step[] => {
   let stepsTemp: Step[] = [];
   let stepCount: number = 0;
 
@@ -184,7 +185,7 @@ export const convertAmrapToSteps = (amrap: Amrap): Step[] => {
   stepsTemp.push({
     step: stepCount,
     quantity: 10,
-    name: 'Get Ready',
+    name: t('convert_routine.get_ready'),
     automatic: true,
     isRest: true,
     weight: null,
@@ -193,7 +194,7 @@ export const convertAmrapToSteps = (amrap: Amrap): Step[] => {
   stepsTemp.push({
     step: stepCount,
     quantity: amrap.workTime,
-    name: 'Work',
+    name: t('convert_routine.work'),
     automatic: true,
     isRest: false,
     weight: null,

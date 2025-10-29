@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Progress } from '../ui/progress';
 import { Step } from '@/types/workout';
+import { useTranslation } from 'react-i18next';
 
 type CountdownPropsType = {
   steps: Step[];
@@ -28,6 +29,7 @@ const Countdown = ({ steps, currentTimer, progress, isLoading, isPaused }: Count
   const nextStep = steps[currentStepIndex + 1] || { name: 'Complete' };
   const isWorkoutComplete = currentStepIndex >= steps.length;
   const isAutomatic = currentStep.automatic;
+  const { t } = useTranslation();
 
   return (
     <Card
@@ -35,7 +37,7 @@ const Countdown = ({ steps, currentTimer, progress, isLoading, isPaused }: Count
       <CardHeader>
         <CardTitle className="pb-2 text-center uppercase">
           {isLoading ? 'Loading...' : isWorkoutComplete ? 'Workout Complete' : currentStep.name}
-          {isPaused && !isLoading && !isWorkoutComplete && ' (Paused)'}
+          {isPaused && !isLoading && !isWorkoutComplete && ` (${t('convert_routine.paused')})`}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -67,7 +69,9 @@ const Countdown = ({ steps, currentTimer, progress, isLoading, isPaused }: Count
       </CardContent>
       <CardFooter className="flex-col gap-3 pb-0">
         <View className="flex-row items-center overflow-hidden">
-          <Text className="text-muted-foreground">NEXT: {isLoading ? '...' : nextStep.name}</Text>
+          <Text className="text-muted-foreground">
+            {t('convert_routine.next')}: {isLoading ? '...' : nextStep.name}
+          </Text>
         </View>
       </CardFooter>
     </Card>
