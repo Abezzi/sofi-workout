@@ -53,6 +53,7 @@ Or scan the QR code with the [Expo Go](https://expo.dev/go) app to test on your 
 - 🌙 Dark Mode
 - 🗓️ Calendar and Workout History
 - 👥 Share Routines with others
+- 🌎 i18n support (ENG/ESP/KR)
 - 🔥 Edge to Edge enabled
 - 📱 Runs on iOS, Android, and Web
 
