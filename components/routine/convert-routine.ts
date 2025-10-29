@@ -1,7 +1,11 @@
 import { getRoutineWithExerciseAndRest } from '@/db/queries/routine.queries';
 import { Step } from '@/types/workout';
+import { TFunction } from 'i18next';
 
-export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<Step[]> => {
+export const convertRoutineToSteps = async (
+  selectedRoutineId: number,
+  t: TFunction
+): Promise<Step[]> => {
   let stepsTemp: Step[] = [];
   let stepCount: number = 0;
 
@@ -13,7 +17,7 @@ export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<
     stepsTemp.push({
       step: stepCount,
       quantity: 10,
-      name: 'Get Ready',
+      name: t('convert_routine.get_ready'),
       automatic: true,
       isRest: true,
       weight: null,
@@ -28,7 +32,7 @@ export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<
     // iterate through exercises
     for (let i = 0; i < routineData.exercises.length; i++) {
       const exercise = routineData.exercises[i];
-      console.log(`Exercise ${exercise.name} sets:`, exercise.sets);
+      // console.log(`Exercise ${exercise.name} sets:`, exercise.sets);
       const isExerciseAutomatic = exercise.exerciseType?.name === 'Time';
 
       // process each set
@@ -38,7 +42,7 @@ export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<
         stepsTemp.push({
           step: stepCount,
           quantity: set.quantity,
-          name: `${exercise.name} - Set ${set.setNumber} (${set.quantity} reps, ${set.weight} kg)`,
+          name: `${exercise.name} - ${t('convert_routine.set')} ${set.setNumber} (${set.quantity} ${t('convert_routine.reps')}, ${set.weight} kg)`,
           automatic: isExerciseAutomatic,
           isRest: false,
           weight: set.weight,
@@ -50,7 +54,7 @@ export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<
           stepsTemp.push({
             step: stepCount,
             quantity: setRestTimer.restTime,
-            name: `Rest after ${exercise.name} - Set ${set.setNumber}`,
+            name: `${t('convert_routine.rest_after')} ${exercise.name} - ${t('convert_routine.set')} ${set.setNumber}`,
             automatic: true,
             isRest: true,
             weight: null,
@@ -64,7 +68,7 @@ export const convertRoutineToSteps = async (selectedRoutineId: number): Promise<
         stepsTemp.push({
           step: stepCount,
           quantity: exerciseRestTimer.restTime,
-          name: `Rest after ${exercise.name}`,
+          name: `${t('convert_routine.rest_after')} ${exercise.name}`,
           automatic: true,
           isRest: true,
           weight: null,
