@@ -1,12 +1,12 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
 } from 'react-native-draggable-flatlist';
-import SwipeableItem, { useSwipeableItemParams, OpenDirection } from 'react-native-swipeable-item';
+import SwipeableItem, { useSwipeableItemParams } from 'react-native-swipeable-item';
 import { Icon } from '../ui/icon';
 import { ChevronDown, ChevronUp, Copy, Grip, Trash } from 'lucide-react-native';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
@@ -36,18 +36,12 @@ interface DraggableExerciseListProps {
   onDataChange?: (newData: ExerciseItem[]) => void;
 }
 
-export function DraggableExerciseList({
-  data: propData,
-  onDataChange,
-}: DraggableExerciseListProps) {
-  const [data, setData] = useState<ExerciseItem[]>(propData);
-
-  useEffect(() => {
-    setData(propData);
-  }, [propData]);
-
+export function DraggableExerciseList({ data, onDataChange }: DraggableExerciseListProps) {
   const handleDragEnd = ({ data: newData }: { data: ExerciseItem[] }) => {
-    setData(newData);
+    onDataChange?.(newData);
+  };
+
+  const updateData = (newData: ExerciseItem[]) => {
     onDataChange?.(newData);
   };
 
@@ -63,8 +57,7 @@ export function DraggableExerciseList({
       }
       return item;
     });
-    setData(newData);
-    onDataChange?.(newData);
+    updateData(newData);
   };
 
   const handleQuantityChange = (key: string, value: string, setIndex: number) => {
@@ -79,19 +72,17 @@ export function DraggableExerciseList({
       }
       return item;
     });
-    setData(newData);
-    onDataChange?.(newData);
+    updateData(newData);
   };
 
-  // Swipe to the left to delete
+  // swipe to the left to delete
   const UnderlayLeft = ({ item }: { item: ExerciseItem }) => {
     const { close } = useSwipeableItemParams<ExerciseItem>();
 
     const handleDelete = async () => {
       await close();
       const newData = data.filter((exercise) => exercise.key !== item.key);
-      setData(newData);
-      onDataChange?.(newData);
+      updateData(newData);
     };
 
     return (
@@ -119,8 +110,7 @@ export function DraggableExerciseList({
       };
       const itemIndex = data.findIndex((exercise) => exercise.key === item.key);
       const newData = [...data.slice(0, itemIndex + 1), newItem, ...data.slice(itemIndex + 1)];
-      setData(newData);
-      onDataChange?.(newData);
+      updateData(newData);
     };
 
     return (
