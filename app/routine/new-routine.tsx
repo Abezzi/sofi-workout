@@ -20,15 +20,12 @@ import {
 } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
-import { Routine, ExerciseSet, RestTimer } from '@/db/schema';
-import { postRoutine } from '@/db/queries/routine.queries';
-import { postExerciseSet } from '@/db/queries/exercise_set.queries';
-import { postRoutineExercise } from '@/db/queries/routine_exercise.queries';
+import { Routine } from '@/db/schema';
+import { saveFullRoutine } from '@/db/queries/routine.queries';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { postRestTimer } from '@/db/queries/routine_timer.queries';
 
 interface ExerciseItem {
   key: string;
@@ -199,36 +196,39 @@ export default function NewRoutineScreen() {
   };
 
   const handleSubmit = async () => {
+    if (!isFormValid) {
+      errorsAlert();
+      return;
+    }
+    setLoading(true);
     try {
-      setLoading(true);
-      if (isFormValid) {
-        const routineId = await saveRoutine();
-        if (routineId) {
-          const routineExerciseIds = await saveRoutineExercise(routineId);
-          if (routineExerciseIds) {
-            await saveExerciseSet(routineExerciseIds);
-            if (!manualRestCheck && setRest && restBetweenExercise) {
-              await saveRestTimer(
-                'automatic',
-                routineId,
-                parseInt(setRest),
-                parseInt(restBetweenExercise)
-              );
-            }
-          }
-        }
-        setLoading(false);
+      const result = await saveFullRoutine({
+        routine: {
+          name: routine.name,
+          description: routine.description ?? '',
+          restMode: manualRestCheck ? 'manual' : 'automatic',
+        },
+        exercises: exercises.map((ex, idx) => ({
+          exerciseId: ex.exercise.id,
+          position: idx + 1,
+          sets: ex.amount.map((a) => ({ quantity: a.quantity, weight: a.weight })),
+        })),
+        restMode: manualRestCheck ? 'manual' : 'automatic',
+        setRest: manualRestCheck ? undefined : parseInt(setRest) || 0,
+        restBetweenExercise: manualRestCheck ? undefined : parseInt(restBetweenExercise) || 0,
+      });
+
+      if (result.success) {
         successToast();
-        router.push({
-          pathname: '/(tabs)/home',
-        });
+        router.push('/(tabs)/home');
       } else {
-        errorsAlert();
-        setLoading(false);
+        Alert.alert('Error', result.error?.message ?? 'Failed to save routine');
       }
     } catch (error) {
-      setLoading(false);
       console.log('error submiting the routine');
+      Alert.alert('Error', 'Unexpected error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -272,135 +272,6 @@ export default function NewRoutineScreen() {
 
     setErrors(errors);
     setIsFormValid(Object.values(errors).every((error) => error === ''));
-  };
-
-  const saveRoutine = async () => {
-    if (routine) {
-      const response = await postRoutine(routine);
-      if (response.success) {
-        console.log('Routine Created Successfully');
-        return response.id;
-      } else {
-        console.log('ERROR: ');
-      }
-    } else {
-      console.log('routine does not exists');
-    }
-  };
-
-  const saveRoutineExercise = async (routineId: number) => {
-    try {
-      const newRoutineExercises = exercises.map((exercise, index) => ({
-        id: 0,
-        routineId: routineId,
-        exerciseId: exercise.exercise.id,
-        position: index + 1, // TODO: check if the +1 is needed or not in the DB
-      }));
-
-      const savedRoutineExerciseIds: { position: number; id: number }[] = [];
-
-      for (const routineExercise of newRoutineExercises) {
-        const response = await postRoutineExercise(routineExercise);
-        if (response.success && response.id) {
-          console.log(
-            `routineExercise saved successfully: exerciseId=${routineExercise.exerciseId}, position=${routineExercise.position}, id=${response.id}`
-          );
-          savedRoutineExerciseIds.push({ position: routineExercise.position, id: response.id });
-        } else {
-          console.error('error saving RoutineExercise');
-          return null;
-        }
-      }
-      return savedRoutineExerciseIds;
-    } catch (error) {
-      console.log('error (catch) in save routine exercise: ', error);
-      return null;
-    }
-  };
-
-  const saveExerciseSet = async (routineExerciseIds: { position: number; id: number }[]) => {
-    try {
-      for (const exercise of exercises) {
-        const routineExercise = routineExerciseIds.find(
-          (re) => re.position === exercises.indexOf(exercise) + 1
-        );
-        if (!routineExercise) {
-          console.error(
-            `no RoutineExercise id found for exercise at position ${exercises.indexOf(exercise) + 1}`
-          );
-          continue;
-        }
-
-        const exerciseSets: ExerciseSet[] = exercise.amount.map((set, index) => ({
-          id: 0,
-          routineExerciseId: routineExercise.id,
-          setNumber: index + 1,
-          quantity: set.quantity,
-          weight: set.weight,
-        }));
-
-        for (const exerciseSet of exerciseSets) {
-          const response = await postExerciseSet(exerciseSet);
-          if (response.success) {
-            console.log(
-              `exerciseSet saved successfully: routineExerciseId=${exerciseSet.routineExerciseId}, setNumber=${exerciseSet.setNumber}`
-            );
-          } else {
-            console.error('error saving ExerciseSet');
-          }
-        }
-      }
-    } catch (error) {
-      console.error('error in saveExerciseSet:', error);
-    }
-  };
-
-  const saveRestTimer = async (
-    restMode: 'automatic' | 'manual',
-    routineId: number,
-    setRest: number,
-    restBetweenExercise: number
-  ) => {
-    try {
-      let response;
-      if (restMode === 'automatic') {
-        const setRestTimer: RestTimer = {
-          id: 0,
-          routineId: routineId,
-          routineExerciseId: null,
-          exerciseSetId: null,
-          restTime: setRest,
-          type: 'set',
-        };
-        const restBetweenExerciseRestTimer: RestTimer = {
-          id: 0,
-          routineId: routineId,
-          routineExerciseId: null,
-          exerciseSetId: null,
-          restTime: restBetweenExercise,
-          type: 'exercise',
-        };
-        response = await postRestTimer(setRestTimer);
-        if (response.success) {
-          console.log(
-            `Rest timer saved successfully: routineId=${routineId}, restTime=${setRest}, type=set`
-          );
-        }
-        response = await postRestTimer(restBetweenExerciseRestTimer);
-        if (response.success) {
-          console.log(
-            `Rest timer saved successfully: routineId=${routineId}, restTime=${restBetweenExercise}, type=exercise`
-          );
-        }
-      } else if (restMode === 'manual') {
-        // TODO
-      } else {
-        // TODO
-        throw Error;
-      }
-    } catch (error) {
-      console.error('error in saveRestTimer: ', error);
-    }
   };
 
   return (

@@ -9,7 +9,7 @@ import {
   routine_exercise,
 } from '../schema';
 import { eq, and } from 'drizzle-orm';
-import { db } from '..';
+import { db, DBTransaction, DBExecutor } from '..';
 
 export interface RoutineWithExerciseAndRest {
   id: number;
@@ -38,6 +38,18 @@ export interface RoutineWithExerciseAndRest {
     restTime: number;
     type: 'set' | 'exercise';
   }[];
+}
+
+export interface SaveFullRoutineParams {
+  routine: Omit<Routine, 'id'>;
+  exercises: {
+    exerciseId: number;
+    position: number;
+    sets: { quantity: number; weight: number }[];
+  }[];
+  restMode: 'automatic' | 'manual';
+  setRest?: number;
+  restBetweenExercise?: number;
 }
 
 export function transformDbToRoutine(dbRecord: any): Routine {
@@ -156,17 +168,24 @@ export function transformRoutineToDb(routine: Partial<Routine>): any {
 }
 
 export async function postRoutine(
-  routineToPost: Routine
+  routineToPost: Omit<Routine, 'id'>,
+  executor?: DBExecutor
 ): Promise<{ success: boolean; id?: number }> {
+  const dbOrTx = executor ?? db;
+
   try {
-    const result = await db.insert(routine).values({
-      name: routineToPost.name,
-      description: routineToPost.description,
-      restMode: routineToPost.restMode,
-    });
-    return { success: true, id: result.lastInsertRowId };
-  } catch (error) {
-    console.log(error);
+    const result = await dbOrTx
+      .insert(routine)
+      .values({
+        name: routineToPost.name,
+        description: routineToPost.description,
+        restMode: routineToPost.restMode,
+      })
+      .returning({ id: routine.id });
+
+    return { success: true, id: result[0].id };
+  } catch (e) {
+    console.error('postRoutine error', e);
     return { success: false };
   }
 }
@@ -321,4 +340,80 @@ export async function deleteRoutineById(routineId: number): Promise<void> {
   } catch (error) {
     console.log(error);
   }
+}
+
+export async function saveFullRoutine(
+  params: SaveFullRoutineParams
+): Promise<{ success: boolean; routineId?: number; error?: any }> {
+  return db.transaction(async (tx: DBTransaction) => {
+    try {
+      // insert routine
+      const routineRes = await postRoutine(params.routine, tx);
+      if (!routineRes.success || !routineRes.id) {
+        throw new Error('failed to create routine');
+      }
+      const routineId = routineRes.id;
+
+      // routine exercise
+      const reValues = params.exercises.map((ex) => ({
+        routineId,
+        exerciseId: ex.exerciseId,
+        position: ex.position,
+      }));
+
+      const reBulk = await tx
+        .insert(routine_exercise)
+        .values(reValues)
+        .returning({ id: routine_exercise.id, position: routine_exercise.position });
+
+      // map position -> routine_exercise.id (needed for sets)
+      const reIdMap = new Map<number, number>();
+      reBulk.forEach((row) => reIdMap.set(row.position, row.id));
+
+      // exercise set
+      const setValues: any[] = [];
+      params.exercises.forEach((ex) => {
+        const reId = reIdMap.get(ex.position);
+        if (!reId) throw new Error(`missing routine_exercise for pos ${ex.position}`);
+
+        ex.sets.forEach((s, idx) => {
+          setValues.push({
+            routineExerciseId: reId,
+            setNumber: idx + 1,
+            quantity: s.quantity,
+            weight: s.weight,
+          });
+        });
+      });
+
+      if (setValues.length) {
+        await tx.insert(exercise_set).values(setValues);
+      }
+      // rest timers
+      if (
+        params.restMode === 'automatic' &&
+        params.setRest != null &&
+        params.restBetweenExercise != null
+      ) {
+        const timerValues = [
+          {
+            routineId,
+            restTime: params.setRest,
+            type: 'set' as const,
+          },
+          {
+            routineId,
+            restTime: params.restBetweenExercise,
+            type: 'exercise' as const,
+          },
+        ];
+        await tx.insert(rest_timer).values(timerValues);
+      }
+
+      return { success: true, routineId };
+    } catch (error) {
+      console.error('error saving full routine, rollback', error);
+      return { success: false, error: error };
+    }
+  });
 }
