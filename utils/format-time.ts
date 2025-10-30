@@ -8,6 +8,7 @@ export const formatTimeLong = (totalSeconds: number): string => {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   let result = '';
+
   if (hours > 0) {
     result += `${hours} ${hours !== 1 ? t('time.hours') : t('time.hour')}`;
   }
@@ -17,11 +18,13 @@ export const formatTimeLong = (totalSeconds: number): string => {
   if (seconds > 0) {
     result += ` ${seconds} ${seconds !== 1 ? t('time.seconds') : t('time.second')}`;
   }
+
   return result.trim() || `0 ${t('time.minutes')}`;
 };
 
 export const formatTimeShort = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
+
   return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
