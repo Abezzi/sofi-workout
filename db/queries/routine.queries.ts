@@ -8,7 +8,7 @@ import {
   routine,
   routine_exercise,
 } from '../schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, asc } from 'drizzle-orm';
 import { db, DBTransaction, DBExecutor } from '..';
 
 export interface RoutineWithExerciseAndRest {
@@ -61,99 +61,74 @@ export function transformDbToRoutine(dbRecord: any): Routine {
   };
 }
 
-export function transformDbToRoutineExerciseAndRest(dbRecord: any[]): RoutineWithExerciseAndRest {
-  // if no data is provided or first record is invalid, return an empty routine object
-  if (!dbRecord || dbRecord.length === 0 || !dbRecord[0]?.routine) {
-    return {
-      id: 0,
-      name: '',
-      description: '',
-      restMode: 'manual',
-      exercises: [],
-      restTimers: [],
-    };
-  }
+function transformDbToRoutineExerciseAndRest(dbRecord: any[]): RoutineWithExerciseAndRest {
+  const routineMap = new Map<number, any>();
 
-  // the first record contains the routine data
-  const routineData = dbRecord[0];
+  for (const row of dbRecord) {
+    const r = row.routine;
+    const re = row.routine_exercise;
+    const ex = row.exercise;
+    const cat = row.category;
+    const et = row.exercise_type;
+    const set = row.exercise_set;
 
-  // initialize the Routine object
-  const routine: RoutineWithExerciseAndRest = {
-    id: routineData.routine.id,
-    name: routineData.routine.name,
-    description: routineData.routine.description,
-    restMode: routineData.routine.restMode,
-    exercises: [],
-    restTimers: [],
-  };
-
-  // map to track unique exercises by routine_exercise.id
-  const exerciseMap = new Map<number, any>();
-
-  // aggregate exercises
-  dbRecord.forEach((record) => {
-    if (record.routine_exercise && record.exercise) {
-      const routineExerciseId = record.routine_exercise.id;
-
-      if (!exerciseMap.has(routineExerciseId)) {
-        exerciseMap.set(routineExerciseId, {
-          id: record.exercise.id,
-          name: record.exercise.name,
-          description: record.exercise.description || null,
-          category: record.category
-            ? { id: record.category.id, name: record.category.name, color: record.category.color }
-            : null,
-          exerciseType: record.exercise_type
-            ? { id: record.exercise_type.id, name: record.exercise_type.name }
-            : null,
-          sets: [],
-        });
-      }
-
-      // add set (no dedup check needed)
-      if (record.exercise_set) {
-        const exercise = exerciseMap.get(routineExerciseId);
-        exercise.sets.push({
-          id: record.exercise_set.id,
-          routineExerciseId: record.exercise_set.routineExerciseId,
-          setNumber: record.exercise_set.setNumber,
-          quantity: record.exercise_set.quantity,
-          weight: record.exercise_set.weight,
-        });
-      }
-    }
-
-    // add rest timer data if available
-    if (record.rest_timer && !routine.restTimers.some((rt) => rt.id === record.rest_timer.id)) {
-      routine.restTimers.push({
-        id: record.rest_timer.id,
-        routineId: record.rest_timer.routineId,
-        routineExerciseId: record.rest_timer.routineExerciseId || null,
-        exerciseSetId: record.rest_timer.exerciseSetId || null,
-        restTime: record.rest_timer.restTime,
-        type: record.rest_timer.type,
+    // initialize routine if not exists
+    if (!routineMap.has(r.id)) {
+      routineMap.set(r.id, {
+        id: r.id,
+        name: r.name,
+        description: r.description,
+        restMode: r.restMode,
+        exercises: [],
+        restTimers: [],
       });
     }
-  });
 
-  // convert exerciseMap to array and sort by routine_exercise.position
-  routine.exercises = Array.from(exerciseMap.values()).sort((a, b) => {
-    const positionA =
-      dbRecord.find((r) => r.exercise && r.exercise.id === a.id)?.routine_exercise?.position || 0;
-    const positionB =
-      dbRecord.find((r) => r.exercise && r.exercise.id === b.id)?.routine_exercise?.position || 0;
-    return positionA - positionB;
-  });
+    const routineData = routineMap.get(r.id);
 
-  // sort sets within each exercise by setNumber
-  routine.exercises.forEach((exercise) => {
-    exercise.sets.sort((a: any, b: any) => a.setNumber - b.setNumber);
-  });
+    // find exercise entry
+    let exerciseEntry = routineData.exercises.find((e: any) => e.id === re.id);
 
-  // sort rest timers by id
-  routine.restTimers.sort((a, b) => a.id - b.id);
+    if (!exerciseEntry) {
+      exerciseEntry = {
+        id: re.id,
+        routineId: re.routineId,
+        exerciseId: re.exerciseId,
+        position: re.position, // ← Keep this!
+        name: ex.name,
+        description: ex.description,
+        exerciseType: et ? { id: et.id, name: et.name } : null,
+        category: cat ? { id: cat.id, name: cat.name, color: cat.color } : null,
+        sets: [],
+      };
+      routineData.exercises.push(exerciseEntry);
+    }
 
-  return routine;
+    // add set if exists and not duplicate
+    if (set) {
+      const existingSet = exerciseEntry.sets.find((s: any) => s.id === set.id);
+      if (!existingSet) {
+        exerciseEntry.sets.push({
+          id: set.id,
+          routineExerciseId: set.routineExerciseId,
+          setNumber: set.setNumber,
+          quantity: set.quantity,
+          weight: set.weight,
+        });
+      }
+    }
+  }
+
+  const result = routineMap.values().next().value;
+
+  // sort sets within each exercise
+  if (result) {
+    result.exercises.forEach((ex: any) => {
+      ex.sets.sort((a: any, b: any) => a.setNumber - b.setNumber);
+    });
+  }
+
+  return result;
 }
 
 export function transformRoutineToDb(routine: Partial<Routine>): any {
@@ -235,7 +210,8 @@ export async function getRoutineWithExerciseAndRest(
         .leftJoin(category, eq(exercise.categoryId, category.id))
         .leftJoin(exercise_type, eq(exercise.exerciseTypeId, exercise_type.id))
         .leftJoin(exercise_set, eq(routine_exercise.id, exercise_set.routineExerciseId))
-        .where(and(eq(routine.restMode, 'automatic'), eq(routine.id, routineId)));
+        .where(and(eq(routine.restMode, 'automatic'), eq(routine.id, routineId)))
+        .orderBy(asc(routine_exercise.position));
 
       if (mainData.length === 0) {
         return undefined;
