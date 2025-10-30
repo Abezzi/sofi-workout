@@ -50,7 +50,12 @@ export const convertRoutineToSteps = async (
         stepCount++;
 
         // add rest step after set (except for the last set of the last exercise)
-        if (isAutomatic && setRestTimer && j < exercise.sets.length - 1) {
+        if (
+          isAutomatic &&
+          setRestTimer &&
+          j < exercise.sets.length - 1 &&
+          setRestTimer.restTime > 0
+        ) {
           stepsTemp.push({
             step: stepCount,
             quantity: setRestTimer.restTime,
@@ -64,7 +69,12 @@ export const convertRoutineToSteps = async (
       }
 
       // add rest step after exercise (except for the last exercise)
-      if (isAutomatic && exerciseRestTimer && i < routineData.exercises.length - 1) {
+      if (
+        isAutomatic &&
+        exerciseRestTimer &&
+        i < routineData.exercises.length - 1 &&
+        exerciseRestTimer.restTime > 0
+      ) {
         stepsTemp.push({
           step: stepCount,
           quantity: exerciseRestTimer.restTime,
