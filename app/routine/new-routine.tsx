@@ -237,7 +237,7 @@ export default function NewRoutineScreen() {
       ...prev,
       {
         ...newExercise,
-        key: `${prev.length}`,
+        key: `exercise-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       },
     ]);
     setOpenDialog(false);
