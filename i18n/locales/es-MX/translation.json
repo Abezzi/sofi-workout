@@ -38,8 +38,11 @@
   },
   "time": {
     "second": "segundo",
+    "seconds": "segundos",
     "minute": "minuto",
-    "hour": "hora"
+    "minutes": "minutos",
+    "hour": "hora",
+    "hours": "horas"
   },
   "convert_routine": {
     "get_ready": "Preparate",

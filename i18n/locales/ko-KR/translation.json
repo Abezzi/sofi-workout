@@ -38,8 +38,11 @@
   },
   "time": {
     "second": "초",
+    "seconds": "초",
     "minute": "분",
-    "hour": "시간"
+    "minutes": "분",
+    "hour": "시간",
+    "hours": "시간"
   },
   "convert_routine": {
     "get_ready": "준비",

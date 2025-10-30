@@ -4,7 +4,7 @@
     "home": "Home",
     "exercise": "Exercises",
     "workout": "Workout",
-    "calendar": "Workout"
+    "calendar": "Calendar"
   },
   "home_screen": {
     "new_routine": "New Routine",
@@ -38,8 +38,11 @@
   },
   "time": {
     "second": "second",
+    "seconds": "seconds",
     "minute": "minute",
-    "hour": "hour"
+    "minutes": "minutes",
+    "hour": "hour",
+    "hours": "hours"
   },
   "convert_routine": {
     "get_ready": "Get Ready",
