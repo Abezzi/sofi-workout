@@ -224,6 +224,9 @@ export function DraggableExerciseList({
         keyExtractor={(item) => item.key}
         onDragEnd={handleDragEnd}
         className="px-2"
+        initialNumToRender={10}
+        showsVerticalScrollIndicator={true}
+        style={{ maxHeight: 320 }}
       />
     </>
   );
