@@ -13,7 +13,7 @@ export const formatTimeLong = (totalSeconds: number): string => {
     result += `${hours} ${hours !== 1 ? t('time.hours') : t('time.hour')}`;
   }
   if (minutes > 0 || hours > 0) {
-    result += `${minutes} ${minutes !== 1 ? t('time.minutes') : t('time.minute')}`;
+    result += ` ${minutes} ${minutes !== 1 ? t('time.minutes') : t('time.minute')}`;
   }
   if (seconds > 0) {
     result += ` ${seconds} ${seconds !== 1 ? t('time.seconds') : t('time.second')}`;
