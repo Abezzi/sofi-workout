@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Text } from '@/components/ui/text';
-import { getAllCategories, postCategory } from '@/db/queries/category.queries';
+import { getAllCategories } from '@/db/queries/category.queries';
 import { Button } from '../ui/button';
 import { Icon } from '../ui/icon';
 import { Exercise, ExerciseType } from '@/db/schema/';
@@ -129,7 +129,7 @@ export function ExerciseForm() {
             placeholder="Description..."
             aria-labelledby="exerciseDescription"
             aria-errormessage="inputError"
-            value={exercise.description}
+            value={exercise.description || undefined}
             onChangeText={(exerciseDescription) =>
               handleInputChange('description', exerciseDescription)
             }
@@ -215,19 +215,21 @@ export function ExerciseForm() {
           </Select>
         </CardContent>
         <CardFooter className="flex-col gap-3 pb-0">
-          {loading ? (
-            <Button disabled>
-              <View className="pointer-events-none animate-spin">
-                <Icon as={Loader2} className="text-primary-foreground" />
-              </View>
-              <Text>Please wait</Text>
-            </Button>
-          ) : (
-            <Button onPress={handleSubmit}>
-              <Icon as={Save} className="text-primary-foreground" />
-              <Text>Create</Text>
-            </Button>
-          )}
+          <Button onPress={handleSubmit} disabled={loading} className={loading ? 'opacity-75' : ''}>
+            {loading ? (
+              <>
+                <View className="pointer-events-none animate-spin">
+                  <Icon as={Loader2} />
+                </View>
+                <Text className="text-primary-foreground">Please wait</Text>
+              </>
+            ) : (
+              <>
+                <Icon as={Save} className="text-primary-foreground" />
+                <Text className="text-primary-foreground">Create</Text>
+              </>
+            )}
+          </Button>
         </CardFooter>
       </Card>
       {showAlert && (
