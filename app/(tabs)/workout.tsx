@@ -15,6 +15,7 @@ import {
   stop,
   nextStep,
   previousStep,
+  nextStepAndStart,
 } from '@/src/store/slices/workout/timerSlice';
 import { useSelector } from 'react-redux';
 import { View } from 'react-native';
@@ -114,6 +115,10 @@ export default function WorkoutScreen() {
       player.play();
     }
   }, [currentSoundFile, player]);
+
+  const handleReady = () => {
+    dispatch(nextStepAndStart());
+  };
 
   // media control handlers
   const handleStartPause = () => {
@@ -291,6 +296,7 @@ export default function WorkoutScreen() {
         progress={progress}
         isLoading={isLoading}
         isPaused={isPaused}
+        onReady={handleReady}
       />
       <MediaControl
         onStartPause={handleStartPause}

@@ -5,6 +5,7 @@ import { Text } from '@/components/ui/text';
 import { Progress } from '../ui/progress';
 import { Step } from '@/types/workout';
 import { useTranslation } from 'react-i18next';
+import { Button } from '../ui/button';
 
 type CountdownPropsType = {
   steps: Step[];
@@ -12,9 +13,17 @@ type CountdownPropsType = {
   progress: number;
   isLoading: boolean;
   isPaused: boolean;
+  onReady: () => void;
 };
 
-const Countdown = ({ steps, currentTimer, progress, isLoading, isPaused }: CountdownPropsType) => {
+const Countdown = ({
+  steps,
+  currentTimer,
+  progress,
+  isLoading,
+  isPaused,
+  onReady,
+}: CountdownPropsType) => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -68,6 +77,13 @@ const Countdown = ({ steps, currentTimer, progress, isLoading, isPaused }: Count
         )}
       </CardContent>
       <CardFooter className="flex-col gap-3 pb-0">
+        {!isAutomatic ? (
+          <Button variant={'outline'} onPress={onReady}>
+            <Text className="uppercase">{t('countdown_screen.ready')}</Text>
+          </Button>
+        ) : (
+          <></>
+        )}
         <View className="flex-row items-center overflow-hidden">
           <Text className="text-muted-foreground">
             {t('convert_routine.next')}: {isLoading ? '...' : nextStep.name}

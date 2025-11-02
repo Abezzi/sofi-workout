@@ -56,5 +56,8 @@
     "rest_after": "Rest After",
     "paused": "paused",
     "next": "NEXT"
+  },
+  "countdown_screen": {
+    "ready": "ready"
   }
 }

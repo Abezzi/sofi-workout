@@ -56,5 +56,8 @@
     "rest_after": "이후 휴식",
     "paused": "일시정지",
     "next": "다음"
+  },
+  "countdown_screen": {
+    "ready": "준비가 된"
   }
 }

@@ -95,8 +95,18 @@ const timerSlice = createSlice({
         state.isPaused = true;
       }
     },
+    nextStepAndStart: (state) => {
+      const nextIndex = state.currentTimer.index + 1;
+      if (nextIndex < state.steps.length) {
+        state.currentTimer = { index: nextIndex, timeLeft: state.steps[nextIndex].quantity };
+        state.progress = 100;
+        state.currentStep = nextIndex;
+        state.isPaused = false;
+      }
+    },
   },
 });
 
-export const { initialize, tick, startPause, stop, nextStep, previousStep } = timerSlice.actions;
+export const { initialize, tick, startPause, stop, nextStep, previousStep, nextStepAndStart } =
+  timerSlice.actions;
 export default timerSlice.reducer;
