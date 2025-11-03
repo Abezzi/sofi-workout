@@ -38,11 +38,15 @@ export const convertRoutineToSteps = async (
       // process each set
       for (let j = 0; j < exercise.sets.length; j++) {
         const set = exercise.sets[j];
+        let quantity = `${set.quantity} ${exercise.exerciseType?.name === 'Reps' ? t('convert_routine.reps') : t('time.seconds')}`;
+        let weight = `${set.weight > 0 ? ', ' + set.weight + ' kg' : ''}`;
+        let quantityAndWeightTag = `(${quantity}${weight})`;
+
         // add step for the set
         stepsTemp.push({
           step: stepCount,
           quantity: set.quantity,
-          name: `${exercise.name} - ${t('convert_routine.set')} ${set.setNumber} (${set.quantity} ${t('convert_routine.reps')}, ${set.weight} kg)`,
+          name: `${exercise.name} - ${t('convert_routine.set')} ${set.setNumber} ${quantityAndWeightTag}`,
           automatic: isExerciseAutomatic,
           isRest: false,
           weight: set.weight,
