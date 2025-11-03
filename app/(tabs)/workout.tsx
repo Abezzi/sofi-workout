@@ -148,6 +148,8 @@ export default function WorkoutScreen() {
 
       if (currentTimeLeft === 31 && currentStepObj?.quantity >= 30) {
         playSound(countdownSounds.alertSound);
+      } else if (currentTimeLeft === 10) {
+        playSound(require('../../assets/audio/alarm.mp3'));
       } else if (currentTimeLeft === 6) {
         playSound(countdownSounds.getCountdownSound(countdownVoice, '5'));
       } else if (currentTimeLeft === 5) {
