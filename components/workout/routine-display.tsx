@@ -4,10 +4,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { FlatList, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { formatTimeShort } from '@/utils/format-time';
 import { memo, useEffect, useRef } from 'react';
 import { Step } from '@/types/workout';
 import { useTranslation } from 'react-i18next';
+import { Badge } from '../ui/badge';
+import { Armchair, BicepsFlexed } from 'lucide-react-native';
+import { Icon } from '../ui/icon';
 
 interface StepItemProps {
   step: Step;
@@ -19,25 +21,104 @@ const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
   const { t } = useTranslation();
   return (
     <View
-      className={`mb-2 rounded-lg p-3 ${isCurrent
+      className={`mb-2 rounded-lg p-3 ${
+        isCurrent
           ? 'border-2 border-primary bg-gray-100 dark:border-primary dark:bg-primary-foreground'
           : isCompleted
             ? 'border-2 border-green-500 bg-green-100 dark:bg-green-900'
             : 'bg-gray-100 dark:bg-primary-foreground'
-        }`}>
+      }`}>
       <Text
-        className={`text-base ${isCurrent
+        className={`text-base ${
+          isCurrent
             ? 'font-semibold'
             : isCompleted
               ? 'font-semibold text-green-700 dark:text-white'
               : 'text-gray-700 dark:text-white'
+        }`}>
+        {step.name}
+      </Text>
+      {step.information ? (
+        <Text
+          className={`text-base capitalize ${
+            isCurrent
+              ? 'font-semibold'
+              : isCompleted
+                ? 'font-semibold text-green-700 dark:text-white'
+                : 'text-gray-700 dark:text-white'
           }`}>
-        {step.name} {step.automatic ? '(' + formatTimeShort(step.quantity) + ')' : ''}
-      </Text>
-      <Text
-        className={`text-sm ${isCurrent ? 'font-semibold' : 'text-gray-500 dark:text-gray-200'}`}>
-        {step.isRest ? t('convert_routine.rest') : t('convert_routine.work')}
-      </Text>
+          {step.information}
+        </Text>
+      ) : (
+        <></>
+      )}
+      <View className="flex w-full flex-row flex-wrap">
+        {step.isRest ? (
+          // rest badge
+          <Badge
+            variant="secondary"
+            className={`justify-start ${
+              isCurrent
+                ? 'bg-primary-foreground'
+                : isCompleted
+                  ? 'bg-green-100 dark:bg-green-900'
+                  : 'bg-primary-foreground'
+            }`}>
+            <Icon
+              as={Armchair}
+              className={`${
+                isCurrent
+                  ? 'text-primary'
+                  : isCompleted
+                    ? 'font-semibold text-green-700 dark:text-white'
+                    : 'text-primary'
+              }`}
+            />
+            <Text
+              className={`text-sm ${
+                isCurrent
+                  ? 'font-semibold'
+                  : isCompleted
+                    ? 'font-semibold text-green-700 dark:text-white'
+                    : 'text-primary'
+              }`}>
+              {t('convert_routine.rest')}
+            </Text>
+          </Badge>
+        ) : (
+          // work badge
+          <Badge
+            variant="secondary"
+            className={`justify-start ${
+              isCurrent
+                ? 'bg-primary'
+                : isCompleted
+                  ? 'bg-green-100 dark:bg-green-900'
+                  : 'bg-primary'
+            }`}>
+            <Icon
+              as={BicepsFlexed}
+              className={`${
+                isCurrent
+                  ? 'text-primary-foreground'
+                  : isCompleted
+                    ? 'font-semibold text-green-700 dark:text-white'
+                    : 'text-primary-foreground'
+              }`}
+            />
+            <Text
+              className={`text-sm ${
+                isCurrent
+                  ? 'font-semibold text-primary-foreground'
+                  : isCompleted
+                    ? 'font-semibold text-green-700 dark:text-white'
+                    : 'text-primary-foreground'
+              }`}>
+              {t('convert_routine.work')}
+            </Text>
+          </Badge>
+        )}
+      </View>
     </View>
   );
 });
