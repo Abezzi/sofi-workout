@@ -47,7 +47,6 @@ export const convertRoutineToSteps = async (
         if (!isExerciseAutomatic) {
           quantity = `${set.quantity} ${t('convert_routine.reps')}`;
         } else {
-          // option1
           quantity = `${set.quantity} ${t('time.seconds')}`;
         }
         weight = `${set.weight > 0 ? set.weight + ' kg' : ''}`;
