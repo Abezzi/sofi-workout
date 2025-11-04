@@ -1,4 +1,5 @@
 import { getRoutineWithExerciseAndRest } from '@/db/queries/routine.queries';
+import { formatTimeShort } from '@/utils/format-time';
 import { Step } from '@/types/workout';
 import { TFunction } from 'i18next';
 
@@ -18,6 +19,7 @@ export const convertRoutineToSteps = async (
       step: stepCount,
       quantity: 10,
       name: t('convert_routine.get_ready'),
+      information: `10 ${t('time.seconds')}`,
       automatic: true,
       isRest: true,
       weight: null,
@@ -38,15 +40,30 @@ export const convertRoutineToSteps = async (
       // process each set
       for (let j = 0; j < exercise.sets.length; j++) {
         const set = exercise.sets[j];
-        let quantity = `${set.quantity} ${exercise.exerciseType?.name === 'Reps' ? t('convert_routine.reps') : t('time.seconds')}`;
-        let weight = `${set.weight > 0 ? ', ' + set.weight + ' kg' : ''}`;
-        let quantityAndWeightTag = `(${quantity}${weight})`;
+        let quantity = '';
+        let weight = '';
+        let quantityAndWeightTag = '';
+
+        if (!isExerciseAutomatic) {
+          quantity = `${set.quantity} ${t('convert_routine.reps')}`;
+        } else {
+          // option1
+          quantity = `${set.quantity} ${t('time.seconds')}`;
+        }
+        weight = `${set.weight > 0 ? set.weight + ' kg' : ''}`;
+
+        if (quantity !== '' && weight == '') {
+          quantityAndWeightTag = `${quantity}`;
+        } else if (quantity !== '' && weight !== '') {
+          quantityAndWeightTag = `${quantity}, ${weight}`;
+        }
 
         // add step for the set
         stepsTemp.push({
           step: stepCount,
           quantity: set.quantity,
-          name: `${exercise.name} - ${t('convert_routine.set')} ${set.setNumber} ${quantityAndWeightTag}`,
+          name: `${exercise.name} - ${t('convert_routine.set')} ${set.setNumber}`,
+          information: quantityAndWeightTag,
           automatic: isExerciseAutomatic,
           isRest: false,
           weight: set.weight,
@@ -64,6 +81,7 @@ export const convertRoutineToSteps = async (
             step: stepCount,
             quantity: setRestTimer.restTime,
             name: `${t('convert_routine.rest_after')} ${exercise.name} - ${t('convert_routine.set')} ${set.setNumber}`,
+            information: `${setRestTimer.restTime} ${t('time.seconds')}`,
             automatic: true,
             isRest: true,
             weight: null,
@@ -83,6 +101,7 @@ export const convertRoutineToSteps = async (
           step: stepCount,
           quantity: exerciseRestTimer.restTime,
           name: `${t('convert_routine.rest_after')} ${exercise.name}`,
+          information: `${exerciseRestTimer.restTime} ${t('time.seconds')}`,
           automatic: true,
           isRest: true,
           weight: null,

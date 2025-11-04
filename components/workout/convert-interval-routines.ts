@@ -35,6 +35,7 @@ export const convertHiitToSteps = (hiit: Hiit, t: TFunction): Step[] => {
   stepsTemp.push({
     step: stepCount,
     name: t('convert_routine.get_ready'),
+    information: null,
     automatic: true,
     isRest: true,
     quantity: 10,
@@ -50,6 +51,7 @@ export const convertHiitToSteps = (hiit: Hiit, t: TFunction): Step[] => {
           hiit.cycles > 1
             ? `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${hiit.rounds} :: ${t('convert_routine.cycle')}: ${cycle + 1}/${hiit.cycles}`
             : `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${hiit.rounds}`,
+        information: null,
         automatic: true,
         isRest: false,
         weight: null,
@@ -59,6 +61,7 @@ export const convertHiitToSteps = (hiit: Hiit, t: TFunction): Step[] => {
         step: stepCount,
         quantity: hiit.restTime,
         name: t('convert_routine.rest'),
+        information: null,
         automatic: true,
         isRest: true,
         weight: null,
@@ -70,6 +73,7 @@ export const convertHiitToSteps = (hiit: Hiit, t: TFunction): Step[] => {
         step: stepCount,
         quantity: hiit.cycleRestTime,
         name: t('convert_routine.cycle_rest'),
+        information: null,
         automatic: true,
         isRest: true,
         weight: null,
@@ -89,6 +93,7 @@ export const convertEmomToSteps = (emom: Emom, t: TFunction): Step[] => {
     step: stepCount,
     quantity: 10,
     name: t('convert_routine.get_ready'),
+    information: null,
     automatic: true,
     isRest: true,
     weight: null,
@@ -103,6 +108,7 @@ export const convertEmomToSteps = (emom: Emom, t: TFunction): Step[] => {
           emom.cycles > 1
             ? `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${emom.rounds} :: ${t('convert_routine.cycle')}: ${cycle + 1}/${emom.cycles}`
             : `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${emom.rounds}`,
+        information: null,
         automatic: true,
         isRest: false,
         weight: null,
@@ -114,6 +120,7 @@ export const convertEmomToSteps = (emom: Emom, t: TFunction): Step[] => {
         step: stepCount,
         quantity: emom.cycleRestTime,
         name: t('convert_routine.cycle_rest'),
+        information: null,
         automatic: true,
         isRest: true,
         weight: null,
@@ -133,6 +140,7 @@ export const convertTabataToSteps = (tabata: Tabata, t: TFunction): Step[] => {
     step: stepCount,
     quantity: 10,
     name: t('convert_routine.get_ready'),
+    information: null,
     automatic: true,
     isRest: true,
     weight: null,
@@ -147,6 +155,7 @@ export const convertTabataToSteps = (tabata: Tabata, t: TFunction): Step[] => {
           tabata.cycles > 1
             ? `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${tabata.rounds} :: ${t('convert_routine.cycle')}: ${cycle + 1}/${tabata.cycles}`
             : `${t('convert_routine.work')} ${round + 1} ${t('convert_routine.of')} ${tabata.rounds}`,
+        information: null,
         automatic: true,
         isRest: false,
         weight: null,
@@ -156,6 +165,7 @@ export const convertTabataToSteps = (tabata: Tabata, t: TFunction): Step[] => {
         step: stepCount,
         quantity: tabata.restTime,
         name: t('convert_routine.rest'),
+        information: null,
         automatic: true,
         isRest: true,
         weight: null,
@@ -167,6 +177,7 @@ export const convertTabataToSteps = (tabata: Tabata, t: TFunction): Step[] => {
         step: stepCount,
         quantity: tabata.cycleRestTime,
         name: t('convert_routine.cycle_rest'),
+        information: null,
         automatic: true,
         isRest: true,
         weight: null,
@@ -186,6 +197,7 @@ export const convertAmrapToSteps = (amrap: Amrap, t: TFunction): Step[] => {
     step: stepCount,
     quantity: 10,
     name: t('convert_routine.get_ready'),
+    information: null,
     automatic: true,
     isRest: true,
     weight: null,
@@ -195,6 +207,7 @@ export const convertAmrapToSteps = (amrap: Amrap, t: TFunction): Step[] => {
     step: stepCount,
     quantity: amrap.workTime,
     name: t('convert_routine.work'),
+    information: null,
     automatic: true,
     isRest: false,
     weight: null,
