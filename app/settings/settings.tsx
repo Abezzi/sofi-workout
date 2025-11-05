@@ -1,7 +1,7 @@
 import { Text } from '@/components/ui/text';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ToastAndroid, View } from 'react-native';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
