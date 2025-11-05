@@ -17,6 +17,7 @@ import { postCategory } from '@/db/queries/category.queries';
 import { Button } from '../ui/button';
 import { Icon } from '../ui/icon';
 import ColorPickerCustom from '../base/color-picker-custom';
+import FullScreenLoader from '../base/full-screen-loader';
 
 type Category = {
   id: number;
@@ -42,6 +43,7 @@ export function CategoryForm() {
 
   const handleSubmit = async () => {
     setLoading(true);
+    await new Promise(requestAnimationFrame);
 
     if (!category.name || !category.color) {
       setShowAlert(true);
@@ -126,6 +128,7 @@ export function CategoryForm() {
           </Alert>
         </View>
       )}
+      <FullScreenLoader visible={loading} />
     </View>
   );
 }

@@ -26,6 +26,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import FullScreenLoader from '@/components/base/full-screen-loader';
 
 interface ExerciseItem {
   key: string;
@@ -98,14 +99,6 @@ export default function NewRoutineScreen() {
           text: 'OK',
         },
       ]
-    );
-  };
-
-  const successToast = () => {
-    ToastAndroid.showWithGravity(
-      'Routine Saved Successfully',
-      ToastAndroid.SHORT,
-      ToastAndroid.CENTER
     );
   };
 
@@ -201,6 +194,7 @@ export default function NewRoutineScreen() {
       return;
     }
     setLoading(true);
+    await new Promise(requestAnimationFrame);
     try {
       const result = await saveFullRoutine({
         routine: {
@@ -219,7 +213,6 @@ export default function NewRoutineScreen() {
       });
 
       if (result.success) {
-        successToast();
         router.push('/(tabs)/home');
       } else {
         Alert.alert('Error', result.error?.message ?? 'Failed to save routine');
@@ -275,113 +268,116 @@ export default function NewRoutineScreen() {
   };
 
   return (
-    <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
-      <CardHeader>
-        <View className="flex-row items-center justify-center gap-2">
-          <Button onPress={handleAddExercise}>
-            <Text>Add Exercise</Text>
-          </Button>
-          <View className="flex-col items-center">
-            <Label nativeID="manualRestCheck" htmlFor="manualRestCheck">
-              Rest Mode
-            </Label>
-            <Switch
-              id="manualRestCheck"
-              nativeID="manualRestCheck"
-              checked={manualRestCheck}
-              onCheckedChange={onCheckedChange}
-            />
-            {manualRestCheck ? <Label>MANUAL</Label> : <Label>AUTOMATIC</Label>}
-          </View>
-        </View>
-        {manualRestCheck ? (
-          <View className="flex-row items-center gap-2 px-4">
-            <Button
-              onPress={handleAddRest}
-              variant="outline"
-              className="shadow shadow-foreground/5">
-              <Text>Add Rest</Text>
+    <View>
+      <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
+        <CardHeader>
+          <View className="flex-row items-center justify-center gap-2">
+            <Button onPress={handleAddExercise}>
+              <Text>Add Exercise</Text>
             </Button>
-          </View>
-        ) : (
-          <View className="flex-row items-center gap-2 px-4">
-            <View className="flex-1">
-              <Label nativeID="setRest">Set Rest</Label>
-              <Input
-                aria-labelledby="setRest"
-                value={setRest}
-                onChangeText={setSetRest}
-                keyboardType="numeric"
-                selectTextOnFocus={true}
-                className="h-12"
+            <View className="flex-col items-center">
+              <Label nativeID="manualRestCheck" htmlFor="manualRestCheck">
+                Rest Mode
+              </Label>
+              <Switch
+                id="manualRestCheck"
+                nativeID="manualRestCheck"
+                checked={manualRestCheck}
+                onCheckedChange={onCheckedChange}
               />
-            </View>
-            <View>
-              <Label nativeID="restBetweenExercise">Rest Between Exercises</Label>
-              <Input
-                aria-labelledby="restBetweenExercise"
-                value={restBetweenExercise}
-                onChangeText={setRestBetweenExercise}
-                keyboardType="numeric"
-                selectTextOnFocus={true}
-                className="h-12"
-              />
+              {manualRestCheck ? <Label>MANUAL</Label> : <Label>AUTOMATIC</Label>}
             </View>
           </View>
-        )}
-      </CardHeader>
-      <CardContent>
-        <View className="px-4 pb-4">
-          <Label>Name</Label>
-          <Input
-            placeholder="My Favorite Routine"
-            id="routineName"
-            value={routine.name}
-            onChangeText={(routineName) => handleInputChange('name', routineName)}
-            className={`${errors && errors.routineName ? 'border border-red-500' : ''}`}
-          />
-          <Label>Description</Label>
-          <Input
-            placeholder="This will make you stronger"
-            id="description"
-            value={routine.description ? routine.description : undefined}
-            onChangeText={(routineDescription) =>
-              handleInputChange('description', routineDescription)
-            }
-          />
-        </View>
-        {exercises.length > 0 ? (
-          <DraggableExerciseList data={exercises} onDataChange={setExercises} />
-        ) : (
-          <View className="items-center">
-            <Text className="font-semibold">Your exercise list is empty</Text>
-            <Text className="text-sm text-muted-foreground">
-              add some by pressing 'Add Exercise'
-            </Text>
-            <Icon as={Ghost} className="size-8" />
-          </View>
-        )}
-      </CardContent>
-      <CardFooter className="flex-col gap-3 pb-0">
-        {loading ? (
-          <Button disabled>
-            <View className="pointer-events-none animate-spin">
-              <Icon as={Loader2} className="text-primary-foreground" />
+          {manualRestCheck ? (
+            <View className="flex-row items-center gap-2 px-4">
+              <Button
+                onPress={handleAddRest}
+                variant="outline"
+                className="shadow shadow-foreground/5">
+                <Text>Add Rest</Text>
+              </Button>
             </View>
-            <Text>Saving...</Text>
-          </Button>
-        ) : (
-          <Button disabled={loading} onPress={handleSubmit}>
-            <Icon as={Save} className="text-primary-foreground" />
-            <Text>Save</Text>
-          </Button>
-        )}
-      </CardFooter>
-      <AddExerciseDialog
-        open={openDialog}
-        onConfirm={handleConfirmDialog}
-        onCancel={handleCancelDialog}
-      />
-    </Card>
+          ) : (
+            <View className="flex-row items-center gap-2 px-4">
+              <View className="flex-1">
+                <Label nativeID="setRest">Set Rest</Label>
+                <Input
+                  aria-labelledby="setRest"
+                  value={setRest}
+                  onChangeText={setSetRest}
+                  keyboardType="numeric"
+                  selectTextOnFocus={true}
+                  className="h-12"
+                />
+              </View>
+              <View>
+                <Label nativeID="restBetweenExercise">Rest Between Exercises</Label>
+                <Input
+                  aria-labelledby="restBetweenExercise"
+                  value={restBetweenExercise}
+                  onChangeText={setRestBetweenExercise}
+                  keyboardType="numeric"
+                  selectTextOnFocus={true}
+                  className="h-12"
+                />
+              </View>
+            </View>
+          )}
+        </CardHeader>
+        <CardContent>
+          <View className="px-4 pb-4">
+            <Label>Name</Label>
+            <Input
+              placeholder="My Favorite Routine"
+              id="routineName"
+              value={routine.name}
+              onChangeText={(routineName) => handleInputChange('name', routineName)}
+              className={`${errors && errors.routineName ? 'border border-red-500' : ''}`}
+            />
+            <Label>Description</Label>
+            <Input
+              placeholder="This will make you stronger"
+              id="description"
+              value={routine.description ? routine.description : undefined}
+              onChangeText={(routineDescription) =>
+                handleInputChange('description', routineDescription)
+              }
+            />
+          </View>
+          {exercises.length > 0 ? (
+            <DraggableExerciseList data={exercises} onDataChange={setExercises} />
+          ) : (
+            <View className="items-center">
+              <Text className="font-semibold">Your exercise list is empty</Text>
+              <Text className="text-sm text-muted-foreground">
+                add some by pressing 'Add Exercise'
+              </Text>
+              <Icon as={Ghost} className="size-8" />
+            </View>
+          )}
+        </CardContent>
+        <CardFooter className="flex-col gap-3 pb-0">
+          {loading ? (
+            <Button disabled>
+              <View className="pointer-events-none animate-spin">
+                <Icon as={Loader2} className="text-primary-foreground" />
+              </View>
+              <Text>Saving...</Text>
+            </Button>
+          ) : (
+            <Button disabled={loading} onPress={handleSubmit}>
+              <Icon as={Save} className="text-primary-foreground" />
+              <Text>Save</Text>
+            </Button>
+          )}
+        </CardFooter>
+        <AddExerciseDialog
+          open={openDialog}
+          onConfirm={handleConfirmDialog}
+          onCancel={handleCancelDialog}
+        />
+      </Card>
+      <FullScreenLoader visible={loading} />
+    </View>
   );
 }

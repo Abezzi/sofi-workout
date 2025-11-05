@@ -31,6 +31,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAllExerciseType } from '@/db/queries/exercise_type.queries';
 import { postExercise } from '@/db/queries/exercise.queries';
+import FullScreenLoader from '../base/full-screen-loader';
 
 export function ExerciseForm() {
   const insets = useSafeAreaInsets();
@@ -76,6 +77,7 @@ export function ExerciseForm() {
 
   const handleSubmit = async () => {
     setLoading(true);
+    await new Promise(requestAnimationFrame);
 
     if (!exercise.name || !exercise.categoryId || !exercise.exerciseTypeId) {
       setShowAlert(true);
@@ -254,6 +256,7 @@ export function ExerciseForm() {
           </Alert>
         </View>
       )}
+      <FullScreenLoader visible={loading} />
     </View>
   );
 }
