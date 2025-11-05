@@ -59,5 +59,17 @@
   },
   "countdown_screen": {
     "ready": "listo"
+  },
+  "settings_screen": {
+    "settings": "configuración",
+    "weight": "peso",
+    "height": "altura",
+    "app_language": "lenguage de la aplicación",
+    "countdown_voice": "voz cuenta regresiva",
+    "unit_system": {
+      "label": "Unidades de Medida",
+      "metric": "Metrico (kg, cm)",
+      "imperial": "Imperial (lbs, ft)"
+    }
   }
 }

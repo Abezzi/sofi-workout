@@ -59,5 +59,17 @@
   },
   "countdown_screen": {
     "ready": "준비가 된"
+  },
+  "settings_screen": {
+    "settings": "설정",
+    "weight": "체중",
+    "height": "키",
+    "app_language": "응용 언어",
+    "countdown_voice": "카운트다운 보이스",
+    "unit_system": {
+      "label": "단위",
+      "metric": "미터법 (kg, cm)",
+      "imperial": "자유 단위 (lbs, ft)"
+    }
   }
 }
