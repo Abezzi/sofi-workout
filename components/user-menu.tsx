@@ -22,6 +22,7 @@ import { RootState, AppDispatch } from '@/src/store/storeSetup';
 import { useDispatch } from 'react-redux';
 import { Language, setLanguage } from '@/src/store/slices/locale/localeSlice';
 import { CountdownVoice, setCountdownVoice } from '@/src/store/slices/settings/settingsSlice';
+import { router } from 'expo-router';
 
 const languageOptions: { value: Language; label: string }[] = [
   { value: 'en', label: 'English' },
@@ -114,10 +115,13 @@ export function UserMenu() {
               variant="outline"
               size="sm"
               onPress={() => {
-                // TODO: Navigate to account settings screen
+                router.push({
+                  pathname: `/settings/settings`,
+                });
+                popoverTriggerRef.current?.close();
               }}>
               <Icon as={SettingsIcon} className="size-4" />
-              <Text>Manage Account</Text>
+              <Text>Settings</Text>
             </Button>
             <Button variant="outline" size="sm" className="flex-1" onPress={onSignOut}>
               <Icon as={LogOutIcon} className="size-4" />
