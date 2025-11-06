@@ -4,7 +4,7 @@ import { Text } from '@/components/ui/text';
 import { useNavigation, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { DraggableExerciseList } from '@/components/routine/draggable-exercise-list';
-import { Alert, Platform, ToastAndroid, View } from 'react-native';
+import { Alert, Platform, View } from 'react-native';
 import { AddExerciseDialog } from '@/components/routine/add-exercise-dialog';
 import {
   ArrowLeft,
@@ -27,25 +27,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import FullScreenLoader from '@/components/base/full-screen-loader';
-
-interface ExerciseItem {
-  key: string;
-  exerciseTypeId: number;
-  exercise: {
-    id: number;
-    name: string;
-    description: string;
-  };
-  category: {
-    id: number;
-    name: string;
-    color: string;
-  };
-  amount: {
-    quantity: number;
-    weight: number;
-  }[];
-}
+import { ExerciseItem } from '@/types/workout';
 
 interface Errors {
   routineName: string;
@@ -76,6 +58,7 @@ export default function NewRoutineScreen() {
   const [exercises, setExercises] = useState<ExerciseItem[]>([]);
   const [errors, setErrors] = useState<Errors>();
   const [isFormValid, setIsFormValid] = useState(false);
+  const [manualRest, setManualRest] = useState<string>('60');
   const router = useRouter();
 
   const errorsAlert = () => {
@@ -203,13 +186,15 @@ export default function NewRoutineScreen() {
           restMode: manualRestCheck ? 'manual' : 'automatic',
         },
         exercises: exercises.map((ex, idx) => ({
-          exerciseId: ex.exercise.id,
+          exerciseId: ex.isRest ? null : ex.exercise.id,
           position: idx + 1,
-          sets: ex.amount.map((a) => ({ quantity: a.quantity, weight: a.weight })),
+          sets: ex.isRest
+            ? [{ quantity: ex.restSeconds || 60, weight: 0 }]
+            : ex.amount.map((a) => ({ quantity: a.quantity, weight: a.weight })),
         })),
         restMode: manualRestCheck ? 'manual' : 'automatic',
-        setRest: manualRestCheck ? undefined : parseInt(setRest) || 0,
-        restBetweenExercise: manualRestCheck ? undefined : parseInt(restBetweenExercise) || 0,
+        setRest: manualRestCheck ? undefined : parseInt(setRest) || 90,
+        restBetweenExercise: manualRestCheck ? undefined : parseInt(restBetweenExercise) || 120,
       });
 
       if (result.success) {
@@ -241,7 +226,26 @@ export default function NewRoutineScreen() {
   }
 
   function handleAddRest() {
-    console.log('adding rest');
+    const restSeconds = parseInt(manualRest) || 60;
+    const newRestItem: ExerciseItem = {
+      key: `rest-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      isRest: true,
+      restSeconds,
+      exerciseTypeId: 2,
+      exercise: {
+        id: -1,
+        name: `Rest`,
+        description: 'Rest period',
+      },
+      category: {
+        id: -1,
+        name: 'Rest',
+        color: '#94a3b8', // slate-400
+      },
+      amount: [{ quantity: restSeconds, weight: 0 }],
+    };
+
+    setExercises((prev) => [...prev, newRestItem]);
   }
 
   useEffect(() => {
@@ -293,9 +297,19 @@ export default function NewRoutineScreen() {
               <Button
                 onPress={handleAddRest}
                 variant="outline"
-                className="shadow shadow-foreground/5">
+                className="w-1/2 shadow shadow-foreground/5">
                 <Text>Add Rest</Text>
               </Button>
+              <View className="flex-1">
+                <Input
+                  aria-labelledby="manualRest"
+                  placeholder="180"
+                  value={manualRest}
+                  onChangeText={setManualRest}
+                  keyboardType="numeric"
+                  selectTextOnFocus={true}
+                />
+              </View>
             </View>
           ) : (
             <View className="flex-row items-center gap-2 px-4">

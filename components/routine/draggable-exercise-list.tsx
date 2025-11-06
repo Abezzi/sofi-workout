@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, {
   RenderItemParams,
@@ -8,28 +8,12 @@ import DraggableFlatList, {
 } from 'react-native-draggable-flatlist';
 import SwipeableItem, { useSwipeableItemParams } from 'react-native-swipeable-item';
 import { Icon } from '../ui/icon';
-import { ChevronDown, ChevronUp, Copy, Grip, Trash } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Copy, Grip, Timer, Trash } from 'lucide-react-native';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import { Input } from '../ui/input';
-
-interface ExerciseItem {
-  key: string;
-  exerciseTypeId: number;
-  exercise: {
-    id: number;
-    name: string;
-    description: string;
-  };
-  category: {
-    id: number;
-    name: string;
-    color: string;
-  };
-  amount: {
-    quantity: number;
-    weight: number;
-  }[];
-}
+import { ExerciseItem } from '@/types/workout';
+import { useTranslation } from 'react-i18next';
+import FullScreenLoader, { FullScreenLoaderType } from '../base/full-screen-loader';
 
 interface DraggableExerciseListProps {
   data: ExerciseItem[];
@@ -37,6 +21,11 @@ interface DraggableExerciseListProps {
 }
 
 export function DraggableExerciseList({ data, onDataChange }: DraggableExerciseListProps) {
+  const { t } = useTranslation();
+  const [fullScreenLoader, setFullScreenLoader] = useState<FullScreenLoaderType>({
+    visible: false,
+    message: 'Loading...',
+  });
   const handleDragEnd = ({ data: newData }: { data: ExerciseItem[] }) => {
     onDataChange?.(newData);
   };
@@ -76,64 +65,128 @@ export function DraggableExerciseList({ data, onDataChange }: DraggableExerciseL
   };
 
   // swipe to the left to delete
-  const UnderlayLeft = ({ item }: { item: ExerciseItem }) => {
-    const { close } = useSwipeableItemParams<ExerciseItem>();
-
-    const handleDelete = async () => {
-      await close();
-      const newData = data.filter((exercise) => exercise.key !== item.key);
-      updateData(newData);
-    };
-
-    return (
-      <View className="flex-1 flex-row items-center justify-end bg-destructive px-4">
-        <TouchableOpacity
-          className="flex-row items-center rounded-md"
-          onPress={handleDelete}
-          activeOpacity={0.5}>
-          <Text>Delete</Text>
-          <Icon as={Trash} />
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  const renderUnderlayLeft = useCallback(
+    ({ item }: { item: ExerciseItem }) => {
+      return (
+        <View className="flex-1 flex-row items-center justify-end bg-destructive px-4">
+          <TouchableOpacity
+            className="flex-row items-center gap-2 rounded-md bg-destructive px-3 py-2"
+            onPress={async () => {
+              setFullScreenLoader({ visible: true, message: t('deleting') });
+              await new Promise(requestAnimationFrame);
+              const newData = data.filter((ex) => ex.key !== item.key);
+              updateData(newData);
+              setFullScreenLoader({ visible: false, message: 'Deleting...' });
+            }}
+            activeOpacity={0.7}>
+            <Icon as={Trash} className="text-destructive-foreground" size={18} />
+            <Text className="font-medium text-destructive-foreground">Delete</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    },
+    [data, updateData, t]
+  );
 
   // Swipe to the right to copy
-  const UnderlayRight = ({ item }: { item: ExerciseItem }) => {
-    const { close } = useSwipeableItemParams<ExerciseItem>();
+  const renderUnderlayRight = useCallback(
+    ({ item }: { item: ExerciseItem }) => {
+      return (
+        <View className="flex-1 flex-row items-center justify-start bg-primary px-4">
+          <TouchableOpacity
+            className="flex-row items-center gap-2 rounded-md bg-primary px-3 py-2"
+            onPress={async () => {
+              setFullScreenLoader({ visible: true, message: t('copying') });
+              await new Promise(requestAnimationFrame);
 
-    const handleCopy = async () => {
-      await close();
-      const newItem: ExerciseItem = {
-        ...item,
-        key: `exercise-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      };
-      const itemIndex = data.findIndex((exercise) => exercise.key === item.key);
-      const newData = [...data.slice(0, itemIndex + 1), newItem, ...data.slice(itemIndex + 1)];
-      updateData(newData);
-    };
+              const newItem: ExerciseItem = {
+                ...item,
+                key: `${item.isRest ? 'rest' : 'exercise'}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                exercise: item.isRest
+                  ? { ...item.exercise!, name: `Rest ${item.restSeconds}s` }
+                  : { ...item.exercise! },
+              };
 
-    return (
-      <View className="flex-1 flex-row items-center justify-start bg-primary-foreground px-4">
-        <TouchableOpacity
-          className="flex-row items-center rounded-md"
-          onPress={handleCopy}
-          activeOpacity={0.5}>
-          <Text>Copy</Text>
-          <Icon as={Copy} />
-        </TouchableOpacity>
-      </View>
-    );
-  };
+              const index = data.findIndex((ex) => ex.key === item.key);
+              const newData = [...data.slice(0, index + 1), newItem, ...data.slice(index + 1)];
+
+              updateData(newData);
+              setFullScreenLoader({ visible: false, message: 'Copying...' });
+            }}
+            activeOpacity={0.7}>
+            <Icon as={Copy} className="text-primary-foreground" size={18} />
+            <Text className="font-medium text-primary-foreground">Copy</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    },
+    [data, updateData, t]
+  );
 
   const renderItem = ({ item, drag, isActive }: RenderItemParams<ExerciseItem>) => {
     const [isOpen, setIsOpen] = useState(false);
+
+    if (item.isRest) {
+      return (
+        <ScaleDecorator>
+          <SwipeableItem
+            item={item}
+            renderUnderlayLeft={() => renderUnderlayLeft({ item })}
+            renderUnderlayRight={() => renderUnderlayRight({ item })}
+            snapPointsLeft={[80]}
+            snapPointsRight={[80]}
+            activationThreshold={5}
+            swipeEnabled={true}>
+            <TouchableOpacity
+              onLongPress={drag}
+              disabled={isActive}
+              activeOpacity={1}
+              className="pb-1">
+              <Card className={`shadow-none ${isActive ? 'bg-destructive/10' : 'bg-card'} `}>
+                <CardContent className="mx-1">
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-1 flex-row items-center gap-3">
+                      <Icon as={Timer} className="size-6" />
+                      <Text className="text-base font-semibold">
+                        {item.exercise?.name || 'Rest'}
+                      </Text>
+                      <Input
+                        className="w-20"
+                        keyboardType="numeric"
+                        value={(item.restSeconds || 0).toString()}
+                        onChangeText={(val) => {
+                          const seconds = parseInt(val) || 0;
+                          const newData = data.map((rest_item) =>
+                            rest_item.key === item.key
+                              ? {
+                                ...rest_item,
+                                restSeconds: seconds,
+                                exercise: { ...rest_item.exercise!, name: 'Rest' },
+                                amount: [{ quantity: seconds, weight: 0 }],
+                              }
+                              : rest_item
+                          );
+                          updateData(newData);
+                        }}
+                      />
+                      <Text className="text-base font-semibold">{t('time.seconds')}</Text>
+                    </View>
+                    <Icon as={Grip} className="size-4" />
+                  </View>
+                </CardContent>
+              </Card>
+            </TouchableOpacity>
+          </SwipeableItem>
+        </ScaleDecorator>
+      );
+    }
+
     return (
       <ScaleDecorator>
         <SwipeableItem
           item={item}
-          renderUnderlayLeft={() => <UnderlayLeft item={item} />}
-          renderUnderlayRight={() => <UnderlayRight item={item} />}
+          renderUnderlayLeft={() => renderUnderlayLeft({ item })}
+          renderUnderlayRight={() => renderUnderlayRight({ item })}
           snapPointsLeft={[80]}
           snapPointsRight={[80]}
           activationThreshold={5}
@@ -218,6 +271,7 @@ export function DraggableExerciseList({ data, onDataChange }: DraggableExerciseL
         showsVerticalScrollIndicator={true}
         style={{ maxHeight: 320 }}
       />
+      <FullScreenLoader visible={fullScreenLoader.visible} message={fullScreenLoader.message} />
     </>
   );
 }
