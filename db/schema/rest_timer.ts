@@ -9,10 +9,11 @@ type RestTimerType = (typeof restTimerTypes)[number];
 
 export const rest_timer = sqliteTable('rest_timer', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  position: integer('position'),
   routineId: integer('routine_id')
     .notNull()
-    .references(() => routine_exercise.id, { onDelete: 'cascade' }),
-  routineExerciseId: integer('routine_exercise_id').references(() => routine.id, {
+    .references(() => routine.id, { onDelete: 'cascade' }),
+  routineExerciseId: integer('routine_exercise_id').references(() => routine_exercise.id, {
     onDelete: 'cascade',
   }),
   exerciseSetId: integer('exercise_set_id').references(() => exercise_set.id, {
