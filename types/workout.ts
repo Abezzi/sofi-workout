@@ -8,3 +8,25 @@ export type Step = {
   quantity: number;
   weight: number | null;
 };
+
+export type ExerciseItem = {
+  key: string;
+  isRest?: boolean;
+  restSeconds?: number;
+  exerciseTypeId: number;
+  position?: number;
+  exercise: {
+    id: number;
+    name: string;
+    description: string;
+  };
+  category: {
+    id: number;
+    name: string;
+    color: string;
+  };
+  amount: {
+    quantity: number;
+    weight: number;
+  }[];
+};
