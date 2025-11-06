@@ -55,6 +55,7 @@ export default function RoutineList() {
   const getRoutines = async () => {
     try {
       setLoading(true);
+      await new Promise(requestAnimationFrame);
       let routineData: RoutineWithExerciseAndRest[] = await getRoutinesWithExerciseAndRest();
 
       if (routineData !== undefined) {
@@ -62,7 +63,7 @@ export default function RoutineList() {
       }
       setLoading(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -72,7 +73,7 @@ export default function RoutineList() {
       await getRoutines();
       sendToast('Routines Refreshed');
     } catch (error) {
-      console.log('error refreshing ', error);
+      console.error('error refreshing ', error);
     } finally {
       setRefreshing(false);
     }
@@ -145,6 +146,7 @@ export default function RoutineList() {
 
     const handleOnDelete = async (id: number) => {
       setLoading(true);
+      await new Promise(requestAnimationFrame);
       await deleteRoutineById(id);
       await getRoutines();
       sendToast('Routine Deleted Successfully!');
