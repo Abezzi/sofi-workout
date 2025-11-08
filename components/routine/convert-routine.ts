@@ -1,5 +1,4 @@
 import { getRoutineWithExerciseAndRest } from '@/db/queries/routine.queries';
-import { formatTimeShort } from '@/utils/format-time';
 import { Step } from '@/types/workout';
 import { TFunction } from 'i18next';
 
@@ -7,110 +6,114 @@ export const convertRoutineToSteps = async (
   selectedRoutineId: number,
   t: TFunction
 ): Promise<Step[]> => {
-  let stepsTemp: Step[] = [];
-  let stepCount: number = 0;
+  const steps: Step[] = [];
+  let stepCount = 0;
 
-  // get the routine with exercises and rest based on the routine id
   const routineData = await getRoutineWithExerciseAndRest(selectedRoutineId);
+  if (!routineData) return steps;
 
-  if (routineData) {
-    // get ready step 0
-    stepsTemp.push({
-      step: stepCount,
-      quantity: 10,
-      name: t('convert_routine.get_ready'),
-      information: `10 ${t('time.seconds')}`,
-      automatic: true,
-      isRest: true,
-      weight: null,
-    });
-    stepCount++;
+  const isAutomatic = routineData.restMode === 'automatic';
+  const setRestTimer = routineData.restTimers.find((rt) => rt.type === 'set');
+  const exerciseRestTimer = routineData.restTimers.find((rt) => rt.type === 'exercise');
 
-    const isAutomatic = routineData.restMode === 'automatic';
-    // find rest timers for sets and exercises
-    const setRestTimer = routineData.restTimers.find((rt) => rt.type === 'set');
-    const exerciseRestTimer = routineData.restTimers.find((rt) => rt.type === 'exercise');
+  // get ready step 0
+  steps.push({
+    step: stepCount++,
+    quantity: 10,
+    name: t('convert_routine.get_ready'),
+    information: `10 ${t('time.seconds')}`,
+    automatic: true,
+    isRest: true,
+    weight: null,
+  });
 
-    // iterate through exercises
-    for (let i = 0; i < routineData.exercises.length; i++) {
-      const exercise = routineData.exercises[i];
-      // console.log(`Exercise ${exercise.name} sets:`, exercise.sets);
-      const isExerciseAutomatic = exercise.exerciseType?.name === 'Time';
+  for (let i = 0; i < routineData.exercises.length; i++) {
+    const item = routineData.exercises[i];
 
-      // process each set
-      for (let j = 0; j < exercise.sets.length; j++) {
-        const set = exercise.sets[j];
-        let quantity = '';
-        let weight = '';
-        let quantityAndWeightTag = '';
+    // check if it's a manual rest
+    const isRestItem = item.exerciseId === null || item.exerciseId === undefined;
 
-        if (!isExerciseAutomatic) {
-          quantity = `${set.quantity} ${t('convert_routine.reps')}`;
-        } else {
-          quantity = `${set.quantity} ${t('time.seconds')}`;
-        }
-        weight = `${set.weight > 0 ? set.weight + ' kg' : ''}`;
+    if (isRestItem) {
+      const restSeconds = item.sets[0]?.quantity || 60;
 
-        if (quantity !== '' && weight == '') {
-          quantityAndWeightTag = `${quantity}`;
-        } else if (quantity !== '' && weight !== '') {
-          quantityAndWeightTag = `${quantity}, ${weight}`;
-        }
+      steps.push({
+        step: stepCount++,
+        quantity: restSeconds,
+        name: t('convert_routine.rest'),
+        information: `${restSeconds} ${t('time.seconds')}`,
+        automatic: true,
+        isRest: true,
+        weight: null,
+      });
+      // skip exercise processing
+      continue;
+    }
 
-        // add step for the set
-        stepsTemp.push({
-          step: stepCount,
-          quantity: set.quantity,
-          name: `${exercise.name} - ${t('convert_routine.set')} ${set.setNumber}`,
-          information: quantityAndWeightTag,
-          automatic: isExerciseAutomatic,
-          isRest: false,
-          weight: set.weight,
-        });
-        stepCount++;
+    // real exercise (not rest)
+    const exercise = item;
+    const isTimeBased = exercise.exerciseType?.name === 'Time';
 
-        // add rest step after set (except for the last set of the last exercise)
-        if (
-          isAutomatic &&
-          setRestTimer &&
-          j < exercise.sets.length - 1 &&
-          setRestTimer.restTime > 0
-        ) {
-          stepsTemp.push({
-            step: stepCount,
-            quantity: setRestTimer.restTime,
-            name: `${t('convert_routine.rest_after')} ${exercise.name} - ${t('convert_routine.set')} ${set.setNumber}`,
-            information: `${setRestTimer.restTime} ${t('time.seconds')}`,
-            automatic: true,
-            isRest: true,
-            weight: null,
-          });
-          stepCount++;
-        }
+    for (let j = 0; j < exercise.sets.length; j++) {
+      const set = exercise.sets[j];
+
+      let info = '';
+      if (!isTimeBased) {
+        info = `${set.quantity} ${t('convert_routine.reps')}`;
+      } else {
+        info = `${set.quantity} ${t('time.seconds')}`;
       }
 
-      // add rest step after exercise (except for the last exercise)
+      if (set.weight > 0) {
+        info += `${info ? ', ' : ''}${set.weight} kg`;
+      }
+
+      steps.push({
+        step: stepCount++,
+        quantity: set.quantity,
+        name: `${exercise.name} - ${t('convert_routine.set')} ${set.setNumber}`,
+        information: info,
+        automatic: isTimeBased,
+        isRest: false,
+        weight: set.weight,
+      });
+
+      // rest after set (automatic mode only)
       if (
         isAutomatic &&
-        exerciseRestTimer &&
-        i < routineData.exercises.length - 1 &&
-        exerciseRestTimer.restTime > 0
+        setRestTimer &&
+        j < exercise.sets.length - 1 &&
+        setRestTimer.restTime > 0
       ) {
-        stepsTemp.push({
-          step: stepCount,
-          quantity: exerciseRestTimer.restTime,
-          name: `${t('convert_routine.rest_after')} ${exercise.name}`,
-          information: `${exerciseRestTimer.restTime} ${t('time.seconds')}`,
+        steps.push({
+          step: stepCount++,
+          quantity: setRestTimer.restTime,
+          name: t('convert_routine.rest_after_set'),
+          information: `${setRestTimer.restTime} ${t('time.seconds')}`,
           automatic: true,
           isRest: true,
           weight: null,
         });
-        stepCount++;
       }
     }
 
-    return stepsTemp;
-  } else {
-    return stepsTemp;
+    // rest after exercise (automatic mode only)
+    if (
+      isAutomatic &&
+      exerciseRestTimer &&
+      i < routineData.exercises.length - 1 &&
+      exerciseRestTimer.restTime > 0
+    ) {
+      steps.push({
+        step: stepCount++,
+        quantity: exerciseRestTimer.restTime,
+        name: `${t('convert_routine.rest_after')} ${exercise.name}`,
+        information: `${exerciseRestTimer.restTime} ${t('time.seconds')}`,
+        automatic: true,
+        isRest: true,
+        weight: null,
+      });
+    }
   }
+
+  return steps;
 };
