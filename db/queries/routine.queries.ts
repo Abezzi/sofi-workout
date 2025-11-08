@@ -9,8 +9,9 @@ import {
   routine,
   routine_exercise,
 } from '../schema';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, inArray } from 'drizzle-orm';
 import { db, DBTransaction, DBExecutor } from '..';
+import { ExerciseItem } from '@/types/workout';
 
 export interface RoutineWithExerciseAndRest {
   id: number;
@@ -19,6 +20,7 @@ export interface RoutineWithExerciseAndRest {
   restMode: 'automatic' | 'manual';
   exercises: {
     id: number;
+    exerciseId?: number | null;
     name: string;
     description: string | null;
     category: { id: number; name: string; color: string } | null;
@@ -488,6 +490,127 @@ export async function saveFullRoutine(
     } catch (error) {
       console.error('error saving full routine, rollback', error);
       return { success: false, error: error };
+    }
+  });
+}
+
+export async function updateRoutineName(routineId: number, name: string): Promise<void> {
+  await db.update(routine).set({ name }).where(eq(routine.id, routineId));
+}
+
+export async function saveRoutineExercisesAndRest(
+  routineId: number,
+  items: ExerciseItem[]
+): Promise<{ success: boolean; error?: any }> {
+  return db.transaction(async (tx) => {
+    try {
+      // 1. delete all existing data for this routine
+      await tx.delete(rest_timer).where(eq(rest_timer.routineId, routineId));
+
+      await tx
+        .delete(exercise_set)
+        .where(
+          inArray(
+            exercise_set.routineExerciseId,
+            tx
+              .select({ id: routine_exercise.id })
+              .from(routine_exercise)
+              .where(eq(routine_exercise.routineId, routineId))
+          )
+        );
+
+      await tx.delete(routine_exercise).where(eq(routine_exercise.routineId, routineId));
+
+      // 2. re-insert in new order
+      // position -> routine_exercise.id
+      const reIdMap = new Map<number, number>();
+
+      const routineExerciseValues: any[] = [];
+      const exerciseSetValues: any[] = [];
+      const restTimerValues: any[] = [];
+
+      items.forEach((item, index) => {
+        const position = index + 1;
+
+        if (item.isRest) {
+          // rest
+          const restSeconds = item.restSeconds ?? item.amount[0]?.quantity ?? 60;
+
+          restTimerValues.push({
+            routineId,
+            routineExerciseId: null,
+            exerciseSetId: null,
+            restTime: restSeconds,
+            type: 'exercise' as const,
+            position,
+          });
+        } else {
+          // exercise
+          routineExerciseValues.push({
+            routineId,
+            exerciseId: item.exercise.id,
+            position,
+            exerciseTypeId: item.exerciseTypeId,
+          });
+
+          // queue sets
+          item.amount.forEach((set, setIdx) => {
+            exerciseSetValues.push({
+              // placeholder, will be filled after insert
+              routineExerciseId: null as any,
+              setNumber: setIdx + 1,
+              quantity: set.quantity,
+              weight: set.weight ?? 0,
+            });
+          });
+        }
+      });
+
+      // 3. insert routine_exercise + get ids back
+      if (routineExerciseValues.length > 0) {
+        const insertedRE = await tx
+          .insert(routine_exercise)
+          .values(routineExerciseValues)
+          .returning({ id: routine_exercise.id, position: routine_exercise.position });
+
+        // map position -> routine_exercise.id
+        insertedRE.forEach((row) => reIdMap.set(row.position, row.id));
+
+        // fill in the real routineExerciseId in exerciseSetValues
+        let setInsertIndex = 0;
+        items.forEach((item, index) => {
+          const position = index + 1;
+          if (!item.isRest && item.amount.length > 0) {
+            const reId = reIdMap.get(position);
+            if (!reId) throw new Error(`Missing routine_exercise ID for position ${position}`);
+
+            for (let i = 0; i < item.amount.length; i++) {
+              exerciseSetValues[setInsertIndex].routineExerciseId = reId;
+              setInsertIndex++;
+            }
+          } else if (!item.isRest) {
+            // skip if no sets
+            // no op
+          } else {
+            // rest -> skip sets
+          }
+        });
+
+        // Insert all sets
+        if (exerciseSetValues.length > 0) {
+          await tx.insert(exercise_set).values(exerciseSetValues);
+        }
+      }
+
+      // 4. insert rest timers (manual mode, per position)
+      if (restTimerValues.length > 0) {
+        await tx.insert(rest_timer).values(restTimerValues);
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('saveRoutineExercisesAndRest error - rollback', error);
+      return { success: false, error };
     }
   });
 }
