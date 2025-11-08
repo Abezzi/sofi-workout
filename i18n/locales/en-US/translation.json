@@ -54,6 +54,7 @@
     "cycle": "Cycle",
     "cycle_rest": "Cycle Rest",
     "rest_after": "Rest After",
+    "rest_after_set": "Rest After Set",
     "paused": "paused",
     "next": "NEXT"
   },

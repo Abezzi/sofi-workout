@@ -54,6 +54,7 @@
     "cycle": "사이클",
     "cycle_rest": "사이클 휴식",
     "rest_after": "이후 휴식",
+    "rest_after_set": "세트 후 휴식",
     "paused": "일시정지",
     "next": "다음"
   },
