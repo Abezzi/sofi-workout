@@ -139,7 +139,7 @@ export default function RoutineList() {
 
     const handleOnEdit = (id: number) => {
       router.push({
-        pathname: '/(tabs)/workout',
+        pathname: '/routine/edit-routine',
         params: { selectedRoutine: id },
       });
     };
