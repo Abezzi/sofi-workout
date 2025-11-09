@@ -32,7 +32,10 @@ export const convertRoutineToSteps = async (
   const setRestTimer = routineData.restTimers.find((rt) => rt.type === 'set');
   const exerciseRestTimer = routineData.restTimers.find((rt) => rt.type === 'exercise');
 
-  // get ready step 0
+  // Global counter: exerciseId → total sets performed so far
+  const exerciseSetCounter = new Map<number, number>();
+
+  // Step 0: Get Ready
   steps.push({
     step: stepCount++,
     quantity: 10,
@@ -45,11 +48,11 @@ export const convertRoutineToSteps = async (
 
   let i = 0;
   while (i < routineData.exercises.length) {
-    const current = routineData.exercises[i] as RoutineExerciseItem;
+    const item = routineData.exercises[i] as RoutineExerciseItem;
 
-    // manual rest
-    if (current.exerciseId == null) {
-      const restSeconds = current.sets[0]?.quantity ?? 60;
+    // === MANUAL REST ===
+    if (item.exerciseId == null) {
+      const restSeconds = item.sets[0]?.quantity ?? 60;
       steps.push({
         step: stepCount++,
         quantity: restSeconds,
@@ -63,28 +66,31 @@ export const convertRoutineToSteps = async (
       continue;
     }
 
-    // real exercise (manual rest are the fake exercises)
-    const exerciseId = current.exerciseId!;
-    const exerciseName = current.name;
-    const isTimeBased = current.exerciseType?.name === 'Time';
+    // === REAL EXERCISE ===
+    const exerciseId = item.exerciseId!;
+    const exerciseName = item.name;
+    const isTimeBased = item.exerciseType?.name === 'Time';
 
-    // collect only sets from consecutive SAME exercise
-    const blockSets: typeof current.sets = [];
+    // Get current global set count for this exercise
+    const previousSets = exerciseSetCounter.get(exerciseId) || 0;
+
+    // Collect all consecutive sets of this exercise (skip rests in between)
+    const consecutiveSets: typeof item.sets = [];
     let j = i;
     while (j < routineData.exercises.length) {
-      const item = routineData.exercises[j] as RoutineExerciseItem;
-      if (item.exerciseId === exerciseId) {
-        blockSets.push(...item.sets);
+      const nextItem = routineData.exercises[j] as RoutineExerciseItem;
+      if (nextItem.exerciseId === exerciseId) {
+        consecutiveSets.push(...nextItem.sets);
         j++;
       } else {
-        // stop at rest or different exercise
-        break;
+        break; // stop at rest or different exercise
       }
     }
 
-    // process each set in this block
-    blockSets.forEach((set, setIdx) => {
-      const globalSetNumber = setIdx + 1;
+    // Process each set in this consecutive block
+    consecutiveSets.forEach((set, localIndex) => {
+      const globalSetNumber = previousSets + localIndex + 1;
+
       let info = isTimeBased
         ? `${set.quantity} ${t('time.seconds')}`
         : `${set.quantity} ${t('convert_routine.reps')}`;
@@ -100,14 +106,13 @@ export const convertRoutineToSteps = async (
         weight: set.weight,
       });
 
-      // rest after set
-      if (setIdx < blockSets.length - 1) {
-        // look immediately after current exercise entry
-        const nextIndex = i + (setIdx + 1);
-        const nextItem = routineData.exercises[nextIndex] as RoutineExerciseItem | undefined;
+      // === REST AFTER SET (only if not last in block) ===
+      if (localIndex < consecutiveSets.length - 1) {
+        const restIndex = i + localIndex + 1;
+        const restItem = routineData.exercises[restIndex] as RoutineExerciseItem | undefined;
 
-        if (nextItem && nextItem?.exerciseId == null) {
-          const restSeconds = nextItem.sets[0]?.quantity ?? 60;
+        if (restItem && restItem?.exerciseId == null) {
+          const restSeconds = restItem.sets[0]?.quantity ?? 60;
           steps.push({
             step: stepCount++,
             quantity: restSeconds,
@@ -131,14 +136,16 @@ export const convertRoutineToSteps = async (
       }
     });
 
-    // rest after full exercise block (automatic mode only)
+    // Update global counter for this exercise
+    exerciseSetCounter.set(exerciseId, previousSets + consecutiveSets.length);
+
+    // === REST AFTER FULL BLOCK (automatic mode only) ===
     if (
       isAutomatic &&
       exerciseRestTimer?.restTime != null &&
       exerciseRestTimer.restTime > 0 &&
       j < routineData.exercises.length
     ) {
-      // only add if next item is NOT a rest (manual rest takes priority)
       const nextAfterBlock = routineData.exercises[j] as RoutineExerciseItem | undefined;
       if (!nextAfterBlock || nextAfterBlock.exerciseId != null) {
         steps.push({
@@ -152,7 +159,8 @@ export const convertRoutineToSteps = async (
         });
       }
     }
-    // move past this exercise block
+
+    // Move pointer past this exercise block
     i = j;
   }
 
