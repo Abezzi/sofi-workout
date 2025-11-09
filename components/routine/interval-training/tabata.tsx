@@ -1,3 +1,4 @@
+import FullScreenLoader from '@/components/base/full-screen-loader';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -46,8 +47,11 @@ export default function Tabata() {
   const router = useRouter();
   const scale = useSharedValue(1);
   const { t } = useTranslation();
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleStart = () => {
+  const handleStart = async () => {
+    setLoading(true);
+    await new Promise(requestAnimationFrame);
     // animation when button is pressed
     scale.value = withSequence(
       // scale down
@@ -60,6 +64,7 @@ export default function Tabata() {
       pathname: '/(tabs)/workout',
       params: { tabataJson: JSON.stringify(tabata) },
     });
+    setLoading(false);
   };
 
   // calculates the amount of seconds based on the user input
@@ -203,6 +208,7 @@ export default function Tabata() {
           </Button>
         </AnimatedPressable>
       </CardFooter>
+      <FullScreenLoader visible={loading} />
     </Card>
   );
 }

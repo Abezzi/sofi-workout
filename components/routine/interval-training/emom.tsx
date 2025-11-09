@@ -1,3 +1,4 @@
+import FullScreenLoader from '@/components/base/full-screen-loader';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -44,8 +45,11 @@ export default function Emom() {
   const router = useRouter();
   const scale = useSharedValue(1);
   const { t } = useTranslation();
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleStart = () => {
+  const handleStart = async () => {
+    setLoading(true);
+    await new Promise(requestAnimationFrame);
     // animation when button is pressed
     scale.value = withSequence(
       // scale down
@@ -58,6 +62,7 @@ export default function Emom() {
       pathname: '/(tabs)/workout',
       params: { emomJson: JSON.stringify(emom) },
     });
+    setLoading(false);
   };
 
   // calculates the amount of seconds based on the user input
@@ -192,6 +197,7 @@ export default function Emom() {
           </Button>
         </AnimatedPressable>
       </CardFooter>
+      <FullScreenLoader visible={loading} />
     </Card>
   );
 }

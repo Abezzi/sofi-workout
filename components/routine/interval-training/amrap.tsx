@@ -1,3 +1,4 @@
+import FullScreenLoader from '@/components/base/full-screen-loader';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,15 +31,17 @@ interface Amrap {
 
 export default function Amrap() {
   const [totalTime, setTotalTime] = useState<number>(0);
-  const [cycleChecked, setCycleChecked] = useState<boolean>(false);
   const [amrap, setAmrap] = useState<Amrap>({
     workTime: 1200,
   });
   const router = useRouter();
   const scale = useSharedValue(1);
   const { t } = useTranslation();
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleStart = () => {
+  const handleStart = async () => {
+    setLoading(true);
+    await new Promise(requestAnimationFrame);
     // animation when button is pressed
     scale.value = withSequence(
       // scale down
@@ -51,6 +54,7 @@ export default function Amrap() {
       pathname: '/(tabs)/workout',
       params: { amrapJson: JSON.stringify(amrap) },
     });
+    setLoading(false);
   };
 
   // calculates the amount of seconds based on the user input
@@ -67,17 +71,6 @@ export default function Amrap() {
   useEffect(() => {
     getTotalTime();
   }, [amrap]);
-
-  // reset cycle to one and cycle rest to 0 if the cycle check is unchecked
-  useEffect(() => {
-    if (!cycleChecked) {
-      setAmrap((prev) => ({
-        ...prev,
-        cycles: 1,
-        cycleRestTime: 0,
-      }));
-    }
-  }, [cycleChecked]);
 
   const handleInputChange = (field: keyof Amrap, value: string) => {
     // converts inputs from string to number
@@ -132,6 +125,7 @@ export default function Amrap() {
           </Button>
         </AnimatedPressable>
       </CardFooter>
+      <FullScreenLoader visible={loading} />
     </Card>
   );
 }
