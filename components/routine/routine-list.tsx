@@ -20,6 +20,7 @@ import { Icon } from '../ui/icon';
 import { Eye, Ghost, Pencil, X } from 'lucide-react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import FullScreenLoader from '../base/full-screen-loader';
 
 interface RoutineItemProps {
   name: string;
@@ -50,6 +51,7 @@ export default function RoutineList() {
   const [routines, setRoutines] = useState<RoutineWithExerciseAndRest[]>();
   const [activeItemId, setActiveItemId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingSelectedRoutine, setLoadingSelectedRoutine] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const getRoutines = async () => {
@@ -130,11 +132,14 @@ export default function RoutineList() {
       pointerEvents: opacity.value > 0 ? 'auto' : 'none',
     }));
 
-    const handleOnPress = (id: number) => {
+    const handleOnPress = async (id: number) => {
+      setLoadingSelectedRoutine(true);
+      await new Promise(requestAnimationFrame);
       router.push({
         pathname: '/(tabs)/workout',
         params: { selectedRoutine: id },
       });
+      setLoadingSelectedRoutine(false);
     };
 
     const handleOnEdit = (id: number) => {
@@ -262,6 +267,7 @@ export default function RoutineList() {
           />
         )}
       </>
+      <FullScreenLoader visible={loadingSelectedRoutine} />
     </Card>
   );
 }
