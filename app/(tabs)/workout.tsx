@@ -2,7 +2,7 @@ import Countdown from '@/components/workout/countdown';
 import MediaControl from '@/components/workout/media-control';
 import RoutineDisplay from '@/components/workout/routine-display';
 import TotalProgress from '@/components/workout/total-progress';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useAudioPlayer, AudioModule } from 'expo-audio';
@@ -33,6 +33,7 @@ import { convertRoutineToSteps } from '@/components/routine/convert-routine';
 import * as Speech from 'expo-speech';
 import countdownSounds from '@/components/workout/countdown-sounds';
 import { useTranslation } from 'react-i18next';
+import { getRoutineById } from '@/db/queries/routine.queries';
 
 export default function WorkoutScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -68,6 +69,7 @@ export default function WorkoutScreen() {
     (state: RootState) => state.settings.currentCountdownVoice
   );
   const { t } = useTranslation();
+  const navigation = useNavigation();
 
   // sets and updates the speech language
   useEffect(() => {
@@ -203,6 +205,7 @@ export default function WorkoutScreen() {
     if (hiit) {
       const stepsTemp = convertHiitToSteps(hiit, t);
       dispatch(initialize({ steps: stepsTemp }));
+      changeNavigationTitle(t('interval_training.hiit.title'));
     }
   }, [hiit]);
 
@@ -222,6 +225,7 @@ export default function WorkoutScreen() {
     if (emom) {
       const stepsTemp = convertEmomToSteps(emom, t);
       dispatch(initialize({ steps: stepsTemp }));
+      changeNavigationTitle(t('interval_training.emom.title'));
     }
   }, [emom]);
 
@@ -241,6 +245,7 @@ export default function WorkoutScreen() {
     if (tabata) {
       const stepsTemp = convertTabataToSteps(tabata, t);
       dispatch(initialize({ steps: stepsTemp }));
+      changeNavigationTitle(t('interval_training.tabata.title'));
     }
   }, [tabata]);
 
@@ -260,6 +265,7 @@ export default function WorkoutScreen() {
     if (amrap) {
       const stepsTemp = convertAmrapToSteps(amrap, t);
       dispatch(initialize({ steps: stepsTemp }));
+      changeNavigationTitle(t('interval_training.amrap.title'));
     }
   }, [amrap]);
 
@@ -267,10 +273,13 @@ export default function WorkoutScreen() {
     if (selectedRoutine) {
       (async () => {
         try {
+          const routine = await getRoutineById(parseInt(selectedRoutine));
+          const routineName = routine?.name || '';
           const stepsTemp = await convertRoutineToSteps(parseInt(selectedRoutine), t);
           // console.log('stepsTemp: ', stepsTemp);
           if (stepsTemp) {
             dispatch(initialize({ steps: stepsTemp }));
+            changeNavigationTitle(routineName);
           }
         } catch (error) {
           console.error('Error converting routine to steps:', error);
@@ -288,6 +297,10 @@ export default function WorkoutScreen() {
       };
     }, [])
   );
+
+  function changeNavigationTitle(title: string) {
+    navigation.setOptions({ headerTitle: `${title}` });
+  }
 
   return (
     <View className="items-center">
