@@ -119,8 +119,16 @@ const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
               </Text>
             </Badge>
             {step.color ? (
-              <Badge variant="default" style={{ backgroundColor: `${step.color}` }}>
-                <Text>{step.categoryName}</Text>
+              <Badge
+                variant="default"
+                style={!isCompleted ? { backgroundColor: step.color } : undefined}
+                className={isCompleted ? 'bg-green-100 dark:bg-green-900' : undefined}>
+                <Text
+                  className={
+                    isCompleted ? 'font-semibold text-green-700 dark:text-white' : undefined
+                  }>
+                  {step.categoryName}
+                </Text>
               </Badge>
             ) : (
               <></>
