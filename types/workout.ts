@@ -7,6 +7,8 @@ export type Step = {
   // if its automatic quantity is the amount of seconds and if not is the amount of repetitions
   quantity: number;
   weight: number | null;
+  color: string | null;
+  categoryName: string | null;
 };
 
 export type ExerciseItem = {

@@ -42,6 +42,8 @@ export const convertRoutineToSteps = async (
     automatic: true,
     isRest: true,
     weight: null,
+    color: null,
+    categoryName: null,
   });
 
   let i = 0;
@@ -59,6 +61,8 @@ export const convertRoutineToSteps = async (
         automatic: true,
         isRest: true,
         weight: null,
+        color: null,
+        categoryName: null,
       });
       i++;
       continue;
@@ -70,6 +74,7 @@ export const convertRoutineToSteps = async (
     const isTimeBased = item.exerciseType?.name === 'Time';
     // get current global set count for this exercise
     const previousSets = exerciseSetCounter.get(exerciseId) || 0;
+    const { color: color = null, name: categoryName = null } = item.category || {};
 
     // collect only sets from consecutive SAME exercise
     const consecutiveSets: typeof item.sets = [];
@@ -102,6 +107,8 @@ export const convertRoutineToSteps = async (
         automatic: isTimeBased,
         isRest: false,
         weight: set.weight,
+        color,
+        categoryName,
       });
 
       // rest after set
@@ -119,6 +126,8 @@ export const convertRoutineToSteps = async (
             automatic: true,
             isRest: true,
             weight: null,
+            color: null,
+            categoryName: null,
           });
         } else if (isAutomatic && setRestTimer?.restTime != null && setRestTimer.restTime > 0) {
           steps.push({
@@ -129,6 +138,8 @@ export const convertRoutineToSteps = async (
             automatic: true,
             isRest: true,
             weight: null,
+            color: null,
+            categoryName: null,
           });
         }
       }
@@ -154,6 +165,8 @@ export const convertRoutineToSteps = async (
           automatic: true,
           isRest: true,
           weight: null,
+          color: null,
+          categoryName: null,
         });
       }
     }

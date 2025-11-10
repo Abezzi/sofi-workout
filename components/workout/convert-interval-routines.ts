@@ -40,6 +40,8 @@ export const convertHiitToSteps = (hiit: Hiit, t: TFunction): Step[] => {
     isRest: true,
     quantity: 10,
     weight: null,
+    color: null,
+    categoryName: null,
   });
   stepCount++;
   for (let cycle = 0; cycle < hiit.cycles; cycle++) {
@@ -55,6 +57,8 @@ export const convertHiitToSteps = (hiit: Hiit, t: TFunction): Step[] => {
         automatic: true,
         isRest: false,
         weight: null,
+        color: null,
+        categoryName: null,
       });
       stepCount++;
       stepsTemp.push({
@@ -65,6 +69,8 @@ export const convertHiitToSteps = (hiit: Hiit, t: TFunction): Step[] => {
         automatic: true,
         isRest: true,
         weight: null,
+        color: null,
+        categoryName: null,
       });
       stepCount++;
     }
@@ -77,6 +83,8 @@ export const convertHiitToSteps = (hiit: Hiit, t: TFunction): Step[] => {
         automatic: true,
         isRest: true,
         weight: null,
+        color: null,
+        categoryName: null,
       });
       stepCount++;
     }
@@ -97,6 +105,8 @@ export const convertEmomToSteps = (emom: Emom, t: TFunction): Step[] => {
     automatic: true,
     isRest: true,
     weight: null,
+    color: null,
+    categoryName: null,
   });
   stepCount++;
   for (let cycle = 0; cycle < emom.cycles; cycle++) {
@@ -112,6 +122,8 @@ export const convertEmomToSteps = (emom: Emom, t: TFunction): Step[] => {
         automatic: true,
         isRest: false,
         weight: null,
+        color: null,
+        categoryName: null,
       });
       stepCount++;
     }
@@ -124,6 +136,8 @@ export const convertEmomToSteps = (emom: Emom, t: TFunction): Step[] => {
         automatic: true,
         isRest: true,
         weight: null,
+        color: null,
+        categoryName: null,
       });
       stepCount++;
     }
@@ -144,6 +158,8 @@ export const convertTabataToSteps = (tabata: Tabata, t: TFunction): Step[] => {
     automatic: true,
     isRest: true,
     weight: null,
+    color: null,
+    categoryName: null,
   });
   stepCount++;
   for (let cycle = 0; cycle < tabata.cycles; cycle++) {
@@ -159,6 +175,8 @@ export const convertTabataToSteps = (tabata: Tabata, t: TFunction): Step[] => {
         automatic: true,
         isRest: false,
         weight: null,
+        color: null,
+        categoryName: null,
       });
       stepCount++;
       stepsTemp.push({
@@ -169,6 +187,8 @@ export const convertTabataToSteps = (tabata: Tabata, t: TFunction): Step[] => {
         automatic: true,
         isRest: true,
         weight: null,
+        color: null,
+        categoryName: null,
       });
       stepCount++;
     }
@@ -181,6 +201,8 @@ export const convertTabataToSteps = (tabata: Tabata, t: TFunction): Step[] => {
         automatic: true,
         isRest: true,
         weight: null,
+        color: null,
+        categoryName: null,
       });
       stepCount++;
     }
@@ -201,6 +223,8 @@ export const convertAmrapToSteps = (amrap: Amrap, t: TFunction): Step[] => {
     automatic: true,
     isRest: true,
     weight: null,
+    color: null,
+    categoryName: null,
   });
   stepCount++;
   stepsTemp.push({
@@ -211,6 +235,8 @@ export const convertAmrapToSteps = (amrap: Amrap, t: TFunction): Step[] => {
     automatic: true,
     isRest: false,
     weight: null,
+    color: null,
+    categoryName: null,
   });
   return stepsTemp;
 };
