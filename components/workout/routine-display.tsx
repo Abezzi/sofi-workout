@@ -187,7 +187,7 @@ const RoutineDisplay = () => {
             )}
             keyExtractor={(item) => item.step.toString()}
             contentContainerStyle={{
-              paddingBottom: insets.bottom + 40,
+              // paddingBottom: insets.bottom + 40,
               paddingHorizontal: 10,
             }}
             showsVerticalScrollIndicator={true}
@@ -199,7 +199,7 @@ const RoutineDisplay = () => {
             // how much screen worth of items will render
             windowSize={5}
             // TODO: calculate maxHeight
-            style={{ maxHeight: 250 }}
+            style={{ maxHeight: 300 }}
             onScrollToIndexFailed={(info) => {
               // fallback in case scrollToIndex fails when item not yet rendered
               setTimeout(() => {
