@@ -59,7 +59,7 @@ const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
             variant="secondary"
             className={`justify-start ${
               isCurrent
-                ? 'bg-primary-foreground'
+                ? 'bg-gray-100 dark:bg-primary-foreground'
                 : isCompleted
                   ? 'bg-green-100 dark:bg-green-900'
                   : 'bg-primary-foreground'
@@ -75,7 +75,7 @@ const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
               }`}
             />
             <Text
-              className={`text-sm ${
+              className={`${
                 isCurrent
                   ? 'font-semibold'
                   : isCompleted
@@ -87,36 +87,45 @@ const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
           </Badge>
         ) : (
           // work badge
-          <Badge
-            variant="secondary"
-            className={`justify-start ${
-              isCurrent
-                ? 'bg-primary'
-                : isCompleted
-                  ? 'bg-green-100 dark:bg-green-900'
-                  : 'bg-primary'
-            }`}>
-            <Icon
-              as={BicepsFlexed}
-              className={`${
+          <View className="flex flex-row gap-1">
+            <Badge
+              variant="secondary"
+              className={`justify-start ${
                 isCurrent
-                  ? 'text-primary-foreground'
+                  ? 'bg-zinc-500'
                   : isCompleted
-                    ? 'font-semibold text-green-700 dark:text-white'
-                    : 'text-primary-foreground'
-              }`}
-            />
-            <Text
-              className={`text-sm ${
-                isCurrent
-                  ? 'font-semibold text-primary-foreground'
-                  : isCompleted
-                    ? 'font-semibold text-green-700 dark:text-white'
-                    : 'text-primary-foreground'
+                    ? 'bg-green-100 dark:bg-green-900'
+                    : 'bg-zinc-500'
               }`}>
-              {t('convert_routine.work')}
-            </Text>
-          </Badge>
+              <Icon
+                as={BicepsFlexed}
+                className={`${
+                  isCurrent
+                    ? 'text-primary-foreground'
+                    : isCompleted
+                      ? 'font-semibold text-green-700 dark:text-white'
+                      : 'text-primary-foreground'
+                }`}
+              />
+              <Text
+                className={`${
+                  isCurrent
+                    ? 'font-semibold text-primary-foreground'
+                    : isCompleted
+                      ? 'font-semibold text-green-700 dark:text-white'
+                      : 'text-primary-foreground'
+                }`}>
+                {t('convert_routine.work')}
+              </Text>
+            </Badge>
+            {step.color ? (
+              <Badge variant="default" style={{ backgroundColor: `${step.color}` }}>
+                <Text>{step.categoryName}</Text>
+              </Badge>
+            ) : (
+              <></>
+            )}
+          </View>
         )}
       </View>
     </View>
