@@ -122,6 +122,10 @@ export default function WorkoutScreen() {
     dispatch(nextStepAndStart());
   };
 
+  const handleFinish = () => {
+    console.log('finisheeeeedd');
+  };
+
   // media control handlers
   const handleStartPause = () => {
     dispatch(startPause({ isPaused: !isPaused }));
@@ -312,6 +316,7 @@ export default function WorkoutScreen() {
         isLoading={isLoading}
         isPaused={isPaused}
         onReady={handleReady}
+        onFinish={handleFinish}
       />
       <MediaControl
         onStartPause={handleStartPause}

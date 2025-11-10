@@ -61,10 +61,11 @@ const timerSlice = createSlice({
           state.progress = 100;
           state.currentStep = nextIndex;
         } else {
-          state.currentTimer.timeLeft = 0;
-          state.progress = 0;
-          state.currentStep = nextIndex;
-          state.isPaused = true;
+          const lastIndex = state.steps.length;
+          state.currentTimer = { index: lastIndex, timeLeft: 0 };
+          state.progress = 100;
+          state.currentStep = lastIndex;
+          state.isPaused = false;
         }
       }
     },
@@ -84,6 +85,12 @@ const timerSlice = createSlice({
         state.progress = 100;
         state.currentStep = nextIndex;
         state.isPaused = true;
+      } else if (nextIndex === state.steps.length) {
+        const lastIndex = state.steps.length;
+        state.currentTimer = { index: lastIndex, timeLeft: 0 };
+        state.progress = 100;
+        state.currentStep = lastIndex;
+        state.isPaused = false;
       }
     },
     previousStep: (state) => {
@@ -101,6 +108,12 @@ const timerSlice = createSlice({
         state.currentTimer = { index: nextIndex, timeLeft: state.steps[nextIndex].quantity };
         state.progress = 100;
         state.currentStep = nextIndex;
+        state.isPaused = false;
+      } else if (nextIndex === state.steps.length) {
+        const lastIndex = state.steps.length;
+        state.currentTimer = { index: lastIndex, timeLeft: 0 };
+        state.progress = 100;
+        state.currentStep = lastIndex;
         state.isPaused = false;
       }
     },

@@ -14,6 +14,7 @@ type CountdownPropsType = {
   isLoading: boolean;
   isPaused: boolean;
   onReady: () => void;
+  onFinish: () => void;
 };
 
 const Countdown = ({
@@ -23,6 +24,7 @@ const Countdown = ({
   isLoading,
   isPaused,
   onReady,
+  onFinish,
 }: CountdownPropsType) => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -77,18 +79,25 @@ const Countdown = ({
         )}
       </CardContent>
       <CardFooter className="flex-col gap-3 pb-0">
-        {!isAutomatic ? (
+        {!isAutomatic && !isWorkoutComplete && (
           <Button variant={'outline'} onPress={onReady}>
             <Text className="uppercase">{t('countdown_screen.ready')}</Text>
           </Button>
-        ) : (
-          <></>
         )}
-        <View className="flex-row items-center overflow-hidden">
-          <Text className="text-muted-foreground">
-            {t('convert_routine.next')}: {isLoading ? '...' : nextStep.name}
-          </Text>
-        </View>
+        {isAutomatic && <></>}
+        {isWorkoutComplete && (
+          <Button variant={'outline'} onPress={onFinish}>
+            <Text className="uppercase">show statistics</Text>
+          </Button>
+        )}
+
+        {!isWorkoutComplete && (
+          <View className="flex-row items-center overflow-hidden">
+            <Text className="text-muted-foreground">
+              {t('convert_routine.next')}: {isLoading ? '...' : nextStep.name}
+            </Text>
+          </View>
+        )}
       </CardFooter>
     </Card>
   );
