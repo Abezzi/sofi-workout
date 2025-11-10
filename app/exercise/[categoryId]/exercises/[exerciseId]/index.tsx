@@ -12,7 +12,6 @@ export default function ExerciseDetailScreen() {
 
   useEffect(() => {
     changeNavigationTitle();
-    console.log('name: ', name);
   }, [navigation]);
 
   return (
