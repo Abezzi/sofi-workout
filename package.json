@@ -40,6 +40,7 @@
     "expo": "~53.0.23",
     "expo-audio": "~0.4.9",
     "expo-auth-session": "6.2.1",
+    "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.7",
     "expo-drizzle-studio-plugin": "^0.2.0",
     "expo-haptics": "~14.1.4",
