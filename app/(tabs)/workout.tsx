@@ -20,10 +20,6 @@ import {
 import { useSelector } from 'react-redux';
 import { View } from 'react-native';
 import {
-  Hiit,
-  Emom,
-  Tabata,
-  Amrap,
   convertHiitToSteps,
   convertEmomToSteps,
   convertTabataToSteps,
@@ -34,34 +30,15 @@ import * as Speech from 'expo-speech';
 import countdownSounds from '@/components/workout/countdown-sounds';
 import { useTranslation } from 'react-i18next';
 import { getRoutineById } from '@/db/queries/routine.queries';
+import FullScreenLoader from '@/components/base/full-screen-loader';
 
 export default function WorkoutScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const { steps, currentTimer, progress, isPaused, isLoading, currentStep } = useSelector(
     (state: RootState) => state.timer
   );
-  const [hiit, setHiit] = useState<Hiit | null>(null);
-  const { hiitJson } = useLocalSearchParams() as {
-    hiitJson: string;
-    totalTime: string;
-  };
-  const [emom, setEmom] = useState<Emom | null>(null);
-  const { emomJson } = useLocalSearchParams() as {
-    emomJson: string;
-  };
-  const [tabata, setTabata] = useState<Tabata | null>(null);
-  const { tabataJson } = useLocalSearchParams() as {
-    tabataJson: string;
-  };
-  const [amrap, setAmrap] = useState<Amrap | null>(null);
-  const { amrapJson } = useLocalSearchParams() as {
-    amrapJson: string;
-  };
   const [currentSoundFile, setCurrentSoundFile] = useState<any>(null);
   const player = useAudioPlayer(currentSoundFile);
-  const { selectedRoutine } = useLocalSearchParams() as {
-    selectedRoutine: string;
-  };
   const [speechLanguage, setSpeechLanguage] = useState<string>('');
   const currentLanguage = useSelector((state: RootState) => state.locale.currentLanguage);
   const [countdownVoice, setCountdownVoice] = useState<string>('');
@@ -70,6 +47,65 @@ export default function WorkoutScreen() {
   );
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const params = useLocalSearchParams();
+  const { hiitJson, emomJson, tabataJson, amrapJson, selectedRoutine } = params as any;
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadRoutine = async () => {
+      if (!mounted) return;
+
+      setIsInitializing(true);
+      // reset everything
+      dispatch(initialize({ steps: [] }));
+
+      try {
+        let stepsTemp: any[] = [];
+        let title = '';
+
+        if (hiitJson) {
+          const parsed = JSON.parse(hiitJson);
+          stepsTemp = convertHiitToSteps(parsed, t);
+          title = t('interval_training.hiit.title');
+        } else if (emomJson) {
+          const parsed = JSON.parse(emomJson);
+          stepsTemp = convertEmomToSteps(parsed, t);
+          title = t('interval_training.emom.title');
+        } else if (tabataJson) {
+          const parsed = JSON.parse(tabataJson);
+          stepsTemp = convertTabataToSteps(parsed, t);
+          title = t('interval_training.tabata.title');
+        } else if (amrapJson) {
+          const parsed = JSON.parse(amrapJson);
+          stepsTemp = convertAmrapToSteps(parsed, t);
+          title = t('interval_training.amrap.title');
+        } else if (selectedRoutine) {
+          const routineId = parseInt(selectedRoutine);
+          const routine = await getRoutineById(routineId);
+          stepsTemp = await convertRoutineToSteps(routineId, t);
+          title = routine?.name || '';
+        }
+
+        if (stepsTemp.length > 0) {
+          dispatch(initialize({ steps: stepsTemp }));
+          navigation.setOptions({ headerTitle: title });
+        }
+      } catch (error) {
+        console.error('error loading routine: ', error);
+      } finally {
+        if (mounted) {
+          setIsInitializing(false);
+        }
+      }
+    };
+
+    loadRoutine();
+
+    return () => {
+      mounted = false;
+    };
+  }, [hiitJson, amrapJson, tabataJson, emomJson, selectedRoutine, dispatch, t, navigation]);
 
   // sets and updates the speech language
   useEffect(() => {
@@ -193,118 +229,17 @@ export default function WorkoutScreen() {
     }
   }, [steps, currentStep]);
 
-  // HIIT
-  useEffect(() => {
-    if (hiitJson) {
-      try {
-        const parsedHiit = JSON.parse(hiitJson as string);
-        setHiit(parsedHiit);
-      } catch (error) {
-        console.error('error parsing the params of hiit: ', error);
-      }
-    }
-  }, [hiitJson]);
-
-  useEffect(() => {
-    if (hiit) {
-      const stepsTemp = convertHiitToSteps(hiit, t);
-      dispatch(initialize({ steps: stepsTemp }));
-      changeNavigationTitle(t('interval_training.hiit.title'));
-    }
-  }, [hiit]);
-
-  // EMOM
-  useEffect(() => {
-    if (emomJson) {
-      try {
-        const parsedEmom = JSON.parse(emomJson as string);
-        setEmom(parsedEmom);
-      } catch (error) {
-        console.error('error parsing the params of emom: ', error);
-      }
-    }
-  }, [emomJson]);
-
-  useEffect(() => {
-    if (emom) {
-      const stepsTemp = convertEmomToSteps(emom, t);
-      dispatch(initialize({ steps: stepsTemp }));
-      changeNavigationTitle(t('interval_training.emom.title'));
-    }
-  }, [emom]);
-
-  // TABATA
-  useEffect(() => {
-    if (tabataJson) {
-      try {
-        const parsedTabata = JSON.parse(tabataJson as string);
-        setTabata(parsedTabata);
-      } catch (error) {
-        console.error('error parsing the params of tabata: ', error);
-      }
-    }
-  }, [tabataJson]);
-
-  useEffect(() => {
-    if (tabata) {
-      const stepsTemp = convertTabataToSteps(tabata, t);
-      dispatch(initialize({ steps: stepsTemp }));
-      changeNavigationTitle(t('interval_training.tabata.title'));
-    }
-  }, [tabata]);
-
-  // AMRAP
-  useEffect(() => {
-    if (amrapJson) {
-      try {
-        const parsedAmrap = JSON.parse(amrapJson as string);
-        setAmrap(parsedAmrap);
-      } catch (error) {
-        console.error('error parsing the params of amrap: ', error);
-      }
-    }
-  }, [amrapJson]);
-
-  useEffect(() => {
-    if (amrap) {
-      const stepsTemp = convertAmrapToSteps(amrap, t);
-      dispatch(initialize({ steps: stepsTemp }));
-      changeNavigationTitle(t('interval_training.amrap.title'));
-    }
-  }, [amrap]);
-
-  useEffect(() => {
-    if (selectedRoutine) {
-      (async () => {
-        try {
-          const routine = await getRoutineById(parseInt(selectedRoutine));
-          const routineName = routine?.name || '';
-          const stepsTemp = await convertRoutineToSteps(parseInt(selectedRoutine), t);
-          // console.log('stepsTemp: ', stepsTemp);
-          if (stepsTemp) {
-            dispatch(initialize({ steps: stepsTemp }));
-            changeNavigationTitle(routineName);
-          }
-        } catch (error) {
-          console.error('Error converting routine to steps:', error);
-        }
-      })();
-    }
-  }, [selectedRoutine]);
-
   // keep awake when screen loaded, deactivate it when leaving
   useFocusEffect(
     useCallback(() => {
       activateKeepAwakeAsync();
       return () => {
+        // resets steps when unfocus
+        dispatch(initialize({ steps: [] }));
         deactivateKeepAwake();
       };
-    }, [])
+    }, [dispatch])
   );
-
-  function changeNavigationTitle(title: string) {
-    navigation.setOptions({ headerTitle: `${title}` });
-  }
 
   return (
     <View className="items-center">
@@ -326,6 +261,7 @@ export default function WorkoutScreen() {
         isPaused={isPaused}
       />
       <RoutineDisplay />
+      <FullScreenLoader visible={isInitializing || steps.length === 0} />
     </View>
   );
 }
