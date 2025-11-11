@@ -21,32 +21,29 @@ const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
   const { t } = useTranslation();
   return (
     <View
-      className={`mb-2 rounded-lg p-3 ${
-        isCurrent
+      className={`mb-2 rounded-lg p-3 ${isCurrent
           ? 'border-2 border-primary bg-gray-100 dark:border-primary dark:bg-primary-foreground'
           : isCompleted
             ? 'border-2 border-green-500 bg-green-100 dark:bg-green-900'
             : 'bg-gray-100 dark:bg-primary-foreground'
-      }`}>
+        }`}>
       <Text
-        className={`text-base ${
-          isCurrent
+        className={`text-base ${isCurrent
             ? 'font-semibold'
             : isCompleted
               ? 'font-semibold text-green-700 dark:text-white'
               : 'text-gray-700 dark:text-white'
-        }`}>
+          }`}>
         {step.name}
       </Text>
       {step.information ? (
         <Text
-          className={`text-base capitalize ${
-            isCurrent
+          className={`text-base capitalize ${isCurrent
               ? 'font-semibold'
               : isCompleted
                 ? 'font-semibold text-green-700 dark:text-white'
                 : 'text-gray-700 dark:text-white'
-          }`}>
+            }`}>
           {step.information}
         </Text>
       ) : (
@@ -57,31 +54,28 @@ const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
           // rest badge
           <Badge
             variant="secondary"
-            className={`justify-start ${
-              isCurrent
+            className={`justify-start ${isCurrent
                 ? 'bg-gray-100 dark:bg-primary-foreground'
                 : isCompleted
                   ? 'bg-green-100 dark:bg-green-900'
                   : 'bg-primary-foreground'
-            }`}>
+              }`}>
             <Icon
               as={Armchair}
-              className={`${
-                isCurrent
+              className={`${isCurrent
                   ? 'text-primary'
                   : isCompleted
                     ? 'font-semibold text-green-700 dark:text-white'
                     : 'text-primary'
-              }`}
+                }`}
             />
             <Text
-              className={`${
-                isCurrent
+              className={`${isCurrent
                   ? 'font-semibold'
                   : isCompleted
                     ? 'font-semibold text-green-700 dark:text-white'
                     : 'text-primary'
-              }`}>
+                }`}>
               {t('convert_routine.rest')}
             </Text>
           </Badge>
@@ -90,31 +84,28 @@ const StepItem = memo(({ step, isCurrent, isCompleted }: StepItemProps) => {
           <View className="flex flex-row gap-1">
             <Badge
               variant="secondary"
-              className={`justify-start ${
-                isCurrent
+              className={`justify-start ${isCurrent
                   ? 'bg-zinc-500'
                   : isCompleted
                     ? 'bg-green-100 dark:bg-green-900'
                     : 'bg-zinc-500'
-              }`}>
+                }`}>
               <Icon
                 as={BicepsFlexed}
-                className={`${
-                  isCurrent
+                className={`${isCurrent
                     ? 'text-primary-foreground'
                     : isCompleted
                       ? 'font-semibold text-green-700 dark:text-white'
                       : 'text-primary-foreground'
-                }`}
+                  }`}
               />
               <Text
-                className={`${
-                  isCurrent
+                className={`${isCurrent
                     ? 'font-semibold text-primary-foreground'
                     : isCompleted
                       ? 'font-semibold text-green-700 dark:text-white'
                       : 'text-primary-foreground'
-                }`}>
+                  }`}>
                 {t('convert_routine.work')}
               </Text>
             </Badge>
@@ -186,10 +177,11 @@ const RoutineDisplay = () => {
               />
             )}
             keyExtractor={(item) => item.step.toString()}
-            contentContainerStyle={{
-              // paddingBottom: insets.bottom + 40,
-              paddingHorizontal: 10,
-            }}
+            contentContainerStyle={
+              {
+                // paddingBottom: insets.bottom + 40,
+              }
+            }
             showsVerticalScrollIndicator={true}
             getItemLayout={getItemLayout}
             // how many initial visible items will render
