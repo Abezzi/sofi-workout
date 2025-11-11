@@ -267,7 +267,7 @@ export default function RoutineList() {
           />
         )}
       </>
-      <FullScreenLoader visible={loadingSelectedRoutine} />
+      <FullScreenLoader visible={loadingSelectedRoutine} message="Loading Screen..." />
     </Card>
   );
 }

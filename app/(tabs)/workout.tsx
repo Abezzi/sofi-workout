@@ -261,7 +261,10 @@ export default function WorkoutScreen() {
         isPaused={isPaused}
       />
       <RoutineDisplay />
-      <FullScreenLoader visible={isInitializing || steps.length === 0} />
+      <FullScreenLoader
+        visible={isInitializing || steps.length === 0}
+        message="Loading Routine..."
+      />
     </View>
   );
 }
