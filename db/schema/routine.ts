@@ -11,5 +11,4 @@ export const routine = sqliteTable('routine', {
 });
 
 export type Routine = typeof routine.$inferSelect;
-
 export default { routine };
