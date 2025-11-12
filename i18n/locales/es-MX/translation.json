@@ -8,7 +8,7 @@
   },
   "home_screen": {
     "new_routine": "Nueva Rutina",
-    "copy_routine": "Copiar Rutina",
+    "import_routine": "Importar Rutina",
     "select_routine": "Selecciona una Rutina:"
   },
   "interval_training": {

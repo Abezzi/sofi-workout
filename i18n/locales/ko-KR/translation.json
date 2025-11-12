@@ -8,7 +8,7 @@
   },
   "home_screen": {
     "new_routine": "새 루틴",
-    "copy_routine": "루틴 복사",
+    "import_routine": "가져오기 루틴",
     "select_routine": "루틴 선택:"
   },
   "interval_training": {
