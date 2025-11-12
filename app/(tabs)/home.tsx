@@ -17,8 +17,8 @@ export default function Screen() {
     router.push({ pathname: '/routine/new-routine' });
   }
 
-  function handleCopyRoutine() {
-    router.push({ pathname: '/routine/copy-routine' });
+  function handleImportRoutine() {
+    router.push({ pathname: '/routine/import-routine' });
   }
 
   return (
@@ -33,8 +33,8 @@ export default function Screen() {
             <Button
               variant="outline"
               className="shadow shadow-foreground/5"
-              onPress={handleCopyRoutine}>
-              <Text>{t('home_screen.copy_routine')}</Text>
+              onPress={handleImportRoutine}>
+              <Text>{t('home_screen.import_routine')}</Text>
             </Button>
           </View>
         </CardHeader>
