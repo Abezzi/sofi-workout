@@ -17,10 +17,12 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { router } from 'expo-router';
 import { Icon } from '../ui/icon';
-import { Eye, Ghost, Pencil, X } from 'lucide-react-native';
+import { Ghost, Pencil, Send, X } from 'lucide-react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import FullScreenLoader from '../base/full-screen-loader';
+import { RoutineDeleteDialog } from './routine-delete-dialog';
+import ShareBottomSheet from '../base/share-bottom-sheet';
 
 interface RoutineItemProps {
   name: string;
@@ -53,6 +55,9 @@ export default function RoutineList() {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingSelectedRoutine, setLoadingSelectedRoutine] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [routineSelected, setRoutineSelected] = useState<number | null>(null);
+  const [openShareModal, setOpenShareModal] = useState<boolean>(false);
 
   const getRoutines = async () => {
     try {
@@ -86,6 +91,37 @@ export default function RoutineList() {
       getRoutines();
     }, [])
   );
+
+  const handleOnDeleteConfirm = async () => {
+    setLoading(true);
+    await new Promise(requestAnimationFrame);
+    if (routineSelected) await deleteRoutineById(routineSelected);
+    await getRoutines();
+    sendToast('Routine Deleted Successfully!');
+    setDeleteDialogOpen(false);
+    setRoutineSelected(null);
+    setLoading(false);
+  };
+
+  const handleOnDelete = async (id: number) => {
+    setDeleteDialogOpen(true);
+    setRoutineSelected(id);
+  };
+
+  const handleOnDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setRoutineSelected(null);
+  };
+
+  const handleOnCloseShareModal = () => {
+    setRoutineSelected(null);
+    setOpenShareModal(false);
+  };
+
+  const handleOnShare = (id: number) => {
+    setOpenShareModal(true);
+    setRoutineSelected(id);
+  };
 
   const getItemLayout = (_: any, index: number) => ({
     // height of each item (adjust based on actual height)
@@ -149,22 +185,6 @@ export default function RoutineList() {
       });
     };
 
-    const handleOnDelete = async (id: number) => {
-      setLoading(true);
-      await new Promise(requestAnimationFrame);
-      await deleteRoutineById(id);
-      await getRoutines();
-      sendToast('Routine Deleted Successfully!');
-      setLoading(false);
-    };
-
-    const handleOnView = (id: number) => {
-      router.push({
-        pathname: '/(tabs)/workout',
-        params: { selectedRoutine: id },
-      });
-    };
-
     return (
       <View className="flex flex-row gap-2 rounded-lg border border-primary bg-gray-100 p-3 dark:bg-primary-foreground">
         {/* view at the left side */}
@@ -178,10 +198,10 @@ export default function RoutineList() {
           </Pressable>
           <Pressable
             onPress={() => {
-              handleOnView(id);
+              handleOnShare(id);
               setActiveItem(null);
             }}>
-            <Icon as={Eye} className="size-6" />
+            <Icon as={Send} className="size-6" />
           </Pressable>
           <Pressable
             onPress={() => {
@@ -268,6 +288,20 @@ export default function RoutineList() {
         )}
       </>
       <FullScreenLoader visible={loadingSelectedRoutine} message="Loading Screen..." />
+      {deleteDialogOpen && (
+        <RoutineDeleteDialog
+          open={deleteDialogOpen}
+          onConfirm={handleOnDeleteConfirm}
+          onCancel={handleOnDeleteCancel}
+        />
+      )}
+      {openShareModal && routineSelected && (
+        <ShareBottomSheet
+          routineId={routineSelected}
+          visible={openShareModal}
+          onClose={handleOnCloseShareModal}
+        />
+      )}
     </Card>
   );
 }
