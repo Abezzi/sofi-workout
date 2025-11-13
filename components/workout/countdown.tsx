@@ -6,6 +6,7 @@ import { Progress } from '../ui/progress';
 import { Step } from '@/types/workout';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
+import { useEffect } from 'react';
 
 type CountdownPropsType = {
   steps: Step[];
@@ -15,6 +16,7 @@ type CountdownPropsType = {
   isPaused: boolean;
   onReady: () => void;
   onFinish: () => void;
+  onWorkoutComplete: () => void;
 };
 
 const Countdown = ({
@@ -25,6 +27,7 @@ const Countdown = ({
   isPaused,
   onReady,
   onFinish,
+  onWorkoutComplete,
 }: CountdownPropsType) => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -41,6 +44,12 @@ const Countdown = ({
   const isWorkoutComplete = currentStepIndex >= steps.length;
   const isAutomatic = currentStep.automatic;
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (isWorkoutComplete) {
+      onWorkoutComplete();
+    }
+  }, [isWorkoutComplete, onWorkoutComplete]);
 
   return (
     <Card

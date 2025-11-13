@@ -50,6 +50,7 @@ export default function WorkoutScreen() {
   const params = useLocalSearchParams();
   const { hiitJson, emomJson, tabataJson, amrapJson, selectedRoutine } = params as any;
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isWorkoutComplete, setIsWorkoutComplete] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -96,6 +97,7 @@ export default function WorkoutScreen() {
       } finally {
         if (mounted) {
           setIsInitializing(false);
+          setIsWorkoutComplete(false);
         }
       }
     };
@@ -179,6 +181,12 @@ export default function WorkoutScreen() {
     dispatch(nextStep());
   };
 
+  // using callback because it prevents double-playing if react re-renders
+  const handleWorkoutComplete = useCallback(() => {
+    setIsWorkoutComplete(true);
+    if (isWorkoutComplete) playSound(require('../../assets/audio/victory.mp3'));
+  }, []);
+
   // timer logic with audio
   useEffect(() => {
     if (isLoading || !steps.length || isPaused) return;
@@ -236,6 +244,7 @@ export default function WorkoutScreen() {
       return () => {
         // resets steps when unfocus
         dispatch(initialize({ steps: [] }));
+        setIsWorkoutComplete(false);
         deactivateKeepAwake();
       };
     }, [dispatch])
@@ -250,6 +259,7 @@ export default function WorkoutScreen() {
         progress={progress}
         isLoading={isLoading}
         isPaused={isPaused}
+        onWorkoutComplete={handleWorkoutComplete}
         onReady={handleReady}
         onFinish={handleFinish}
       />
