@@ -193,8 +193,8 @@ export default function NewRoutineScreen() {
             : ex.amount.map((a) => ({ quantity: a.quantity, weight: a.weight })),
         })),
         restMode: manualRestCheck ? 'manual' : 'automatic',
-        setRest: manualRestCheck ? undefined : parseInt(setRest) || 90,
-        restBetweenExercise: manualRestCheck ? undefined : parseInt(restBetweenExercise) || 120,
+        setRest: manualRestCheck ? undefined : parseInt(setRest) || 0,
+        restBetweenExercise: manualRestCheck ? undefined : parseInt(restBetweenExercise) || 0,
       });
 
       if (result.success) {
