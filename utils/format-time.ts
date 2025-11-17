@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
+/**
+ * Returns the time in this format: HH hour, MM minutes, SS seconds
+ */
 export const formatTimeLong = (totalSeconds: number): string => {
   const { t } = useTranslation();
 
@@ -22,6 +25,9 @@ export const formatTimeLong = (totalSeconds: number): string => {
   return result.trim() || `0 ${t('time.minutes')}`;
 };
 
+/**
+ * Returns the time in this format: (MM:SS)
+ */
 export const formatTimeShort = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
