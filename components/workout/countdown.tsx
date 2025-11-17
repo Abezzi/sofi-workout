@@ -7,7 +7,7 @@ import { Step } from '@/types/workout';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { useEffect, useRef } from 'react';
-import { formatTimeShort } from '@/utils/format-time';
+import { formatTimeShort, formatTimeVeryShort } from '@/utils/format-time';
 
 type CountdownPropsType = {
   steps: Step[];
@@ -32,15 +32,6 @@ const Countdown = ({
   onFinish,
   onWorkoutComplete,
 }: CountdownPropsType) => {
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    if (seconds >= 60) {
-      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-    }
-    return seconds.toString();
-  };
-
   const { index: currentStepIndex, timeLeft } = currentTimer;
   const currentStep = steps[currentStepIndex] || { name: 'Waiting', quantity: 0 };
   const nextStep = steps[currentStepIndex + 1] || { name: 'Complete' };
@@ -84,7 +75,7 @@ const Countdown = ({
                 Time: {formatTimeShort(totalElapsedSeconds)}
               </Text>
             ) : isAutomatic ? (
-              <Text className="truncate text-8xl">{formatTime(timeLeft)}</Text>
+              <Text className="truncate text-8xl">{formatTimeVeryShort(timeLeft)}</Text>
             ) : (
               <Text className="text-6xl">
                 {currentStep.quantity}x{currentStep.weight} kg
