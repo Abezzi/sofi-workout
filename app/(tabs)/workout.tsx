@@ -34,9 +34,8 @@ import FullScreenLoader from '@/components/base/full-screen-loader';
 
 export default function WorkoutScreen() {
   const dispatch = useDispatch<AppDispatch>();
-  const { steps, currentTimer, progress, isPaused, isLoading, currentStep } = useSelector(
-    (state: RootState) => state.timer
-  );
+  const { steps, currentTimer, progress, isPaused, isLoading, currentStep, totalElapsedSeconds } =
+    useSelector((state: RootState) => state.timer);
   const [currentSoundFile, setCurrentSoundFile] = useState<any>(null);
   const player = useAudioPlayer(currentSoundFile);
   const [speechLanguage, setSpeechLanguage] = useState<string>('');
@@ -50,6 +49,7 @@ export default function WorkoutScreen() {
   const params = useLocalSearchParams();
   const { hiitJson, emomJson, tabataJson, amrapJson, selectedRoutine } = params as any;
   const [isInitializing, setIsInitializing] = useState(true);
+  // FIXME: not sure if will use this or not
   const [isWorkoutComplete, setIsWorkoutComplete] = useState(false);
 
   useEffect(() => {
@@ -161,6 +161,7 @@ export default function WorkoutScreen() {
   };
 
   const handleFinish = () => {
+    // TODO: show analytics when finish
     console.log('finisheeeeedd');
   };
 
@@ -181,11 +182,10 @@ export default function WorkoutScreen() {
     dispatch(nextStep());
   };
 
-  // using callback because it prevents double-playing if react re-renders
   const handleWorkoutComplete = useCallback(() => {
     setIsWorkoutComplete(true);
     if (isWorkoutComplete) playSound(require('../../assets/audio/victory.mp3'));
-  }, []);
+  }, [playSound]);
 
   // timer logic with audio
   useEffect(() => {
@@ -259,6 +259,7 @@ export default function WorkoutScreen() {
         progress={progress}
         isLoading={isLoading}
         isPaused={isPaused}
+        totalElapsedSeconds={totalElapsedSeconds}
         onWorkoutComplete={handleWorkoutComplete}
         onReady={handleReady}
         onFinish={handleFinish}

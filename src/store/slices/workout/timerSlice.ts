@@ -8,6 +8,8 @@ export type TimerState = {
   isPaused: boolean;
   isLoading: boolean;
   currentStep: number;
+  workoutStartedAt: number | null;
+  totalElapsedSeconds: number;
 };
 
 const initialState: TimerState = {
@@ -17,6 +19,8 @@ const initialState: TimerState = {
   isPaused: true,
   isLoading: true,
   currentStep: 0,
+  workoutStartedAt: null,
+  totalElapsedSeconds: 0,
 };
 
 const timerSlice = createSlice({
@@ -32,6 +36,8 @@ const timerSlice = createSlice({
         state.isLoading = false;
         state.isPaused = true;
         state.currentStep = 0;
+        state.workoutStartedAt = null;
+        state.totalElapsedSeconds = 0;
       } else {
         state.isLoading = true;
       }
@@ -66,10 +72,19 @@ const timerSlice = createSlice({
           state.progress = 100;
           state.currentStep = lastIndex;
           state.isPaused = false;
+          // store elapsed time when workout finished (when timer reach 0 on the last exercise)
+          if (state.workoutStartedAt) {
+            const elapsedSeconds = Math.floor((Date.now() - state.workoutStartedAt) / 1000);
+            state.totalElapsedSeconds = elapsedSeconds;
+          }
         }
       }
     },
     startPause: (state, action: PayloadAction<{ isPaused: boolean }>) => {
+      // first time the user press start
+      if (!action.payload.isPaused && state.workoutStartedAt === null) {
+        state.workoutStartedAt = Date.now();
+      }
       state.isPaused = action.payload.isPaused;
     },
     stop: (state) => {
@@ -77,6 +92,8 @@ const timerSlice = createSlice({
       state.progress = 0;
       state.currentStep = 0;
       state.isPaused = true;
+      state.workoutStartedAt = null;
+      state.totalElapsedSeconds = 0;
     },
     nextStep: (state) => {
       const nextIndex = state.currentTimer.index + 1;
@@ -91,6 +108,11 @@ const timerSlice = createSlice({
         state.progress = 100;
         state.currentStep = lastIndex;
         state.isPaused = false;
+        // store elapsed time when workout finished (by pressing next step)
+        if (state.workoutStartedAt) {
+          const elapsedSeconds = Math.floor((Date.now() - state.workoutStartedAt) / 1000);
+          state.totalElapsedSeconds = elapsedSeconds;
+        }
       }
     },
     previousStep: (state) => {
@@ -115,6 +137,11 @@ const timerSlice = createSlice({
         state.progress = 100;
         state.currentStep = lastIndex;
         state.isPaused = false;
+        // store elapsed time when workout finished (by pressing ready on non-automatic exercise)
+        if (state.workoutStartedAt) {
+          const elapsedSeconds = Math.floor((Date.now() - state.workoutStartedAt) / 1000);
+          state.totalElapsedSeconds = elapsedSeconds;
+        }
       }
     },
   },
