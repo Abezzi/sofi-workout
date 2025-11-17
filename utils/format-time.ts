@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 /**
- * Returns the time in this format: HH hour, MM minutes, SS seconds
+ * Returns time in this format: HH hour, MM minutes, SS seconds
  */
 export const formatTimeLong = (totalSeconds: number): string => {
   const { t } = useTranslation();
@@ -26,11 +26,23 @@ export const formatTimeLong = (totalSeconds: number): string => {
 };
 
 /**
- * Returns the time in this format: (MM:SS)
+ * Returns time in this format: (MM:SS) ex. 1 minute and 2 seconds -> (01:02)
  */
 export const formatTimeShort = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
 
   return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+/**
+ * Returns time in this format: (MM:SS) ex. 1 minute and 2 seconds -> (1:02)
+ */
+export const formatTimeVeryShort = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (seconds >= 60) {
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+  return seconds.toString();
 };
