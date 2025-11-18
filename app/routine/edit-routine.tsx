@@ -28,7 +28,6 @@ export default function EditRoutineScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // ------------------- LOAD -------------------
   useEffect(() => {
     if (!routineId) return;
 
@@ -41,8 +40,6 @@ export default function EditRoutineScreen() {
 
         const loaded: ExerciseItem[] = [];
 
-        // Your transform already interleaves rests + exercises by position
-        // and puts EVERYTHING into data.exercises[]
         data.exercises.forEach((ex: any) => {
           const isRest = ex.exerciseId === null || ex.name.startsWith('Rest');
 
@@ -72,7 +69,7 @@ export default function EditRoutineScreen() {
           loaded.push(item);
         });
 
-        // Final sort by position (just in case)
+        // sort by position (just in case)
         loaded.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 
         setItems(loaded);
@@ -83,7 +80,6 @@ export default function EditRoutineScreen() {
       .finally(() => setLoading(false));
   }, [routineId]);
 
-  // ------------------- SAVE -------------------
   const handleSubmit = useCallback(async () => {
     if (!routine || saving) return;
 
@@ -104,7 +100,7 @@ export default function EditRoutineScreen() {
     }
   }, [routine, name, items, saving, routineId]);
 
-  // ------------------- ADD REST -------------------
+  // add rest timers
   const addRest = () => {
     const newRest: ExerciseItem = {
       key: `rest-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -118,7 +114,6 @@ export default function EditRoutineScreen() {
     setItems([...items, newRest]);
   };
 
-  // ------------------- UI -------------------
   if (loading) return <FullScreenLoader visible message="Loading routine..." />;
 
   if (!routine) {
