@@ -9,7 +9,8 @@
   "home_screen": {
     "new_routine": "New Routine",
     "import_routine": "Import Routine",
-    "select_routine": "Select a Routine:"
+    "select_routine": "Select a Routine:",
+    "edit_routine": "Edit Routine"
   },
   "interval_training": {
     "hiit": {
