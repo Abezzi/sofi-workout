@@ -64,7 +64,8 @@ export default function NewRoutineScreen() {
   const errorsAlert = () => {
     if (!errors) return;
 
-    const filteredErrors = Object.values(errors).filter((error: string) => error !== ''); // Explicit typing
+    // explicit typing
+    const filteredErrors = Object.values(errors).filter((error: string) => error !== '');
 
     if (filteredErrors.length === 0) return;
 
