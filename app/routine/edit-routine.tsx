@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
 import {
   getRoutineWithExerciseAndRest,
@@ -13,9 +14,10 @@ import {
   RoutineWithExerciseAndRest,
 } from '@/db/queries/routine.queries';
 import { ExerciseItem } from '@/types/workout';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Loader2, Plus, Save } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 export default function EditRoutineScreen() {
@@ -24,9 +26,29 @@ export default function EditRoutineScreen() {
 
   const [routine, setRoutine] = useState<RoutineWithExerciseAndRest | null>(null);
   const [name, setName] = useState('');
+  const [manualRestCheck, setManualRestCheck] = useState<boolean>(false);
   const [items, setItems] = useState<ExerciseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [manualRest, setManualRest] = useState<string>('60');
+  const [restBetweenExercise, setRestBetweenExercise] = useState('0');
+  const [setRest, setSetRest] = useState('0');
+  const navigation = useNavigation();
+  const { t } = useTranslation();
+
+  const onCheckedChange = (checked: boolean) => {
+    setManualRestCheck(checked);
+    // setRoutine({
+    //   id: routine.id,
+    //   description: routine.description,
+    //   name: routine.name,
+    //   restMode: checked ? 'manual' : 'automatic',
+    // });
+  };
+
+  useEffect(() => {
+    navigation.setOptions({ title: t('home_screen.edit_routine') });
+  }, []);
 
   useEffect(() => {
     if (!routineId) return;
@@ -37,6 +59,7 @@ export default function EditRoutineScreen() {
         if (!data) return;
         setRoutine(data);
         setName(data.name);
+        setManualRestCheck(data.restMode === 'manual'); // manual 1
 
         const loaded: ExerciseItem[] = [];
 
@@ -90,6 +113,7 @@ export default function EditRoutineScreen() {
       }
 
       await saveRoutineExercisesAndRest(routineId, items);
+      router.push({ pathname: '/home' });
 
       // TODO: send message of success alert
     } catch (err: any) {
@@ -129,13 +153,87 @@ export default function EditRoutineScreen() {
       <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
         <CardContent>
           <View className="px-2 pb-4">
-            <Label>Routine Name:</Label>
-            <Input
-              value={name}
-              onChangeText={setName}
-              placeholder="Routine name"
-              className="text-2xl font-bold"
-            />
+            <View>
+              <Label>Routine Name:</Label>
+              <Input
+                value={name}
+                onChangeText={setName}
+                placeholder="Routine name"
+                className="text-2xl font-bold"
+              />
+            </View>
+
+            <View className="mt-2 flex-row gap-2">
+              {/* column 1*/}
+              <View className="flex-1 items-center justify-center">
+                <Label className="mb-2">Rest Mode:</Label>
+                <Switch
+                  id="manualRestCheck"
+                  nativeID="manualRestCheck"
+                  checked={manualRestCheck}
+                  onCheckedChange={onCheckedChange}
+                />
+                <Label className="mt-2 text-sm">{manualRestCheck ? 'MANUAL' : 'AUTOMATIC'}</Label>
+              </View>
+
+              {manualRestCheck ? (
+                <>
+                  {/* column 2 */}
+                  <View className="flex-1 justify-center">
+                    <Button
+                      onPress={addRest}
+                      variant="outline"
+                      className="w-full shadow shadow-foreground/5">
+                      <Text>Add Rest</Text>
+                    </Button>
+                  </View>
+
+                  {/* column 3 */}
+                  <View className="flex-1 justify-center">
+                    <Input
+                      placeholder="180"
+                      value={manualRest}
+                      onChangeText={setManualRest}
+                      keyboardType="numeric"
+                      selectTextOnFocus={true}
+                      className="h-12"
+                    />
+                  </View>
+                </>
+              ) : (
+                <>
+                  {/* column 2 */}
+                  <View className="flex-1">
+                    <Label nativeID="setRest" className="mb-1 text-sm">
+                      Set Rest
+                    </Label>
+                    <Input
+                      aria-labelledby="setRest"
+                      value={setRest}
+                      onChangeText={setSetRest}
+                      keyboardType="numeric"
+                      selectTextOnFocus={true}
+                      className="h-12"
+                    />
+                  </View>
+
+                  {/* column 3 */}
+                  <View className="flex-1">
+                    <Label nativeID="restBetweenExercise" className="mb-1 text-sm">
+                      Exercises Rest
+                    </Label>
+                    <Input
+                      aria-labelledby="restBetweenExercise"
+                      value={restBetweenExercise}
+                      onChangeText={setRestBetweenExercise}
+                      keyboardType="numeric"
+                      selectTextOnFocus={true}
+                      className="h-12"
+                    />
+                  </View>
+                </>
+              )}
+            </View>
           </View>
           {items.length > 0 ? (
             <DraggableExerciseList data={items} onDataChange={setItems} />
