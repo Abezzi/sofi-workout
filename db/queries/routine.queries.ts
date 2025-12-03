@@ -500,7 +500,9 @@ export async function updateRoutineName(routineId: number, name: string): Promis
 
 export async function saveRoutineExercisesAndRest(
   routineId: number,
-  items: ExerciseItem[]
+  items: ExerciseItem[],
+  setRest: number,
+  restBetweenExercise: number
 ): Promise<{ success: boolean; error?: any }> {
   return db.transaction(async (tx) => {
     try {
@@ -521,7 +523,17 @@ export async function saveRoutineExercisesAndRest(
 
       await tx.delete(routine_exercise).where(eq(routine_exercise.routineId, routineId));
 
-      // 2. re-insert in new order
+      // 2. determine rest mode automatically
+      const hasManualRestBlocks = items.some((item) => item.isRest);
+      const hasAutomaticRestValues = setRest > 0 || restBetweenExercise > 0;
+
+      const restMode = hasManualRestBlocks
+        ? 'manual'
+        : hasAutomaticRestValues
+          ? 'automatic'
+          : 'automatic';
+
+      // 3. re-insert in new order
       // position -> routine_exercise.id
       const reIdMap = new Map<number, number>();
 
@@ -565,6 +577,27 @@ export async function saveRoutineExercisesAndRest(
           });
         }
       });
+
+      if (restMode === 'automatic') {
+        restTimerValues.push(
+          {
+            routineId,
+            routineExerciseId: null,
+            exerciseSetId: null,
+            restTime: setRest,
+            type: 'set' as const,
+            position: null,
+          },
+          {
+            routineId,
+            routineExerciseId: null,
+            exerciseSetId: null,
+            restTime: restBetweenExercise,
+            type: 'exercise' as const,
+            position: null,
+          }
+        );
+      }
 
       // 3. insert routine_exercise + get ids back
       if (routineExerciseValues.length > 0) {

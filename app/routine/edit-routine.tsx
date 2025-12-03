@@ -1,7 +1,7 @@
 import FullScreenLoader from '@/components/base/full-screen-loader';
 import { DraggableExerciseList } from '@/components/routine/draggable-exercise-list';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,7 +15,7 @@ import {
 } from '@/db/queries/routine.queries';
 import { ExerciseItem } from '@/types/workout';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { Loader2, Plus, Save } from 'lucide-react-native';
+import { Plus, Save } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -50,6 +50,17 @@ export default function EditRoutineScreen() {
     navigation.setOptions({ title: t('home_screen.edit_routine') });
   }, []);
 
+  // load the rest timers for the input fields of automatic mode
+  useEffect(() => {
+    if (!manualRestCheck && routine) {
+      const setTimer = routine.restTimers.find((rt) => rt.type === 'set');
+      const exerciseTimer = routine.restTimers.find((rt) => rt.type === 'exercise');
+
+      setSetRest((setTimer?.restTime ?? 60).toString());
+      setRestBetweenExercise((exerciseTimer?.restTime ?? 120).toString());
+    }
+  }, [manualRestCheck, routine]);
+
   useEffect(() => {
     if (!routineId) return;
 
@@ -62,19 +73,6 @@ export default function EditRoutineScreen() {
         setManualRestCheck(data.restMode === 'manual'); // manual 1
 
         const loaded: ExerciseItem[] = [];
-
-        // load the rest timers for the input fields of automatic mode
-        if (data.restMode === 'automatic') {
-          for (let i = 0; i < data.restTimers.length; i++) {
-            const rt = data.restTimers[i];
-
-            if (rt.type === 'exercise') {
-              setRestBetweenExercise(rt.restTime.toString());
-            } else if (rt.type === 'set') {
-              setSetRest(rt.restTime.toString());
-            }
-          }
-        }
 
         data.exercises.forEach((ex: any) => {
           const isRest = ex.exerciseId === null || ex.name.startsWith('Rest');
@@ -122,7 +120,10 @@ export default function EditRoutineScreen() {
         await updateRoutineName(routineId, name.trim());
       }
 
-      await saveRoutineExercisesAndRest(routineId, items);
+      const sr = parseInt(setRest, 10) || 0;
+      const rbe = parseInt(restBetweenExercise, 10) || 0;
+
+      await saveRoutineExercisesAndRest(routineId, items, sr, rbe);
       router.push({ pathname: '/home' });
 
       // TODO: send message of success alert
@@ -132,7 +133,7 @@ export default function EditRoutineScreen() {
     } finally {
       setSaving(false);
     }
-  }, [routine, name, items, saving, routineId]);
+  }, [routine, name, items, saving, routineId, manualRestCheck, setRest, restBetweenExercise]);
 
   // add rest timers
   const addRest = () => {
@@ -258,17 +259,10 @@ export default function EditRoutineScreen() {
         </CardContent>
 
         <CardFooter className="justify-center">
-          {saving ? (
-            <Button disabled>
-              <Icon as={Loader2} className="mr-2 animate-spin" />
-              <Text>Saving...</Text>
-            </Button>
-          ) : (
-            <Button onPress={handleSubmit}>
-              <Icon as={Save} className="text-primary-foreground" />
-              <Text>Save</Text>
-            </Button>
-          )}
+          <Button onPress={handleSubmit}>
+            <Icon as={Save} className="text-primary-foreground" />
+            <Text>Save</Text>
+          </Button>
         </CardFooter>
       </Card>
 
