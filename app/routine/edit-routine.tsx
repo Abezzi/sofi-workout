@@ -63,13 +63,23 @@ export default function EditRoutineScreen() {
 
         const loaded: ExerciseItem[] = [];
 
+        // load the rest timers for the input fields of automatic mode
+        if (data.restMode === 'automatic') {
+          for (let i = 0; i < data.restTimers.length; i++) {
+            const rt = data.restTimers[i];
+
+            if (rt.type === 'exercise') {
+              setRestBetweenExercise(rt.restTime.toString());
+            } else if (rt.type === 'set') {
+              setSetRest(rt.restTime.toString());
+            }
+          }
+        }
+
         data.exercises.forEach((ex: any) => {
           const isRest = ex.exerciseId === null || ex.name.startsWith('Rest');
-
           const key = isRest ? `rest-${ex.id || Date.now()}` : `exercise-${ex.id}`;
-
           const restSeconds = isRest ? (ex.sets[0]?.quantity ?? 60) : undefined;
-
           const item: ExerciseItem = {
             key,
             isRest,
@@ -131,7 +141,7 @@ export default function EditRoutineScreen() {
       isRest: true,
       restSeconds: 60,
       exerciseTypeId: 1,
-      exercise: { id: 0, name: 'Rest 60s', description: '' },
+      exercise: { id: 0, name: 'Rest', description: '' },
       category: { id: 0, name: 'Rest', color: '#94a3b8' },
       amount: [{ quantity: 60, weight: 0 }],
     };
