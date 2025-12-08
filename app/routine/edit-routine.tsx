@@ -16,7 +16,7 @@ import {
 } from '@/db/queries/routine.queries';
 import { ExerciseItem } from '@/types/workout';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { Plus, Save, X } from 'lucide-react-native';
+import { Save, X } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ToastAndroid, View } from 'react-native';
@@ -42,14 +42,8 @@ export default function EditRoutineScreen() {
     ToastAndroid.showWithGravity(message, ToastAndroid.SHORT, ToastAndroid.CENTER);
   };
 
-  const onCheckedChange = (checked: boolean) => {
+  const onCheckedChange = () => {
     setModeChangeDialogOpen(true);
-    // setRoutine({
-    //   id: routine.id,
-    //   description: routine.description,
-    //   name: routine.name,
-    //   restMode: checked ? 'manual' : 'automatic',
-    // });
   };
 
   useEffect(() => {
@@ -122,11 +116,119 @@ export default function EditRoutineScreen() {
   };
 
   const handleTransformRoutineMode = () => {
+    if (!routine || items.length === 0) return;
+
+    const newItems: ExerciseItem[] = [];
+    const setRestSeconds = parseInt(setRest, 10) || 60;
+    const exerciseRestSeconds = parseInt(restBetweenExercise, 10) || 120;
+    let positionCounter = 1;
+
+    // MANUAL TO AUTOMATIC
+    if (manualRestCheck) {
+      // collapse split sets back into single exercise blocks with multiple sets
+      const exerciseMap = new Map<string, ExerciseItem>();
+
+      items.forEach((item) => {
+        if (item.isRest) return;
+
+        const baseKey = item.exercise.id > 0 ? `exercise-${item.exercise.id}` : item.key;
+        const existing = exerciseMap.get(baseKey);
+
+        if (existing) {
+          // merge sets
+          existing.amount = [...existing.amount, ...item.amount];
+        } else {
+          // first time seeing this exercise
+          exerciseMap.set(baseKey, {
+            ...item,
+            key: baseKey.includes('exercise-')
+              ? baseKey
+              : `exercise-${item.exercise.id}-${Date.now()}`,
+            amount: [...item.amount],
+            // will be reassigned later
+            position: positionCounter++,
+          });
+        }
+      });
+
+      // reassign positions in order
+      exerciseMap.forEach((exercise) => {
+        exercise.position = positionCounter++;
+        newItems.push(exercise);
+      });
+
+      // suggest a reasonable default rest time (last used manual rest or fallback)
+      const lastRestBlock = items
+        .slice()
+        .reverse()
+        .find((i) => i.isRest);
+      const suggestedRest = lastRestBlock
+        ? (lastRestBlock.restSeconds ?? lastRestBlock.amount[0]?.quantity ?? 60)
+        : setRestSeconds;
+
+      setSetRest(suggestedRest.toString());
+      setRestBetweenExercise(suggestedRest.toString());
+    } else {
+      // AUTOMATIC TO MANUAL
+      items.forEach((exerciseItem, exerciseIndex) => {
+        if (exerciseItem.isRest) return;
+
+        const sets = exerciseItem.amount || [];
+        const isLastExercise = exerciseIndex === items.length - 1;
+
+        sets.forEach((set, setIndex) => {
+          const isLastSetInExercise = setIndex === sets.length - 1;
+
+          // add the single-set exercise block
+          const singleSetExercise: ExerciseItem = {
+            ...exerciseItem,
+            key: `exercise-${exerciseItem.key}-set-${setIndex}-${Date.now()}`,
+            amount: [set],
+            position: positionCounter++,
+          };
+          newItems.push(singleSetExercise);
+
+          // decide which rest to insert no rest after very last set
+          const shouldInsertRest = !(isLastExercise && isLastSetInExercise);
+
+          if (shouldInsertRest) {
+            const restTime =
+              isLastSetInExercise && !isLastExercise
+                ? // between exercises -> use exercise rest
+                  exerciseRestSeconds
+                : // between sets of same exercise -> use set rest
+                  setRestSeconds;
+
+            if (restTime > 0) {
+              const restItem: ExerciseItem = {
+                key: `rest-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+                isRest: true,
+                restSeconds: restTime,
+                exerciseTypeId: 1,
+                position: positionCounter++,
+                exercise: {
+                  id: 0,
+                  name: 'Rest',
+                  description: '',
+                },
+                category: { id: 0, name: 'Rest', color: '#94a3b8' },
+                amount: [{ quantity: restTime, weight: 0 }],
+              };
+              newItems.push(restItem);
+            }
+          }
+        });
+      });
+    }
+
+    // assign new items
+    setItems(newItems);
+    // change check
     setManualRestCheck(!manualRestCheck);
-
-    // TODO: Transform the routine
-
+    // close dialog
     setModeChangeDialogOpen(false);
+    // send toast
+    sendToast(`Switched to ${!manualRestCheck ? 'Manual' : 'Automatic'} Rest Mode`);
   };
 
   const handleSubmit = useCallback(async () => {
@@ -269,10 +371,12 @@ export default function EditRoutineScreen() {
             <Text className="text-center text-muted-foreground">No exercises yet</Text>
           )}
 
+          {/*
           <Button variant="outline" onPress={addRest} className="mt-2">
             <Icon as={Plus} className="mr-2" />
             <Text>Add Rest Block</Text>
           </Button>
+          */}
         </CardContent>
 
         <CardFooter className="justify-center">
@@ -282,7 +386,7 @@ export default function EditRoutineScreen() {
           </Button>
           <Button onPress={handleCancel} variant="outline">
             <Icon as={X} />
-            <Text>Cancel</Text>
+            <Text>Discard</Text>
           </Button>
         </CardFooter>
       </Card>
