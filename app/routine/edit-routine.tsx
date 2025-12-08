@@ -1,5 +1,6 @@
 import FullScreenLoader from '@/components/base/full-screen-loader';
 import { DraggableExerciseList } from '@/components/routine/draggable-exercise-list';
+import { RoutineModeChangeDialog } from '@/components/routine/routine-mode-change-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
@@ -15,10 +16,10 @@ import {
 } from '@/db/queries/routine.queries';
 import { ExerciseItem } from '@/types/workout';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { Plus, Save } from 'lucide-react-native';
+import { Plus, Save, X } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { ToastAndroid, View } from 'react-native';
 
 export default function EditRoutineScreen() {
   const { selectedRoutine } = useLocalSearchParams() as { selectedRoutine: string };
@@ -35,9 +36,14 @@ export default function EditRoutineScreen() {
   const [setRest, setSetRest] = useState('0');
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const [modeChangeDialogOpen, setModeChangeDialogOpen] = useState<boolean>(false);
+
+  const sendToast = (message: string) => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.SHORT, ToastAndroid.CENTER);
+  };
 
   const onCheckedChange = (checked: boolean) => {
-    setManualRestCheck(checked);
+    setModeChangeDialogOpen(true);
     // setRoutine({
     //   id: routine.id,
     //   description: routine.description,
@@ -111,6 +117,18 @@ export default function EditRoutineScreen() {
       .finally(() => setLoading(false));
   }, [routineId]);
 
+  const handleCancel = () => {
+    setModeChangeDialogOpen(false);
+  };
+
+  const handleTransformRoutineMode = () => {
+    setManualRestCheck(!manualRestCheck);
+
+    // TODO: Transform the routine
+
+    setModeChangeDialogOpen(false);
+  };
+
   const handleSubmit = useCallback(async () => {
     if (!routine || saving) return;
 
@@ -126,10 +144,9 @@ export default function EditRoutineScreen() {
       await saveRoutineExercisesAndRest(routineId, items, sr, rbe);
       router.push({ pathname: '/home' });
 
-      // TODO: send message of success alert
+      sendToast('Routine updated Successfully');
     } catch (err: any) {
-      console.error('Save error:', err);
-      // TODO: send error alert
+      sendToast('ERROR!');
     } finally {
       setSaving(false);
     }
@@ -263,10 +280,21 @@ export default function EditRoutineScreen() {
             <Icon as={Save} className="text-primary-foreground" />
             <Text>Save</Text>
           </Button>
+          <Button onPress={handleCancel} variant="outline">
+            <Icon as={X} />
+            <Text>Cancel</Text>
+          </Button>
         </CardFooter>
       </Card>
 
       <FullScreenLoader visible={saving} message="Saving routine..." />
+      {modeChangeDialogOpen && (
+        <RoutineModeChangeDialog
+          open={modeChangeDialogOpen}
+          onConfirm={handleTransformRoutineMode}
+          onCancel={handleCancel}
+        />
+      )}
     </View>
   );
 }
