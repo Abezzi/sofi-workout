@@ -24,7 +24,6 @@ import { ToastAndroid, View } from 'react-native';
 export default function EditRoutineScreen() {
   const { selectedRoutine } = useLocalSearchParams() as { selectedRoutine: string };
   const routineId = parseInt(selectedRoutine, 10);
-
   const [routine, setRoutine] = useState<RoutineWithExerciseAndRest | null>(null);
   const [name, setName] = useState('');
   const [manualRestCheck, setManualRestCheck] = useState<boolean>(false);
