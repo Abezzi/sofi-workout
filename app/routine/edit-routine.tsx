@@ -370,13 +370,6 @@ export default function EditRoutineScreen() {
           ) : (
             <Text className="text-center text-muted-foreground">No exercises yet</Text>
           )}
-
-          {/*
-          <Button variant="outline" onPress={addRest} className="mt-2">
-            <Icon as={Plus} className="mr-2" />
-            <Text>Add Rest Block</Text>
-          </Button>
-          */}
         </CardContent>
 
         <CardFooter className="justify-center">
