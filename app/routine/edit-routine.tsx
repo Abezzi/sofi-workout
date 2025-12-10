@@ -113,6 +113,8 @@ export default function EditRoutineScreen() {
 
   const handleCancel = () => {
     setModeChangeDialogOpen(false);
+    router.push('/(tabs)/home');
+    sendToast('Discarding Changes');
   };
 
   const handleTransformRoutineMode = () => {
