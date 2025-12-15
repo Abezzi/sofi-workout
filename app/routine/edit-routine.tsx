@@ -281,7 +281,7 @@ export default function EditRoutineScreen() {
 
   return (
     <View className="flex-1">
-      <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
+      <Card className="border-border/0 pt-2 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
         <CardContent>
           <View>
             <View className="px-2 pb-4">
@@ -309,7 +309,9 @@ export default function EditRoutineScreen() {
               <View className="mt-2 flex-row gap-2">
                 {/* column 1*/}
                 <View className="flex-1 items-center justify-center">
-                  <Label className="mb-2">Rest Mode:</Label>
+                  <Label nativeID="manualRestCheck" htmlFor="manualRestCheck" className="mb-2">
+                    Rest Mode:
+                  </Label>
                   <Switch
                     id="manualRestCheck"
                     nativeID="manualRestCheck"
