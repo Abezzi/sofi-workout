@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { useNavigation, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { DraggableExerciseList } from '@/components/routine/draggable-exercise-list';
-import { Alert, Platform, View } from 'react-native';
+import { Alert, Keyboard, Platform, View } from 'react-native';
 import { AddExerciseDialog } from '@/components/routine/add-exercise-dialog';
 import {
   ArrowLeft,
@@ -162,6 +162,7 @@ export default function NewRoutineScreen() {
   };
 
   function handleAddExercise() {
+    Keyboard.dismiss();
     setOpenDialog(true);
   }
 
@@ -273,92 +274,124 @@ export default function NewRoutineScreen() {
   };
 
   return (
-    <View>
-      <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
-        <CardHeader>
-          <View className="flex-row items-center justify-center gap-2">
-            <Button onPress={handleAddExercise}>
-              <Text>Add Exercise</Text>
-            </Button>
-            <View className="flex-col items-center">
-              <Label nativeID="manualRestCheck" htmlFor="manualRestCheck">
-                Rest Mode
-              </Label>
-              <Switch
-                id="manualRestCheck"
-                nativeID="manualRestCheck"
-                checked={manualRestCheck}
-                onCheckedChange={onCheckedChange}
-              />
-              {manualRestCheck ? <Label>MANUAL</Label> : <Label>AUTOMATIC</Label>}
-            </View>
-          </View>
-          {manualRestCheck ? (
-            <View className="flex-row items-center gap-2 px-4">
-              <Button
-                onPress={handleAddRest}
-                variant="outline"
-                className="w-1/2 shadow shadow-foreground/5">
-                <Text>Add Rest</Text>
-              </Button>
-              <View className="flex-1">
-                <Input
-                  aria-labelledby="manualRest"
-                  placeholder="180"
-                  value={manualRest}
-                  onChangeText={setManualRest}
-                  keyboardType="numeric"
-                  selectTextOnFocus={true}
-                />
-              </View>
-            </View>
-          ) : (
-            <View className="flex-row items-center gap-2 px-4">
-              <View className="flex-1">
-                <Label nativeID="setRest">Set Rest</Label>
-                <Input
-                  aria-labelledby="setRest"
-                  value={setRest}
-                  onChangeText={setSetRest}
-                  keyboardType="numeric"
-                  selectTextOnFocus={true}
-                  className="h-12"
-                />
-              </View>
-              <View>
-                <Label nativeID="restBetweenExercise">Rest Between Exercises</Label>
-                <Input
-                  aria-labelledby="restBetweenExercise"
-                  value={restBetweenExercise}
-                  onChangeText={setRestBetweenExercise}
-                  keyboardType="numeric"
-                  selectTextOnFocus={true}
-                  className="h-12"
-                />
-              </View>
-            </View>
-          )}
-        </CardHeader>
+    <View className="flex-1">
+      <Card className="border-border/0 pt-2 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
         <CardContent>
-          <View className="px-4 pb-4">
-            <Label>Name</Label>
-            <Input
-              placeholder="My Favorite Routine"
-              id="routineName"
-              value={routine.name}
-              onChangeText={(routineName) => handleInputChange('name', routineName)}
-              className={`${errors && errors.routineName ? 'border border-red-500' : ''}`}
-            />
-            <Label>Description</Label>
-            <Input
-              placeholder="This will make you stronger"
-              id="description"
-              value={routine.description ? routine.description : undefined}
-              onChangeText={(routineDescription) =>
-                handleInputChange('description', routineDescription)
-              }
-            />
+          <View>
+            <View className="px-2 pb-4">
+              {/*row 1*/}
+              <View className="flex flex-row gap-2 p-2 align-middle">
+                {/* Routine name */}
+                <View className="w-2/3">
+                  <Label>Routine Name</Label>
+                  <Input
+                    placeholder="My Favorite Routine"
+                    id="routineName"
+                    value={routine.name}
+                    onChangeText={(routineName) => handleInputChange('name', routineName)}
+                    className={`${errors && errors.routineName ? 'border border-red-500' : ''}`}
+                  />
+                </View>
+                {/* Add exercise button */}
+                <View className="flex w-1/3 justify-end">
+                  <Button onPress={handleAddExercise} className="items-center" variant="outline">
+                    <Text>Add</Text>
+                  </Button>
+                </View>
+              </View>
+
+              {/* row 2*/}
+              <View className="flex flex-row gap-2 p-2 align-middle">
+                <View className="w-full">
+                  <Label>Description</Label>
+                  <Input
+                    placeholder="This will make you stronger"
+                    id="description"
+                    value={routine.description ? routine.description : undefined}
+                    onChangeText={(routineDescription) =>
+                      handleInputChange('description', routineDescription)
+                    }
+                  />
+                </View>
+              </View>
+
+              {/*row 2*/}
+              <View className="mt-2 flex-row gap-2">
+                {/*column 1*/}
+                <View className="flex-1 items-center justify-center">
+                  <Label nativeID="manualRestCheck" htmlFor="manualRestCheck" className="mb-2">
+                    Rest Mode
+                  </Label>
+                  <Switch
+                    id="manualRestCheck"
+                    nativeID="manualRestCheck"
+                    checked={manualRestCheck}
+                    onCheckedChange={onCheckedChange}
+                  />
+                  <Label className="mt-2 text-sm">{manualRestCheck ? 'MANUAL' : 'AUTOMATIC'}</Label>
+                </View>
+
+                {manualRestCheck ? (
+                  <>
+                    {/* column 2 */}
+                    <View className="flex-1 justify-center">
+                      <Button
+                        onPress={handleAddRest}
+                        variant="outline"
+                        className="w-full shadow shadow-foreground/5">
+                        <Text>Add Rest</Text>
+                      </Button>
+                    </View>
+
+                    {/* column 3 */}
+                    <View className="flex-1 justify-center">
+                      <Input
+                        placeholder="180"
+                        value={manualRest}
+                        onChangeText={setManualRest}
+                        keyboardType="numeric"
+                        selectTextOnFocus={true}
+                        className="h-12"
+                      />
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    {/* column 2 */}
+                    <View className="flex-1">
+                      <Label nativeID="setRest" className="mb-1 text-sm">
+                        Set Rest
+                      </Label>
+                      <Input
+                        aria-labelledby="setRest"
+                        value={setRest}
+                        onChangeText={setSetRest}
+                        keyboardType="numeric"
+                        selectTextOnFocus={true}
+                        className="h-12"
+                      />
+                    </View>
+
+                    {/* column 3 */}
+                    <View className="flex-1">
+                      <Label nativeID="restBetweenExercise" className="mb-1 text-sm">
+                        Exercises Rest
+                      </Label>
+                      <Input
+                        aria-labelledby="restBetweenExercise"
+                        value={restBetweenExercise}
+                        onChangeText={setRestBetweenExercise}
+                        keyboardType="numeric"
+                        selectTextOnFocus={true}
+                        className="h-12"
+                      />
+                    </View>
+                  </>
+                )}
+              </View>
+            </View>
           </View>
+
           {exercises.length > 0 ? (
             <DraggableExerciseList data={exercises} onDataChange={setExercises} />
           ) : (
@@ -371,6 +404,7 @@ export default function NewRoutineScreen() {
             </View>
           )}
         </CardContent>
+
         <CardFooter className="flex-col gap-3 pb-0">
           {loading ? (
             <Button disabled>
@@ -386,6 +420,7 @@ export default function NewRoutineScreen() {
             </Button>
           )}
         </CardFooter>
+
         <AddExerciseDialog
           open={openDialog}
           onConfirm={handleConfirmDialog}
