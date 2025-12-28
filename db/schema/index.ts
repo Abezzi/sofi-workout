@@ -7,6 +7,10 @@ import { routine } from './routine';
 import { routine_exercise } from './routine_exercise';
 import { exercise_set } from './exercise_set';
 import { rest_timer } from './rest_timer';
+import { workout } from './workout';
+import { workout_set } from './workout_set';
+import { workout_rest_timer } from './workout_rest_timer';
+import { workout_exercise } from './workout_exercise';
 
 export * from './category';
 export * from './exercise_type';
@@ -15,6 +19,10 @@ export * from './routine';
 export * from './routine_exercise';
 export * from './exercise_set';
 export * from './rest_timer';
+export * from './workout';
+export * from './workout_exercise';
+export * from './workout_set';
+export * from './workout_rest_timer';
 
 export const exerciseRelations = relations(exercise, ({ one }) => ({
   category: one(category, {
@@ -57,5 +65,50 @@ export const restTimerRelations = relations(rest_timer, ({ one }) => ({
   exercise_set: one(exercise_set, {
     fields: [rest_timer.exerciseSetId],
     references: [exercise_set.id],
+  }),
+}));
+
+export const workoutRelations = relations(workout, ({ many, one }) => ({
+  routine: one(routine, {
+    fields: [workout.routineId],
+    references: [routine.id],
+  }),
+  exercises: many(workout_exercise),
+  restTimers: many(workout_rest_timer),
+}));
+
+export const workoutExerciseRelations = relations(workout_exercise, ({ one, many }) => ({
+  workout: one(workout, {
+    fields: [workout_exercise.workoutId],
+    references: [workout.id],
+  }),
+  exercise: one(exercise, {
+    fields: [workout_exercise.exerciseId],
+    references: [exercise.id],
+  }),
+  sets: many(workout_set),
+  restTimers: many(workout_rest_timer),
+}));
+
+export const workoutSetRelations = relations(workout_set, ({ one, many }) => ({
+  workoutExercise: one(workout_exercise, {
+    fields: [workout_set.workoutExerciseId],
+    references: [workout_exercise.id],
+  }),
+  restTimers: many(workout_rest_timer),
+}));
+
+export const workoutRestTimerRelations = relations(workout_rest_timer, ({ one }) => ({
+  workout: one(workout, {
+    fields: [workout_rest_timer.workoutId],
+    references: [workout.id],
+  }),
+  workoutExercise: one(workout_exercise, {
+    fields: [workout_rest_timer.workoutExerciseId],
+    references: [workout_exercise.id],
+  }),
+  workoutSet: one(workout_set, {
+    fields: [workout_rest_timer.workoutSetId],
+    references: [workout_set.id],
   }),
 }));
