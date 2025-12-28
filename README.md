@@ -71,4 +71,6 @@ If this template helps you move faster, consider giving [React Native Reusables]
 
 ## DB Diagram
 
-- [diagram](https://dbdiagram.io/d/68d565aed2b621e422eccbc2) made with dbdiagram.io
+![Database Diagram](db-diagram.png)
+
+[diagram](https://dbdiagram.io/d/68d565aed2b621e422eccbc2) made with dbdiagram.io
