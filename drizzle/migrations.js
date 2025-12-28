@@ -5,6 +5,7 @@ import m0000 from './0000_natural_ultimo.sql';
 import m0001 from './0001_curly_red_ghost.sql';
 import m0002 from './0002_aromatic_leader.sql';
 import m0003 from './0003_ambiguous_the_order.sql';
+import m0004 from './0004_heavy_morph.sql';
 
   export default {
     journal,
@@ -12,7 +13,8 @@ import m0003 from './0003_ambiguous_the_order.sql';
       m0000,
 m0001,
 m0002,
-m0003
+m0003,
+m0004
     }
   }
   
