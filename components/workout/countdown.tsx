@@ -103,7 +103,7 @@ const Countdown = ({
         {isAutomatic && <></>}
         {isWorkoutComplete && (
           <Button variant={'outline'} onPress={onFinish}>
-            <Text className="uppercase">show statistics</Text>
+            <Text className="uppercase">Finish Workout</Text>
           </Button>
         )}
 
