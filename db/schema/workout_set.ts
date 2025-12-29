@@ -8,7 +8,7 @@ export const workout_set = sqliteTable('workout_set', {
     .references(() => workout_exercise.id, { onDelete: 'cascade' }),
   setNumber: integer('set_number'),
   quantity: integer('quantity'),
-  weigth: integer('weigth'),
+  weight: integer('weight'),
 });
 
 export type WorkoutSet = typeof workout_set.$inferSelect;
