@@ -196,9 +196,9 @@ export default function EditRoutineScreen() {
             const restTime =
               isLastSetInExercise && !isLastExercise
                 ? // between exercises -> use exercise rest
-                  exerciseRestSeconds
+                exerciseRestSeconds
                 : // between sets of same exercise -> use set rest
-                  setRestSeconds;
+                setRestSeconds;
 
             if (restTime > 0) {
               const restItem: ExerciseItem = {
