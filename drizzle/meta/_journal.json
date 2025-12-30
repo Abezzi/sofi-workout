@@ -36,6 +36,13 @@
       "when": 1766936332311,
       "tag": "0004_heavy_morph",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1767132587377,
+      "tag": "0005_curly_iron_monger",
+      "breakpoints": true
     }
   ]
 }
