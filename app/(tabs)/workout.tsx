@@ -2,7 +2,7 @@ import Countdown from '@/components/workout/countdown';
 import MediaControl from '@/components/workout/media-control';
 import RoutineDisplay from '@/components/workout/routine-display';
 import TotalProgress from '@/components/workout/total-progress';
-import { useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useNavigation, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useAudioPlayer, AudioModule } from 'expo-audio';
@@ -31,6 +31,7 @@ import countdownSounds from '@/components/workout/countdown-sounds';
 import { useTranslation } from 'react-i18next';
 import { getRoutineById } from '@/db/queries/routine.queries';
 import FullScreenLoader from '@/components/base/full-screen-loader';
+import { PerformedExercise, saveCompletedWorkout } from '@/db/queries/workout.queries';
 
 export default function WorkoutScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -160,9 +161,27 @@ export default function WorkoutScreen() {
     dispatch(nextStepAndStart());
   };
 
-  const handleFinish = () => {
-    // TODO: show analytics when finish
-    console.log('finisheeeeedd');
+  const handleFinish = async () => {
+    // TODO: const { userId } = useAuth();
+    // if (!userId) return
+    try {
+      const workoutId = await saveCompletedWorkout({
+        routineId: selectedRoutine ? Number(selectedRoutine) : null,
+        completedAt: new Date().toISOString(),
+        durationSeconds: totalElapsedSeconds,
+        notes: null,
+        steps,
+        actualRests: [],
+      });
+
+      // TODO: Show success toast
+      // Navigate to workout summary / history
+      router.push('/(tabs)/home');
+      console.log('Workout saved successfully, ID:', workoutId);
+    } catch (error) {
+      console.error('Failed to save completed workout: ', error);
+      // show error toast
+    }
   };
 
   // media control handlers

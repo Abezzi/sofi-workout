@@ -18,7 +18,9 @@ export const workout_rest_timer = sqliteTable('workout_rest_timer', {
   }),
   restTime: integer('rest_time').notNull(),
   type: text('type', { enum: restTimerTypes }).notNull(),
+  isActual: integer('is_actual', { mode: 'boolean' }).notNull().default(false),
 });
 
 export type WorkoutRestTimer = typeof workout_rest_timer.$inferSelect;
+export type WorkoutRestTimerInsert = typeof workout_rest_timer.$inferInsert;
 export default { workout_rest_timer };
