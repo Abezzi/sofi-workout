@@ -109,6 +109,8 @@ export const convertRoutineToSteps = async (
         weight: set.weight,
         color,
         categoryName,
+        exerciseId: exerciseId,
+        exerciseSetNumber: globalSetNumber,
       });
 
       // rest after set
