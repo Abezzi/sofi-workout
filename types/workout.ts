@@ -9,6 +9,9 @@ export type Step = {
   weight: number | null;
   color: string | null;
   categoryName: string | null;
+  // null or undefined for rest or steps that doesn't came from an exercise like amrap, hiit, etc.
+  exerciseId?: number;
+  exerciseSetNumber?: number;
 };
 
 export type ExerciseItem = {
